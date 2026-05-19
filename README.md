@@ -12,7 +12,11 @@ molkkynist/
 ├── css/
 │   └── styles.css
 └── assets/
-    └── .gitkeep
+    ├── .gitkeep
+    └── images/
+        └── logos/
+            ├── molkkynist-logo.png
+            └── molkkynist-title-logo.png
 ```
 
 ## 制作方針
@@ -21,6 +25,7 @@ molkkynist/
 - JavaScript は必要な機能が出たときだけ追加する
 - フレームワークやビルドツールは初期状態では使わない
 - 画像・動画・フォントなどは `assets/` に配置する
+- ロゴ素材は `assets/images/logos/` に配置する
 
 ## 確認方法
 

@@ -79,6 +79,16 @@ CSS ではカスタムプロパティで色を管理します。
 
 画像素材は ChatGPT の Image Gen 2 を使用して作成する方針です。
 
+### ロゴ素材
+
+Molkkynist のロゴ素材は以下を使用します。
+
+- 通常ロゴ: `assets/images/logos/molkkynist-logo.png`
+- タイトルロゴ: `assets/images/logos/molkkynist-title-logo.png`
+
+通常ロゴはヘッダー、フッター、SNS誘導付近などのブランド識別に使用します。
+タイトルロゴはトップページのヒーローや、Molkkynist 名を強く見せたい箇所で使用します。
+
 作成候補:
 
 - 芝生のテクスチャ
@@ -127,7 +137,6 @@ assets/
 
 ## 今後決めること
 
-- ロゴの有無
 - 正式なブランドカラー
 - Image Gen 2 で作る画像の具体的なプロンプト
 - 実際のイベント写真を使用するかどうか

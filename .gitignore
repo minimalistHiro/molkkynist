@@ -1,0 +1,10 @@
+.DS_Store
+Thumbs.db
+
+# エディタ・ローカル設定
+.vscode/
+.idea/
+
+# 一時ファイル
+*.log
+*.tmp

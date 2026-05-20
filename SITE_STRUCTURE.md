@@ -250,6 +250,7 @@ admin/members.html
 - Molkkynistについて
 - モルックとは
 - イベント一覧
+- 活動レポート仮ページ
 - メンバー紹介
 - Instagram DM 導線
 
@@ -258,6 +259,21 @@ admin/members.html
 - Firebase Hosting 対応
 - Firestore からイベント情報を読み込む
 - Firestore から活動レポートを読み込む
+
+## 初期静的サイト実装メモ
+
+2026年5月20日時点の初期実装では、以下の公開ページを静的HTMLとして作成する。
+
+- `index.html`
+- `about.html`
+- `molkky.html`
+- `events.html`
+- `reports.html`
+- `members.html`
+- `contact.html`
+
+イベント、活動レポート、メンバー紹介は、将来 Firestore から読み込む前提で `article` カード単位の構造を基本にする。
+Instagram DM 導線は全ページに配置し、正式URLが確定するまでは仮リンクとして扱う。
 
 ### 第3段階
 

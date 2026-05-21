@@ -1,0 +1,95 @@
+rules_version = '2';
+
+// Molkkynist Firestore セキュリティルール
+//
+// 方針:
+// - 公開コレクション (events / reports / members / siteSettings) は読み取りのみ公開
+// - 書き込み (作成・更新・削除) は管理者 UID のみ
+// - contactSubmissions は一般ユーザーから create のみ可。読み・更新・削除は管理者のみ
+// - mail コレクション (Trigger Email Extension が監視) は一般ユーザー読み書き禁止。
+//   Cloud Functions (Admin SDK) からのみ書き込まれる
+//
+// 運用メモ:
+// - 下記 ADMIN_UID は石井さんの Firebase Authentication UID に差し替えること。
+//   custom claim (admin == true) に切り替える場合は isAdmin() を書き換える。
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.uid == 'YOUR_ADMIN_UID';
+    }
+
+    function isPublishedDoc() {
+      return resource.data.isPublished == true;
+    }
+
+    // 公開コレクション ----------------------------------------------------
+
+    match /events/{id} {
+      allow read: if isPublishedDoc() || isAdmin();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /reports/{id} {
+      allow read: if isPublishedDoc() || isAdmin();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /members/{id} {
+      allow read: if isPublishedDoc() || isAdmin();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /siteSettings/{id} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // お問い合わせ送信 ----------------------------------------------------
+    //
+    // - 一般ユーザーは create のみ
+    // - フィールドの型・件数を簡易バリデーション
+    // - createdAt はサーバータイムスタンプ必須
+    // - 読み取り・更新・削除は管理者のみ
+
+    match /contactSubmissions/{id} {
+      allow read, update, delete: if isAdmin();
+      allow create: if
+        request.resource.data.keys().hasOnly([
+          'name', 'email', 'phone', 'inquiryType',
+          'selectedEventIds', 'message', 'createdAt'
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 100
+        && request.resource.data.email is string
+        && request.resource.data.email.size() > 0
+        && request.resource.data.email.size() <= 200
+        && request.resource.data.email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$')
+        && request.resource.data.phone is string
+        && request.resource.data.phone.size() <= 30
+        && request.resource.data.inquiryType in ['participate', 'event', 'media', 'other']
+        && request.resource.data.selectedEventIds is list
+        && request.resource.data.selectedEventIds.size() <= 20
+        && request.resource.data.message is string
+        && request.resource.data.message.size() <= 2000
+        && request.resource.data.createdAt == request.time;
+    }
+
+    // Trigger Email Extension の管理コレクション ---------------------------
+    //
+    // Cloud Functions の Admin SDK からのみ書き込まれる想定。
+    // 一般ユーザーには一切公開しない（任意宛先メール送信の悪用防止）。
+
+    match /mail/{id} {
+      allow read, write: if false;
+    }
+
+    // 上記以外のコレクションへのアクセスは原則拒否。
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

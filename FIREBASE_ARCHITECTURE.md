@@ -20,10 +20,11 @@ Molkkynist のサイトでは、静的Webサイトを基本にしつつ、イベ
 
 用途:
 
-- イベント情報の保存
+- イベント情報の保存（公開サイトのお問い合わせフォームでの参加日程選択肢としても利用）
 - 活動レポートの保存
 - メンバー情報の保存
 - サイト基本設定の保存
+- お問い合わせフォームの送信内容の保存
 
 ### Firebase Authentication
 
@@ -60,6 +61,7 @@ events.html
 reports.html
 members.html
 contact.html
+privacy.html
 ```
 
 管理画面:
@@ -83,7 +85,8 @@ admin/members.html
 守るべきこと:
 
 - 一般ユーザーは公開データのみ閲覧できる
-- 一般ユーザーは Firestore に書き込みできない
+- 一般ユーザーは `contactSubmissions` への新規作成のみ可能（読み取り・更新・削除は不可）
+- 上記以外のコレクションには一般ユーザーは書き込みできない
 - 一般ユーザーは Storage にアップロードできない
 - 石井さんだけが管理データを書き換えられる
 - 管理画面側の表示制御だけに頼らない
@@ -180,6 +183,22 @@ subCopy
 updatedAt
 ```
 
+### contactSubmissions
+
+公開サイトのお問い合わせフォームから送信された内容を保存します。
+
+主なフィールド:
+
+```text
+name
+email
+phone
+inquiryType   # 参加希望 / イベント問い合わせ / メディア取材 / その他
+selectedEventIds   # 参加希望時のみ、events への参照を配列で保持
+message
+createdAt
+```
+
 ## 公開データの考え方
 
 公開サイトでは、`isPublished` が `true` のデータだけを表示します。
@@ -192,13 +211,32 @@ Firebase を使用する画面では JavaScript が必要になります。
 
 使用箇所:
 
-- 公開サイトで Firestore からイベント情報を読み込む
+- 公開サイトで Firestore からイベント情報を読み込む（参加費 `events.fee` のトップページ表示を含む）
 - 公開サイトで Firestore から活動レポートを読み込む
+- 公開サイトのお問い合わせフォームで Firestore の `events` を参照し、参加日程選択肢として表示する
+- 公開サイトのお問い合わせフォームから `contactSubmissions` に書き込む
+- お問い合わせフォーム送信時に、ユーザーへ受付完了の自動返信メールを送信する（Cloud Functions + Firebase Extensions の Trigger Email、または外部SMTP連携を想定）
 - 管理画面でログイン状態を判定する
 - 管理画面でデータを追加・編集する
 - Storage に画像をアップロードする
 
 静的な本文やデザインは HTML / CSS を基本にします。
+
+## クライアント側の実装（2026-05-21 追加）
+
+`contact.html` で読み込むモジュールスクリプトは下記の構成です。
+
+- `js/firebase-config.js`
+  - Firebase コンソールで取得した設定値を貼り付けるテンプレート
+  - 値が `YOUR_*` プレースホルダーのままの場合、フォーム送信は無効化され Instagram DM 案内へフォールバック
+  - エクスポートする `isFirebaseConfigured(config)` で起動時に判定
+- `js/contact-form.js`
+  - Firebase JS SDK v10 のモジュラー API を `https://www.gstatic.com/firebasejs/<ver>/firebase-app.js` / `firebase-firestore.js` から動的 import
+  - 用件区分が「参加希望」のとき `events` コレクション（`isPublished == true` かつ `eventDate >= 今日`）を `eventDate asc` で取得しトグル表示
+  - 送信時は `contactSubmissions` コレクションへ `addDoc`（`createdAt` は `serverTimestamp()`）
+  - プライバシーポリシー同意チェックと、参加希望時の日程選択（最低1件）をクライアント側で検証
+
+Firebase コンソールで本番プロジェクトを作成したら、`js/firebase-config.js` の値を差し替え、`contactSubmissions` への `create` のみを許可するセキュリティルールを適用してください。
 
 ## 初期段階での注意点
 
@@ -216,3 +254,6 @@ Firebase を使用する画面では JavaScript が必要になります。
 - セキュリティルール
 - 画像アップロードのサイズ制限
 - Firebase Hosting の公開ドメイン
+- 自動返信メールの実装方式（Firebase Extensions の Trigger Email / Cloud Functions + 外部SMTP / その他）
+- 自動返信メールの送信元アドレスと文面
+- DM 経由の申込時にユーザーへ受付メールを送る運用フロー（管理画面から手動送信するか）

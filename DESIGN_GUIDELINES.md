@@ -218,6 +218,7 @@ Molkkynist のロゴ素材は以下を使用します。
 - 屋外でモルックを楽しむコミュニティのイメージ
 - メンバー紹介用の柔らかい背景
 - イベント告知用の汎用ビジュアル
+- OGP / Twitter Card 用のシェア画像（推奨サイズ 1200x630px、Molkkynist ロゴ＋キャッチコピーを構成。確定までは暫定で `assets/images/logos/molkkynist-logo.png` を流用）
 
 配置場所:
 

@@ -3,9 +3,10 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Molkkynistへの参加希望、見学、協力相談はInstagram DMからお問い合わせください。">
+    <meta name="description" content="Molkkynistへの参加希望、見学、協力相談は、お問い合わせフォームまたはInstagram DMからご連絡ください。">
     <title>参加・お問い合わせ | Molkkynist</title>
     <link rel="stylesheet" href="css/styles.css">
+    <script type="module" src="js/contact-form.js"></script>
   </head>
   <body>
     <a class="skip-link" href="#main">本文へ移動</a>
@@ -30,9 +31,10 @@
       <section class="page-hero" aria-labelledby="page-title">
         <div class="page-hero__inner">
           <p class="eyebrow">Contact</p>
-          <h1 id="page-title">参加希望やお問い合わせはInstagram DMへ。</h1>
+          <h1 id="page-title">参加希望やお問い合わせはこちらから。</h1>
           <p>
-            予約フォームやログイン機能は設けず、参加希望、見学希望、協力のご相談はInstagram DMに集約します。
+            参加希望、見学希望、協力のご相談は、サイト内のお問い合わせフォーム または Instagram DM のどちらからでも受け付けます。
+            お返事しやすい方法でお気軽にご連絡ください。
           </p>
         </div>
       </section>
@@ -51,8 +53,8 @@
             </article>
             <article class="step-card">
               <span class="step-card__number">2</span>
-              <h3>DMで相談</h3>
-              <p>参加希望、人数、気になることをInstagram DMで送ってください。</p>
+              <h3>申し込む</h3>
+              <p>お問い合わせフォーム または Instagram DM から連絡します。フォームから送信すると受付完了メールが自動で届きます。</p>
             </article>
             <article class="step-card">
               <span class="step-card__number">3</span>
@@ -63,11 +65,91 @@
         </div>
       </section>
 
-      <section id="instagram-dm" class="section section--muted" aria-labelledby="dm-title">
+      <section id="contact-form" class="section section--muted" aria-labelledby="form-title">
+        <div class="section__inner">
+          <div class="section-heading">
+            <p class="section__label">Form</p>
+            <h2 id="form-title">お問い合わせフォーム</h2>
+            <p class="section-lead">
+              下記フォームから直接ご連絡いただけます。送信後、登録いただいたメールアドレスへ受付完了メールを自動でお送りします。
+            </p>
+          </div>
+
+          <form class="contact-form" data-form="contact" novalidate>
+            <div class="form-row">
+              <label for="contact-name">
+                <span class="form-label">お名前 <span class="form-required">必須</span></span>
+                <input id="contact-name" name="name" type="text" autocomplete="name" required>
+              </label>
+              <label for="contact-email">
+                <span class="form-label">メールアドレス <span class="form-required">必須</span></span>
+                <input id="contact-email" name="email" type="email" autocomplete="email" required>
+              </label>
+            </div>
+
+            <label for="contact-phone">
+              <span class="form-label">電話番号 <span class="form-optional">任意</span></span>
+              <input id="contact-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel">
+            </label>
+
+            <fieldset class="form-fieldset">
+              <legend class="form-label">用件区分 <span class="form-required">必須</span></legend>
+              <div class="radio-group">
+                <label class="radio-option">
+                  <input type="radio" name="inquiryType" value="participate" required>
+                  <span>参加希望</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="inquiryType" value="event-question">
+                  <span>イベント問い合わせ</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="inquiryType" value="media">
+                  <span>メディア取材</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="inquiryType" value="other">
+                  <span>その他</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <fieldset class="form-fieldset form-events" data-role="event-select" hidden>
+              <legend class="form-label">参加希望の日程 <span class="form-required">必須</span></legend>
+              <p class="form-help">複数選択できます。表示される日程は管理画面で公開中の開催予定です。</p>
+              <div class="event-toggle-list" data-role="event-list"></div>
+              <p class="form-events__empty" data-role="event-empty" hidden></p>
+            </fieldset>
+
+            <label for="contact-message">
+              <span class="form-label">一言・ご質問 <span class="form-optional">任意</span></span>
+              <textarea id="contact-message" name="message" rows="5" placeholder="ご質問、見学のご相談、その他お気軽にどうぞ。"></textarea>
+            </label>
+
+            <label class="checkbox-line" for="privacy-agree">
+              <input id="privacy-agree" type="checkbox" name="privacyAgree" required>
+              <span>
+                <a href="privacy.html" target="_blank" rel="noopener">プライバシーポリシー</a> に同意します。
+              </span>
+            </label>
+
+            <p class="form-status" data-role="status" hidden></p>
+
+            <div class="form-actions">
+              <button type="submit" class="button button--primary">フォームを送信する</button>
+              <p class="form-help form-help--small">
+                送信が難しい場合は、ページ下部の Instagram DM からもご連絡いただけます。
+              </p>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section id="instagram-dm" class="section" aria-labelledby="dm-title">
         <div class="section__inner contact-panel">
           <div>
             <p class="section__label">Instagram DM</p>
-            <h2 id="dm-title">DMで受け付ける内容</h2>
+            <h2 id="dm-title">DMでもお気軽にご相談ください</h2>
             <ul class="check-list">
               <li>イベントへの参加希望</li>
               <li>見学希望や初参加前の相談</li>
@@ -84,7 +166,7 @@
         </div>
       </section>
 
-      <section class="section" aria-labelledby="partners-title">
+      <section class="section section--muted" aria-labelledby="partners-title">
         <div class="section__inner split-layout">
           <div>
             <p class="section__label">Partners</p>
@@ -95,7 +177,7 @@
               活動頻度、イベントレポート、運営メンバーの情報を通じて、継続性と信頼感が伝わるサイトとして整備していきます。
             </p>
             <p>
-              協力や掲載に関する相談も、まずはInstagram DMからご連絡ください。正式な問い合わせ窓口が決まり次第、このページに反映します。
+              協力や掲載に関するご相談も、上記のお問い合わせフォーム または Instagram DM からご連絡ください。
             </p>
           </div>
         </div>
@@ -114,6 +196,7 @@
           <a href="reports.html">活動レポート</a>
           <a href="members.html">メンバー</a>
           <a href="contact.html#instagram-dm">Instagram DM</a>
+          <a href="privacy.html">プライバシーポリシー</a>
         </nav>
         <small>&copy; 2026 Molkkynist</small>
       </div>

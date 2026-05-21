@@ -105,6 +105,7 @@ Molkkynist のサイトは、最初から全機能を作り込まず、公開に
 - 読み込み中やデータ未登録時の表示作成
 - お問い合わせフォームの設置（Firestore `events` から参加日程候補を取得しトグル選択、送信内容を `contactSubmissions` に書き込み）
 - プライバシーポリシーページの整備（フォーム公開の前提）
+- お問い合わせフォーム送信時の自動返信メール（Cloud Functions + Firebase Extensions「Trigger Email from Firestore」。実装ファイルは `functions/index.js`、Extension 設定は `extensions/README.md` を参照。SMTP プロバイダ選定は R-7）
 
 成果物:
 
@@ -127,6 +128,7 @@ Molkkynist のサイトは、最初から全機能を作り込まず、公開に
 - 活動レポート管理機能
 - メンバー管理機能
 - 画像アップロード機能
+- お問い合わせ管理機能（`contactSubmissions` の一覧・詳細表示、`mail` の `delivery.state` 確認）
 
 成果物:
 
@@ -134,6 +136,7 @@ Molkkynist のサイトは、最初から全機能を作り込まず、公開に
 - イベント追加・編集機能
 - レポート追加・編集機能
 - メンバー編集機能
+- お問い合わせ一覧と自動返信メール送信状況の確認画面
 
 ## 第6段階: 公開前確認
 

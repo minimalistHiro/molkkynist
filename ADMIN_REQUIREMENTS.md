@@ -50,6 +50,7 @@ admin/index.html
 - 活動レポート管理
 - メンバー管理
 - サイト基本設定
+- お問い合わせ管理（送信内容の閲覧・自動返信メールの送信状況確認）
 
 ## イベント管理要件
 
@@ -133,6 +134,33 @@ admin/members.html
 - 写真または画像
 - 表示順
 - 公開状態
+
+## お問い合わせ管理要件
+
+想定画面:
+
+```text
+admin/contact-submissions.html
+```
+
+できること:
+
+- 公開サイトのお問い合わせフォーム経由で `contactSubmissions` に保存された送信内容を一覧表示する
+- 送信日時の降順で並べる
+- 1件ずつ詳細（名前 / メール / 電話 / 用件区分 / 参加希望日程 / 本文）を確認できる
+- 各送信に対する自動返信メール（`mail` コレクション）の `delivery.state`（`SUCCESS` / `ERROR` / `PROCESSING` 等）と、エラー時のメッセージを表示する
+- 必要に応じて手動でステータス（対応中・対応済み）を管理画面側に持たせる（将来検討）
+
+入力項目（管理側）:
+
+- 対応ステータス（未対応 / 対応中 / 対応済み）※将来追加
+- 対応メモ ※将来追加
+
+備考:
+
+- 自動返信メールの文面（件名・本文・HTML）は管理画面では編集しない。コード `functions/index.js` の `renderTextBody()` / `renderHtmlBody()` で管理する。文面方針は `CONTENT_GUIDELINES.md`「自動返信メール文面」を参照。
+- DM 経由のお問い合わせはこの画面には記録されない（Instagram 側で完結）。受領通知の運用は R-8 で検討中。
+- セキュリティルール (`firestore.rules`) で `contactSubmissions` は管理者のみ read/update/delete 可。`mail` コレクションは管理画面からも参照不可（Cloud Functions の Admin SDK のみアクセス）。送信状況の表示はサーバーサイド経由（Cloud Functions の callable 関数等）で実装する想定。
 
 ## サイト基本設定要件
 

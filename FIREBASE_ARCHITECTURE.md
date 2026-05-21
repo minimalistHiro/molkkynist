@@ -238,6 +238,41 @@ Firebase を使用する画面では JavaScript が必要になります。
 
 Firebase コンソールで本番プロジェクトを作成したら、`js/firebase-config.js` の値を差し替え、`contactSubmissions` への `create` のみを許可するセキュリティルールを適用してください。
 
+## サーバーサイド実装（2026-05-21 追加）
+
+`functions/` ディレクトリに Cloud Functions（Node.js 20 / Firebase Functions v2）を新設しました。
+
+- エントリポイント: `functions/index.js`
+- リージョン: `asia-northeast1`
+- トリガー: `contactSubmissions/{submissionId}` の `onDocumentCreated`
+- 役割: 送信者宛の自動返信メールを `mail` コレクション（Firebase Extensions「Trigger Email from Firestore」が監視）へ Admin SDK 経由で書き込む
+
+メール本文（テキスト/HTML）と件名は `functions/index.js` 内で生成しており、文面方針は `CONTENT_GUIDELINES.md`「自動返信メール文面」に記載しています。
+
+### Trigger Email Extension
+
+Extension ID: `firebase/firestore-send-email`
+
+導入手順とサンプル設定値は `extensions/README.md` および `extensions/firestore-send-email.env.example` に記載しています。
+
+主要ポイント:
+
+- 監視コレクション (`MAIL_COLLECTION`) は `mail` で固定（Cloud Functions と整合）。
+- `SMTP_CONNECTION_URI` には利用する SMTP プロバイダの URI（SendGrid / Mailgun / Gmail SMTP 等）を設定する。
+- `DEFAULT_FROM` は表示名つきで `Molkkynist <noreply@...>` を想定。
+- 各ドキュメントの `replyTo` フィールド（Cloud Functions が `info@groumapapp.com` を付与）が、`DEFAULT_REPLY_TO` よりも優先される。
+
+### Firebase 設定ファイル一式
+
+ルート直下に下記を追加しました（2026-05-21）。
+
+- `firebase.json` … Hosting / Firestore / Functions / Emulator suite の構成
+- `.firebaserc` … プロジェクト ID プレースホルダー（実プロジェクト ID に差し替え必要）
+- `firestore.rules` … 公開コレクション読み取り公開、`contactSubmissions` は create 限定（型・件数バリデーション付き）、`mail` は一般ユーザー全面禁止
+- `firestore.indexes.json` … `events` (`isPublished` + `eventDate` asc) と `reports` (`isPublished` + `eventDate` desc) の複合インデックス
+
+セキュリティルール内の `YOUR_ADMIN_UID` は、石井さんの Firebase Authentication UID が確定したタイミングで差し替えてください。
+
 ## 初期段階での注意点
 
 - Firebase 設定情報を公開しても問題ないが、セキュリティルールを必ず適切に設定する
@@ -249,11 +284,10 @@ Firebase コンソールで本番プロジェクトを作成したら、`js/fire
 
 - Firebase プロジェクト名
 - 石井さんのログイン方式
-- 管理者 UID
+- 管理者 UID（決定次第 `firestore.rules` の `YOUR_ADMIN_UID` を差し替え）
 - Firestore の正式なデータ構造
-- セキュリティルール
 - 画像アップロードのサイズ制限
 - Firebase Hosting の公開ドメイン
-- 自動返信メールの実装方式（Firebase Extensions の Trigger Email / Cloud Functions + 外部SMTP / その他）
-- 自動返信メールの送信元アドレスと文面
+- 自動返信メール用 SMTP プロバイダの選定（SendGrid / Mailgun / Resend / Gmail SMTP / 他）
+- 自動返信メールの送信元アドレス（`DEFAULT_FROM`、SPF/DKIM の DNS 設定対象）
 - DM 経由の申込時にユーザーへ受付メールを送る運用フロー（管理画面から手動送信するか）

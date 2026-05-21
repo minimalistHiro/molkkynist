@@ -12,6 +12,7 @@
 //   文面の運用方針は `CONTENT_GUIDELINES.md`「自動返信メール文面」セクションを参照。
 
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
+const { HttpsError, onCall } = require("firebase-functions/v2/https");
 const { setGlobalOptions } = require("firebase-functions/v2");
 const { initializeApp } = require("firebase-admin/app");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
@@ -33,6 +34,7 @@ setGlobalOptions({
 const REPLY_TO_EMAIL = "info@groumapapp.com";
 const INSTAGRAM_DM_URL = "https://www.instagram.com/molkkynist/";
 const SITE_URL = "https://molkkynist.web.app/";
+const ADMIN_UID = process.env.ADMIN_UID || "YOUR_ADMIN_UID";
 
 const INQUIRY_TYPE_LABELS = {
   participate: "参加希望",
@@ -95,6 +97,54 @@ exports.sendAutoReplyOnContactCreate = onDocumentCreated(
   }
 );
 
+exports.getMailDeliveryStates = onCall(async (request) => {
+  assertAdmin(request);
+
+  const submissionIds = Array.isArray(request.data?.submissionIds)
+    ? request.data.submissionIds.map((id) => String(id)).filter(Boolean).slice(0, 50)
+    : [];
+
+  if (submissionIds.length === 0) {
+    return { states: {} };
+  }
+
+  const db = getFirestore();
+  const entries = await Promise.all(
+    submissionIds.map(async (submissionId) => {
+      const submissionRef = `contactSubmissions/${submissionId}`;
+      const snapshot = await db
+        .collection("mail")
+        .where("submissionRef", "==", submissionRef)
+        .limit(1)
+        .get();
+
+      if (snapshot.empty) {
+        return [
+          submissionId,
+          {
+            state: "NOT_CREATED",
+            error: "",
+            updatedAt: null,
+          },
+        ];
+      }
+
+      const mail = snapshot.docs[0].data() ?? {};
+      const delivery = mail.delivery ?? {};
+      return [
+        submissionId,
+        {
+          state: delivery.state || "PROCESSING",
+          error: delivery.error || delivery.errorMessage || "",
+          updatedAt: formatCallableDate(delivery.endTime || delivery.updateTime || mail.createdAt),
+        },
+      ];
+    })
+  );
+
+  return { states: Object.fromEntries(entries) };
+});
+
 // ---------------------------------------------------------------------------
 // 補助関数
 // ---------------------------------------------------------------------------
@@ -142,6 +192,29 @@ function formatEventDate(value) {
     }).format(date);
   } catch (_err) {
     return "日程未定";
+  }
+}
+
+function assertAdmin(request) {
+  if (!ADMIN_UID || ADMIN_UID.startsWith("YOUR_")) {
+    throw new HttpsError(
+      "failed-precondition",
+      "ADMIN_UID が未設定です。Cloud Functions の環境変数へ管理者UIDを設定してください。"
+    );
+  }
+  if (!request.auth || request.auth.uid !== ADMIN_UID) {
+    throw new HttpsError("permission-denied", "管理者のみ利用できます。");
+  }
+}
+
+function formatCallableDate(value) {
+  if (!value) return null;
+  try {
+    const date = typeof value.toDate === "function" ? value.toDate() : new Date(value);
+    if (Number.isNaN(date.getTime())) return null;
+    return date.toISOString();
+  } catch (_err) {
+    return null;
   }
 }
 

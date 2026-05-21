@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <title>お問い合わせ管理 | Molkkynist</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <script type="module" src="../js/admin-contact-submissions.js"></script>
+  </head>
+  <body class="admin-page">
+    <header class="admin-header">
+      <a class="brand" href="index.html" aria-label="管理ダッシュボード">
+        <img class="brand__mark" src="../assets/images/logos/molkkynist-logo.png" alt="" width="48" height="48">
+        <span class="brand__name">Molkkynist Admin</span>
+      </a>
+      <nav class="admin-nav" aria-label="管理画面ナビゲーション">
+        <a href="index.html">ダッシュボード</a>
+        <a href="events.html">イベント管理</a>
+        <button class="button button--secondary" type="button" data-admin-logout>ログアウト</button>
+      </nav>
+    </header>
+    <main class="admin-shell">
+      <section class="admin-heading" aria-labelledby="contact-admin-title">
+        <p class="section__label">Contact</p>
+        <h1 id="contact-admin-title">お問い合わせ管理</h1>
+        <p>公開サイトのお問い合わせフォームから届いた内容を確認します。自動返信メールの送信状態はCloud Functions経由で取得します。</p>
+        <p class="form-status" data-admin-status hidden></p>
+      </section>
+
+      <section class="admin-layout admin-layout--contact" aria-label="お問い合わせ管理エリア">
+        <div class="admin-card">
+          <h2>送信一覧</h2>
+          <div class="admin-contact-list" data-admin-contact-list>
+            <p class="admin-empty">お問い合わせを読み込んでいます。</p>
+          </div>
+        </div>
+        <article class="admin-card admin-contact-detail" data-admin-contact-detail>
+          <p class="admin-empty">左の一覧からお問い合わせを選択してください。</p>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

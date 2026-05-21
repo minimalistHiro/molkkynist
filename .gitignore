@@ -8,3 +8,7 @@ Thumbs.db
 # 一時ファイル
 *.log
 *.tmp
+
+# Firebase / 依存関係
+.firebase/
+node_modules/

@@ -32,7 +32,7 @@
     - OGP: `og:title` / `og:description` / `og:url` / `og:image` / `og:type` / `og:site_name` / `og:locale`
     - Twitter Card: `twitter:card`（summary）/ `twitter:title` / `twitter:description` / `twitter:image`
     - `<link rel="canonical">`
-  - 公開ドメインは未確定のため、暫定で `https://molkkynist.web.app/` を採用し、`FIREBASE_ARCHITECTURE.md`「今後決めること」のドメイン確定時に差し替える前提で進める。
+  - 公開ドメインは `https://molkkynist-a0abd.web.app/` に確定済み。
   - `og:image` は既存の `assets/images/logos/molkkynist-logo.png` を暫定使用。Twitter Card は正方形ロゴでも崩れない `summary` を採用。
   - `index.html` のみに JSON-LD（Organization schema）を追加し、コミュニティとしての構造化データを提供する。
 - 検証:
@@ -72,5 +72,5 @@ cd /Users/kanekohiroki/Desktop/molkkynist && python3 -m http.server 8000
 
 ### 残課題（仕様確定後に対応）
 
-- 公開ドメインが確定したら `https://molkkynist.web.app/` を全ファイルで一括置換（FIREBASE_ARCHITECTURE.md「今後決めること」参照）
+- Firebase Hosting の公開ドメインは `https://molkkynist-a0abd.web.app/` に確定・反映済み
 - OGP 専用画像（1200x630px、ロゴ＋キャッチコピー）が用意できたら `og:image` / `twitter:image` を差し替え、`twitter:card` を `summary_large_image` に変更

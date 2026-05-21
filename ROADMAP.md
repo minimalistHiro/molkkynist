@@ -38,7 +38,7 @@ Molkkynist のサイトは、最初から全機能を作り込まず、公開に
 - Instagram DM 導線は全ページに仮リンクとして配置し、正式URL確定後に差し替える。
 - 2026年5月20日の石井さんとの打ち合わせで、お問い合わせ動線を「Instagram DM + サイト内お問い合わせフォーム併用」に確定。トップページに「次回イベントカレンダー」「協力団体・スポンサー紹介」セクションを追加する方針を合意（詳細は `meeting_notes/2026-05-20.md`）。
 - 2026年5月21日に R-1 / R-2 / R-5 を決定。お問い合わせフォームは Googleフォームではなく Firebase 連携の独自フォームに切り替え（必須: 名前・メール／任意: 電話番号／用件区分4種／参加希望時は Firestore `events` から日程取得しトグル選択）。協力団体・スポンサーはトップ下部にロゴ並べ表示（参考: モルックマニアのパートナー募集）。現時点の掲載対象はココシバのみ。モルックルール記事のSEOブログ化は見送り。
-- 2026年5月21日に E-1（SEO 基本対策）を実装。全公開8ページ（`index` / `about` / `molkky` / `events` / `reports` / `members` / `contact` / `privacy`）に `meta name="keywords"`、`link rel="canonical"`、OGP（`og:type` / `og:site_name` / `og:locale` / `og:title` / `og:description` / `og:url` / `og:image`）、Twitter Card（`twitter:card=summary` / `title` / `description` / `image`）を追加。`index.html` のみ JSON-LD（Organization スキーマ）を追加。公開ドメインは暫定で `https://molkkynist.web.app/`、OGP 画像は暫定でロゴ画像を採用（Firebase Hosting 公開ドメイン確定／OGP 専用画像作成時に差し替え）。
+- 2026年5月21日に E-1（SEO 基本対策）を実装。全公開8ページ（`index` / `about` / `molkky` / `events` / `reports` / `members` / `contact` / `privacy`）に `meta name="keywords"`、`link rel="canonical"`、OGP（`og:type` / `og:site_name` / `og:locale` / `og:title` / `og:description` / `og:url` / `og:image`）、Twitter Card（`twitter:card=summary` / `title` / `description` / `image`）を追加。`index.html` のみ JSON-LD（Organization スキーマ）を追加。公開ドメインは `https://molkkynist-a0abd.web.app/` に確定済み。OGP 画像は暫定でロゴ画像を採用（OGP 専用画像作成時に差し替え）。
 - 試作版（見た目中心）を1週間目処で作成し、リンクをLINEで石井さんに共有予定。
 - 次回ミーティング: 2026年5月23日（土）21:00。AP関連の確認とサイト試作版の共有を予定。
 - サイト試作版の宣伝機会: 2026年6月7日のスローマーケット（ココシバ）、2026年6月13日のモルクッキング。
@@ -144,6 +144,8 @@ Molkkynist のサイトは、最初から全機能を作り込まず、公開に
 - 2026年5月21日に初期管理画面を実装。`admin/login.html`、`admin/index.html`、`admin/events.html`、`admin/contact-submissions.html` を追加し、Firebase Authentication のメールアドレス + パスワード方式、管理者UID判定、イベント追加・編集・公開切替、お問い合わせ一覧・詳細表示、自動返信メール送信状態確認を実装。
 - 管理画面共通JSとして `js/admin-auth.js`、ログイン制御 `js/admin-login.js`、イベント管理 `js/admin-events.js`、お問い合わせ管理 `js/admin-contact-submissions.js` を追加。
 - `mail` コレクションは管理画面から直接読まず、Cloud Functions callable `getMailDeliveryStates` で `delivery.state` を取得する構成にした。Functions 環境変数 `ADMIN_UID` と `firestore.rules` / `js/firebase-config.js` の `YOUR_ADMIN_UID` は本番UID確定後に差し替える。
+- 2026年5月21日に Firebase プロジェクト `molkkynist-a0abd` と連携。Webアプリ `Molkkynist` を作成し、`js/firebase-config.js` へSDK設定値を反映。Firebase Hosting は `https://molkkynist-a0abd.web.app` へデプロイ済み。Firestore default データベース、Security Rules、Indexes もデプロイ済み。
+- Firestore は `asia-northeast1`（東京）で再作成済み。Cloud Functions は `sendAutoReplyOnContactCreate` と `getMailDeliveryStates` を `asia-northeast1` にデプロイ済み。Authentication の石井さん用ユーザー作成、管理者UID反映、Trigger Email Extension / SMTP 設定は残作業。
 - 活動レポート管理、メンバー管理、サイト基本設定、Storage画像アップロードは未実装。
 
 ## 第6段階: 公開前確認

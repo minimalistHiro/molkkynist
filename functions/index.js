@@ -33,7 +33,7 @@ setGlobalOptions({
 // 送信元アドレス（From）は Trigger Email Extension の `DEFAULT_FROM` で設定する。
 const REPLY_TO_EMAIL = "info@groumapapp.com";
 const INSTAGRAM_DM_URL = "https://www.instagram.com/molkkynist/";
-const SITE_URL = "https://molkkynist.web.app/";
+const SITE_URL = "https://molkkynist-a0abd.web.app/";
 const ADMIN_UID = process.env.ADMIN_UID || "YOUR_ADMIN_UID";
 
 const INQUIRY_TYPE_LABELS = {

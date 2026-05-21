@@ -5,12 +5,13 @@
 // 参考: https://firebase.google.com/docs/web/setup
 
 export const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: "AIzaSyDLR5xSADk851wPQg00q1D3ZmsRoROjmDA",
+  authDomain: "molkkynist-a0abd.firebaseapp.com",
+  projectId: "molkkynist-a0abd",
+  storageBucket: "molkkynist-a0abd.firebasestorage.app",
+  messagingSenderId: "264727261204",
+  appId: "1:264727261204:web:95572c98c3169b0fbf3701",
+  measurementId: "G-HWNQ9TYD0K",
 };
 
 export const adminConfig = {

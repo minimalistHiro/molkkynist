@@ -300,11 +300,23 @@ Extension ID: `firebase/firestore-send-email`
 ルート直下に下記を追加しました（2026-05-21）。
 
 - `firebase.json` … Hosting / Firestore / Functions / Emulator suite の構成
-- `.firebaserc` … プロジェクト ID プレースホルダー（実プロジェクト ID に差し替え必要）
+- `.firebaserc` … Firebase プロジェクト `molkkynist-a0abd` を default に設定済み
 - `firestore.rules` … 公開コレクション読み取り公開、`contactSubmissions` は create 限定（型・件数バリデーション付き）、`mail` は一般ユーザー全面禁止
 - `firestore.indexes.json` … `events` (`isPublished` + `eventDate` asc) と `reports` (`isPublished` + `eventDate` desc) の複合インデックス
 
 セキュリティルール内の `YOUR_ADMIN_UID` は、石井さんの Firebase Authentication UID が確定したタイミングで差し替えてください。
+
+### Firebase 構築状況（2026-05-21）
+
+- Firebase プロジェクト: `molkkynist-a0abd`
+- Webアプリ: `Molkkynist` を作成済み
+- 公開URL: `https://molkkynist-a0abd.web.app`
+- `js/firebase-config.js`: Web SDK 設定値を反映済み
+- Firebase Hosting: デプロイ済み
+- Firestore: default データベースを `asia-northeast1`（東京）で作成済み
+- Firestore Rules / Indexes: デプロイ済み
+- Cloud Functions: `asia-northeast1` にデプロイ済み（`sendAutoReplyOnContactCreate` / `getMailDeliveryStates`）
+- Firebase Authentication: 石井さん用ユーザー作成と管理者UID反映が未完了
 
 ## 初期段階での注意点
 
@@ -315,13 +327,11 @@ Extension ID: `firebase/firestore-send-email`
 
 ## 今後決めること
 
-- Firebase プロジェクト名
-- 石井さんのログイン方式
+- 石井さんの Firebase Authentication ユーザー
 - 管理者 UID（決定次第 `firestore.rules` の `YOUR_ADMIN_UID` を差し替え）
 - Cloud Functions 環境変数 `ADMIN_UID`（`getMailDeliveryStates` の管理者判定用）
 - Firestore の正式なデータ構造
 - 画像アップロードのサイズ制限
-- Firebase Hosting の公開ドメイン（確定時に各公開ページの `<link rel="canonical">`・OGP `og:url` / `og:image`・Twitter Card 用 URL を暫定値 `https://molkkynist.web.app/` から一括差し替え）
 - 自動返信メール用 SMTP プロバイダの選定（SendGrid / Mailgun / Resend / Gmail SMTP / 他）
 - 自動返信メールの送信元アドレス（`DEFAULT_FROM`、SPF/DKIM の DNS 設定対象）
 - DM 経由の申込時にユーザーへ受付メールを送る運用フロー（管理画面から手動送信するか）

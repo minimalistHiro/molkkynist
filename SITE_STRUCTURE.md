@@ -169,6 +169,9 @@ contact.html
 
 管理画面は一般ユーザー向けのナビゲーションには表示せず、石井さんが URL を直接開く形を基本とします。
 
+2026年5月21日時点で、初期管理画面として `admin/login.html`、`admin/index.html`、`admin/events.html`、`admin/contact-submissions.html` を実装済みです。
+ログイン方式はメールアドレス + パスワードを採用し、管理者UIDは `js/firebase-config.js` の `adminConfig.adminUid` と Firebase 側の設定値で制御します。
+
 ### 1. 管理画面ログイン
 
 想定ファイル:
@@ -197,6 +200,7 @@ admin/index.html
 主な機能:
 
 - イベント管理へのリンク
+- お問い合わせ管理へのリンク
 - レポート管理へのリンク
 - メンバー管理へのリンク
 - 基本設定へのリンク
@@ -245,6 +249,21 @@ admin/members.html
 - プロフィール文の編集
 - 表示順の変更
 - 写真の登録
+
+### 6. お問い合わせ管理
+
+想定ファイル:
+
+```text
+admin/contact-submissions.html
+```
+
+主な機能:
+
+- お問い合わせフォーム送信内容の一覧表示
+- 送信内容の詳細確認
+- 自動返信メールの送信状態確認
+- Cloud Functions callable 経由で `mail` コレクションの `delivery.state` を取得
 
 ### 8. プライバシーポリシー
 

@@ -15,6 +15,33 @@
 - データの書き込み権限は Firestore Security Rules で制御する
 - 管理画面側の表示制御だけに依存しない
 
+## 実装状況（2026-05-21）
+
+初期管理画面として、以下を実装済みです。
+
+- `admin/login.html`
+  - メールアドレス + パスワードでログイン
+  - `js/firebase-config.js` の `adminConfig.adminUid` で管理者UIDを照合
+  - Firebase設定値または管理者UIDが未設定の場合はログインを無効化
+- `admin/index.html`
+  - イベント管理・お問い合わせ管理への導線
+  - ログアウトボタン
+- `admin/events.html`
+  - イベントの追加・編集
+  - 公開 / 非公開の切り替え
+  - 開催日、時間、場所、参加費、定員、持ち物、雨天時対応、状態の編集
+- `admin/contact-submissions.html`
+  - `contactSubmissions` の送信日時降順一覧
+  - 送信内容の詳細表示
+  - Cloud Functions callable `getMailDeliveryStates` 経由で自動返信メールの送信状態を表示
+
+未実装の管理画面:
+
+- `admin/reports.html`
+- `admin/members.html`
+- `admin/settings.html`
+- Storage を使った画像アップロード
+
 ## ログイン要件
 
 想定画面:
@@ -161,6 +188,7 @@ admin/contact-submissions.html
 - 自動返信メールの文面（件名・本文・HTML）は管理画面では編集しない。コード `functions/index.js` の `renderTextBody()` / `renderHtmlBody()` で管理する。文面方針は `CONTENT_GUIDELINES.md`「自動返信メール文面」を参照。
 - DM 経由のお問い合わせはこの画面には記録されない（Instagram 側で完結）。受領通知の運用は R-8 で検討中。
 - セキュリティルール (`firestore.rules`) で `contactSubmissions` は管理者のみ read/update/delete 可。`mail` コレクションは管理画面からも参照不可（Cloud Functions の Admin SDK のみアクセス）。送信状況の表示はサーバーサイド経由（Cloud Functions の callable 関数等）で実装する想定。
+- 2026-05-21 実装では、callable `getMailDeliveryStates` が `mail.delivery.state` を返す。Functions 環境変数 `ADMIN_UID` の設定が必要。
 
 ## サイト基本設定要件
 

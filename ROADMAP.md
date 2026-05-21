@@ -139,6 +139,13 @@ Molkkynist のサイトは、最初から全機能を作り込まず、公開に
 - メンバー編集機能
 - お問い合わせ一覧と自動返信メール送信状況の確認画面
 
+進捗:
+
+- 2026年5月21日に初期管理画面を実装。`admin/login.html`、`admin/index.html`、`admin/events.html`、`admin/contact-submissions.html` を追加し、Firebase Authentication のメールアドレス + パスワード方式、管理者UID判定、イベント追加・編集・公開切替、お問い合わせ一覧・詳細表示、自動返信メール送信状態確認を実装。
+- 管理画面共通JSとして `js/admin-auth.js`、ログイン制御 `js/admin-login.js`、イベント管理 `js/admin-events.js`、お問い合わせ管理 `js/admin-contact-submissions.js` を追加。
+- `mail` コレクションは管理画面から直接読まず、Cloud Functions callable `getMailDeliveryStates` で `delivery.state` を取得する構成にした。Functions 環境変数 `ADMIN_UID` と `firestore.rules` / `js/firebase-config.js` の `YOUR_ADMIN_UID` は本番UID確定後に差し替える。
+- 活動レポート管理、メンバー管理、サイト基本設定、Storage画像アップロードは未実装。
+
 ## 第6段階: 公開前確認
 
 目的:

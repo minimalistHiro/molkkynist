@@ -70,6 +70,7 @@ privacy.html
 admin/login.html
 admin/index.html
 admin/events.html
+admin/contact-submissions.html
 admin/reports.html
 admin/members.html
 ```
@@ -218,6 +219,7 @@ Firebase を使用する画面では JavaScript が必要になります。
 - お問い合わせフォーム送信時に、ユーザーへ受付完了の自動返信メールを送信する（Cloud Functions + Firebase Extensions の Trigger Email、または外部SMTP連携を想定）
 - 管理画面でログイン状態を判定する
 - 管理画面でデータを追加・編集する
+- 管理画面でお問い合わせ送信内容を確認し、自動返信メールの送信状態を Cloud Functions 経由で取得する
 - Storage に画像をアップロードする
 
 静的な本文やデザインは HTML / CSS を基本にします。
@@ -238,6 +240,33 @@ Firebase を使用する画面では JavaScript が必要になります。
 
 Firebase コンソールで本番プロジェクトを作成したら、`js/firebase-config.js` の値を差し替え、`contactSubmissions` への `create` のみを許可するセキュリティルールを適用してください。
 
+## 管理画面クライアント実装（2026-05-21 追加）
+
+初期管理画面として下記を追加しました。
+
+- `admin/login.html`
+  - Firebase Authentication のメールアドレス + パスワードでログイン
+  - `js/firebase-config.js` の `adminConfig.adminUid` とログインユーザーUIDを照合
+- `admin/index.html`
+  - イベント管理・お問い合わせ管理への入口
+  - 一般公開ページからはリンクしない
+- `admin/events.html`
+  - Firestore `events` の追加・編集・公開切替
+  - 公開中イベントは公開サイトのお問い合わせフォームの参加希望日程候補として利用
+- `admin/contact-submissions.html`
+  - Firestore `contactSubmissions` を送信日時降順で一覧・詳細表示
+  - 自動返信メールの送信状態は callable Functions 経由で取得
+
+管理画面用スクリプト:
+
+- `js/admin-auth.js` … Firebase初期化、ログイン状態確認、管理者UID判定、ログアウト
+- `js/admin-login.js` … ログイン画面制御
+- `js/admin-events.js` … イベント管理
+- `js/admin-contact-submissions.js` … お問い合わせ管理
+
+`js/firebase-config.js` には `adminConfig.adminUid` を追加しています。
+初期値は `YOUR_ADMIN_UID` のため、石井さんのFirebase Authentication UID確定後に差し替えてください。
+
 ## サーバーサイド実装（2026-05-21 追加）
 
 `functions/` ディレクトリに Cloud Functions（Node.js 20 / Firebase Functions v2）を新設しました。
@@ -246,6 +275,10 @@ Firebase コンソールで本番プロジェクトを作成したら、`js/fire
 - リージョン: `asia-northeast1`
 - トリガー: `contactSubmissions/{submissionId}` の `onDocumentCreated`
 - 役割: 送信者宛の自動返信メールを `mail` コレクション（Firebase Extensions「Trigger Email from Firestore」が監視）へ Admin SDK 経由で書き込む
+- callable: `getMailDeliveryStates`
+  - 管理画面のお問い合わせ管理から呼び出し
+  - `contactSubmissions/{id}` に紐づく `mail.delivery.state` を返す
+  - 管理者判定は Functions 環境変数 `ADMIN_UID` と `request.auth.uid` の一致で行う
 
 メール本文（テキスト/HTML）と件名は `functions/index.js` 内で生成しており、文面方針は `CONTENT_GUIDELINES.md`「自動返信メール文面」に記載しています。
 
@@ -285,6 +318,7 @@ Extension ID: `firebase/firestore-send-email`
 - Firebase プロジェクト名
 - 石井さんのログイン方式
 - 管理者 UID（決定次第 `firestore.rules` の `YOUR_ADMIN_UID` を差し替え）
+- Cloud Functions 環境変数 `ADMIN_UID`（`getMailDeliveryStates` の管理者判定用）
 - Firestore の正式なデータ構造
 - 画像アップロードのサイズ制限
 - Firebase Hosting の公開ドメイン（確定時に各公開ページの `<link rel="canonical">`・OGP `og:url` / `og:image`・Twitter Card 用 URL を暫定値 `https://molkkynist.web.app/` から一括差し替え）

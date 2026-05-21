@@ -13,6 +13,10 @@ export const firebaseConfig = {
   appId: "YOUR_APP_ID",
 };
 
+export const adminConfig = {
+  adminUid: "YOUR_ADMIN_UID",
+};
+
 export function isFirebaseConfigured(config) {
   if (!config) return false;
   const required = ["apiKey", "projectId", "appId"];
@@ -20,4 +24,13 @@ export function isFirebaseConfigured(config) {
     const value = config[key];
     return typeof value === "string" && value.length > 0 && !value.startsWith("YOUR_");
   });
+}
+
+export function isAdminConfigured(config = adminConfig) {
+  return (
+    config &&
+    typeof config.adminUid === "string" &&
+    config.adminUid.length > 0 &&
+    !config.adminUid.startsWith("YOUR_")
+  );
 }

@@ -287,7 +287,7 @@ Extension ID: `firebase/firestore-send-email`
 - 管理者 UID（決定次第 `firestore.rules` の `YOUR_ADMIN_UID` を差し替え）
 - Firestore の正式なデータ構造
 - 画像アップロードのサイズ制限
-- Firebase Hosting の公開ドメイン
+- Firebase Hosting の公開ドメイン（確定時に各公開ページの `<link rel="canonical">`・OGP `og:url` / `og:image`・Twitter Card 用 URL を暫定値 `https://molkkynist.web.app/` から一括差し替え）
 - 自動返信メール用 SMTP プロバイダの選定（SendGrid / Mailgun / Resend / Gmail SMTP / 他）
 - 自動返信メールの送信元アドレス（`DEFAULT_FROM`、SPF/DKIM の DNS 設定対象）
 - DM 経由の申込時にユーザーへ受付メールを送る運用フロー（管理画面から手動送信するか）

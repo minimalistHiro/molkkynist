@@ -216,7 +216,7 @@ Firebase を使用する画面では JavaScript が必要になります。
 - 公開サイトで Firestore から活動レポートを読み込む
 - 公開サイトのお問い合わせフォームで Firestore の `events` を参照し、参加日程選択肢として表示する
 - 公開サイトのお問い合わせフォームから `contactSubmissions` に書き込む
-- お問い合わせフォーム送信時に、ユーザーへ受付完了の自動返信メールを送信する（Cloud Functions + Firebase Extensions の Trigger Email、または外部SMTP連携を想定）
+- お問い合わせフォーム送信時に、ユーザーへ受付完了の自動返信メールを送信する（Cloud Functions + `nodemailer` + Gmail SMTP）
 - 管理画面でログイン状態を判定する
 - 管理画面でデータを追加・編集する
 - 管理画面でお問い合わせ送信内容を確認し、自動返信メールの送信状態を Cloud Functions 経由で取得する
@@ -267,14 +267,14 @@ Firebase コンソールで本番プロジェクトを作成したら、`js/fire
 `js/firebase-config.js` には `adminConfig.adminUid` を追加しています。
 初期値は `YOUR_ADMIN_UID` のため、石井さんのFirebase Authentication UID確定後に差し替えてください。
 
-## サーバーサイド実装（2026-05-21 追加）
+## サーバーサイド実装（2026-05-21 追加 / 2026-05-22 更新）
 
 `functions/` ディレクトリに Cloud Functions（Node.js 20 / Firebase Functions v2）を新設しました。
 
 - エントリポイント: `functions/index.js`
 - リージョン: `asia-northeast1`
 - トリガー: `contactSubmissions/{submissionId}` の `onDocumentCreated`
-- 役割: 送信者宛の自動返信メールを `mail` コレクション（Firebase Extensions「Trigger Email from Firestore」が監視）へ Admin SDK 経由で書き込む
+- 役割: 送信者宛の自動返信メールを Gmail SMTP（`nodemailer`）で直接送信し、送信状態を `mail` コレクションへ Admin SDK 経由で記録する
 - callable: `getMailDeliveryStates`
   - 管理画面のお問い合わせ管理から呼び出し
   - `contactSubmissions/{id}` に紐づく `mail.delivery.state` を返す
@@ -282,18 +282,24 @@ Firebase コンソールで本番プロジェクトを作成したら、`js/fire
 
 メール本文（テキスト/HTML）と件名は `functions/index.js` 内で生成しており、文面方針は `CONTENT_GUIDELINES.md`「自動返信メール文面」に記載しています。
 
-### Trigger Email Extension
+### SMTP Secret
 
-Extension ID: `firebase/firestore-send-email`
+GrouMap と同じ運用に寄せ、Firebase Extensions「Trigger Email from Firestore」は使わず、Cloud Functions から Gmail SMTP へ直接送信します。
 
-導入手順とサンプル設定値は `extensions/README.md` および `extensions/firestore-send-email.env.example` に記載しています。
+Functions Secret として下記を設定します。
 
-主要ポイント:
+- `SMTP_HOST`: `smtp.gmail.com`
+- `SMTP_PORT`: `587`
+- `SMTP_USER`: 送信用メールアドレス（例: `info@molkkynist.com`）
+- `SMTP_PASS`: Google アカウントのアプリパスワード等
+- `SMTP_FROM`: 表示名付き送信元（例: `Molkkynist <info@molkkynist.com>`）
+- `SMTP_SECURE`: `false`
 
-- 監視コレクション (`MAIL_COLLECTION`) は `mail` で固定（Cloud Functions と整合）。
-- `SMTP_CONNECTION_URI` には利用する SMTP プロバイダの URI（SendGrid / Mailgun / Gmail SMTP 等）を設定する。
-- `DEFAULT_FROM` は表示名つきで `Molkkynist <noreply@...>` を想定。
-- 各ドキュメントの `replyTo` フィールド（Cloud Functions が `info@groumapapp.com` を付与）が、`DEFAULT_REPLY_TO` よりも優先される。
+返信先は `REPLY_TO_EMAIL` 環境変数で上書きできます。未設定時は `info@molkkynist.com` を使います。
+
+2026-05-22 時点で `SMTP_HOST=smtp.gmail.com`、`SMTP_PORT=587`、`SMTP_SECURE=false` は Firebase Secret に設定済みです。`SMTP_USER`、`SMTP_PASS`、`SMTP_FROM` は送信用Googleアカウントとアプリパスワード確定後に設定します。
+
+送信用Googleアカウントは、Google Workspace の独自ドメインメール（例: `info@molkkynist.com`）でも、無料 Gmail（例: `molkkynist@gmail.com`）でも技術的には対応できます。費用・信頼感・返信窓口としての運用しやすさを比較し、R-9 で石井さんに確認してから確定します。
 
 ### Firebase 設定ファイル一式
 
@@ -317,6 +323,7 @@ Extension ID: `firebase/firestore-send-email`
 - Firestore Rules / Indexes: デプロイ済み
 - Cloud Functions: `asia-northeast1` にデプロイ済み（`sendAutoReplyOnContactCreate` / `getMailDeliveryStates`）
 - Firebase Authentication: 石井さん用ユーザー作成と管理者UID反映が未完了
+- 自動返信メール: 2026-05-22 に Gmail SMTP 直送方式へ変更済み。`SMTP_HOST` / `SMTP_PORT` / `SMTP_SECURE` は設定済み。送信用メール方式の決定（R-9）、送信用Googleアカウント準備、`SMTP_USER` / `SMTP_PASS` / `SMTP_FROM` 設定、テスト送信は未完了
 
 ## 初期段階での注意点
 
@@ -332,6 +339,6 @@ Extension ID: `firebase/firestore-send-email`
 - Cloud Functions 環境変数 `ADMIN_UID`（`getMailDeliveryStates` の管理者判定用）
 - Firestore の正式なデータ構造
 - 画像アップロードのサイズ制限
-- 自動返信メール用 SMTP プロバイダの選定（SendGrid / Mailgun / Resend / Gmail SMTP / 他）
-- 自動返信メールの送信元アドレス（`DEFAULT_FROM`、SPF/DKIM の DNS 設定対象）
+- 自動返信メールの送信用Googleアカウント（Google Workspace 独自ドメインメール / 無料 Gmail のどちらにするか）とアプリパスワード
+- 自動返信メールの送信元表示名（`SMTP_FROM`）
 - DM 経由の申込時にユーザーへ受付メールを送る運用フロー（管理画面から手動送信するか）

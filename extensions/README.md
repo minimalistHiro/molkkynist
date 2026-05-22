@@ -4,9 +4,11 @@
 
 ## 使用 Extension 一覧
 
+> 2026-05-22 更新: 自動返信メールは GrouMap と同じ Cloud Functions + `nodemailer` + Gmail SMTP 直送方式へ変更しました。現時点では下記 Extension は本番運用では使用しません。将来 Firebase Extensions 方式へ戻す場合の参考として、このディレクトリを残しています。
+
 | ID | 用途 | 関連コード |
 |----|------|------------|
-| `firebase/firestore-send-email` | お問い合わせフォーム自動返信メールの実送信 (`mail` コレクション監視) | `functions/index.js` の `sendAutoReplyOnContactCreate` |
+| `firebase/firestore-send-email` | 旧方式: お問い合わせフォーム自動返信メールの実送信 (`mail` コレクション監視) | 旧 `functions/index.js` の `sendAutoReplyOnContactCreate` |
 
 ## セットアップ手順（自動返信メール）
 

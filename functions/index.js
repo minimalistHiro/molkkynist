@@ -2,8 +2,8 @@
 //
 // 役割:
 // - `contactSubmissions` への新規ドキュメント作成をトリガーに、
-//   送信者宛の自動返信メール用ドキュメントを `mail` コレクションへ書き込む。
-// - 実送信は Firebase Extensions「Trigger Email from Firestore」が `mail` を監視して行う。
+//   送信者宛の自動返信メールを SMTP 経由で送信する。
+// - 送信状態は `mail` コレクションに記録し、管理画面から Cloud Functions 経由で確認する。
 //
 // 設計メモ:
 // - 一般ユーザーには `mail` コレクションを一切公開しない（任意宛先メール送信の悪用防止）。
@@ -14,9 +14,11 @@
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const { HttpsError, onCall } = require("firebase-functions/v2/https");
 const { setGlobalOptions } = require("firebase-functions/v2");
+const { defineSecret } = require("firebase-functions/params");
 const { initializeApp } = require("firebase-admin/app");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
+const nodemailer = require("nodemailer");
 
 initializeApp();
 
@@ -30,8 +32,15 @@ setGlobalOptions({
 // ---------------------------------------------------------------------------
 // REPLY_TO_EMAIL は管理者宛の窓口アドレス。
 // 自動返信メールへの返信がここに届くようにする。
-// 送信元アドレス（From）は Trigger Email Extension の `DEFAULT_FROM` で設定する。
-const REPLY_TO_EMAIL = "info@groumapapp.com";
+// 送信元アドレス（From）は Functions Secret `SMTP_FROM` で設定する。
+const SMTP_HOST = defineSecret("SMTP_HOST");
+const SMTP_PORT = defineSecret("SMTP_PORT");
+const SMTP_USER = defineSecret("SMTP_USER");
+const SMTP_PASS = defineSecret("SMTP_PASS");
+const SMTP_FROM = defineSecret("SMTP_FROM");
+const SMTP_SECURE = defineSecret("SMTP_SECURE");
+
+const REPLY_TO_EMAIL = process.env.REPLY_TO_EMAIL || "info@molkkynist.com";
 const INSTAGRAM_DM_URL = "https://www.instagram.com/molkkynist/";
 const SITE_URL = "https://molkkynist-a0abd.web.app/";
 const ADMIN_UID = process.env.ADMIN_UID || "YOUR_ADMIN_UID";
@@ -48,7 +57,10 @@ const INQUIRY_TYPE_LABELS = {
 // ---------------------------------------------------------------------------
 
 exports.sendAutoReplyOnContactCreate = onDocumentCreated(
-  "contactSubmissions/{submissionId}",
+  {
+    document: "contactSubmissions/{submissionId}",
+    secrets: [SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM, SMTP_SECURE],
+  },
   async (event) => {
     const snap = event.data;
     if (!snap) {
@@ -77,22 +89,74 @@ exports.sendAutoReplyOnContactCreate = onDocumentCreated(
     const subject = "【Molkkynist】お問い合わせを受け付けました";
     const text = renderTextBody({ name, inquiryLabel, scheduleLines, message });
     const html = renderHtmlBody({ name, inquiryLabel, scheduleLines, message });
+    const db = getFirestore();
+    const mailRef = db.collection("mail").doc();
 
     try {
-      await getFirestore().collection("mail").add({
+      await mailRef.set({
         to: email,
         replyTo: REPLY_TO_EMAIL,
         message: { subject, text, html },
         submissionRef: snap.ref.path,
         createdAt: FieldValue.serverTimestamp(),
+        delivery: {
+          state: "PROCESSING",
+          startTime: FieldValue.serverTimestamp(),
+          error: "",
+        },
       });
-      logger.info("[autoReply] 自動返信を mail コレクションへ登録", {
+
+      const smtpConfig = getSmtpConfig();
+      const transporter = nodemailer.createTransport({
+        host: smtpConfig.host,
+        port: smtpConfig.port,
+        secure: smtpConfig.secure,
+        auth: smtpConfig.auth,
+      });
+
+      const result = await transporter.sendMail({
+        from: smtpConfig.from,
+        to: email,
+        replyTo: REPLY_TO_EMAIL,
+        subject,
+        text,
+        html,
+      });
+
+      await mailRef.update({
+        "delivery.state": "SUCCESS",
+        "delivery.endTime": FieldValue.serverTimestamp(),
+        "delivery.messageId": result.messageId || "",
+        "delivery.error": "",
+      });
+
+      logger.info("[autoReply] 自動返信メールを送信", {
         submissionId: event.params.submissionId,
         to: email,
+        messageId: result.messageId,
       });
     } catch (err) {
-      logger.error("[autoReply] mail コレクションへの書き込みに失敗", err);
-      throw err;
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      logger.error("[autoReply] 自動返信メールの送信に失敗", {
+        submissionId: event.params.submissionId,
+        to: email,
+        error: errorMessage,
+      });
+      await mailRef.set(
+        {
+          to: email,
+          replyTo: REPLY_TO_EMAIL,
+          message: { subject, text, html },
+          submissionRef: snap.ref.path,
+          createdAt: FieldValue.serverTimestamp(),
+          delivery: {
+            state: "ERROR",
+            endTime: FieldValue.serverTimestamp(),
+            error: errorMessage,
+          },
+        },
+        { merge: true }
+      );
     }
   }
 );
@@ -216,6 +280,27 @@ function formatCallableDate(value) {
   } catch (_err) {
     return null;
   }
+}
+
+function getSmtpConfig() {
+  const host = SMTP_HOST.value();
+  const port = Number(SMTP_PORT.value() || "587");
+  const user = SMTP_USER.value();
+  const pass = SMTP_PASS.value();
+  const from = SMTP_FROM.value();
+  const secure = (SMTP_SECURE.value() || "false").toLowerCase() === "true";
+
+  if (!host || !user || !pass || !from) {
+    throw new Error("SMTP Secret の設定が未完了です");
+  }
+
+  return {
+    host,
+    port,
+    secure,
+    auth: { user, pass },
+    from,
+  };
 }
 
 function renderTextBody({ name, inquiryLabel, scheduleLines, message }) {

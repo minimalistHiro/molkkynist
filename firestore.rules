@@ -6,7 +6,7 @@ rules_version = '2';
 // - 公開コレクション (events / reports / members / siteSettings) は読み取りのみ公開
 // - 書き込み (作成・更新・削除) は管理者 UID のみ
 // - contactSubmissions は一般ユーザーから create のみ可。読み・更新・削除は管理者のみ
-// - mail コレクション (Trigger Email Extension が監視) は一般ユーザー読み書き禁止。
+// - mail コレクション (Cloud Functions が送信状態を記録) は一般ユーザー読み書き禁止。
 //   Cloud Functions (Admin SDK) からのみ書き込まれる
 //
 // 運用メモ:
@@ -78,7 +78,7 @@ service cloud.firestore {
         && request.resource.data.createdAt == request.time;
     }
 
-    // Trigger Email Extension の管理コレクション ---------------------------
+    // 自動返信メールの送信状態管理コレクション -----------------------------
     //
     // Cloud Functions の Admin SDK からのみ書き込まれる想定。
     // 一般ユーザーには一切公開しない（任意宛先メール送信の悪用防止）。

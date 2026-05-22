@@ -24,10 +24,12 @@
 | ID | 優先度 | カテゴリ | 内容 | 状態 | 決定事項 |
 |----|--------|----------|------|------|----------|
 | R-6 | 中 | 運用 / コンテンツ | 雨天時の対応方針（中止判断の基準、中止連絡の方法・タイミング、振替の有無など）。トップページの「参加の流れ」併記情報、および FAQ「Q6. 雨天時はどうなりますか？」の回答に必要。石井さんに確認要。 | `[ ] 未着手` |  |
-| R-7 | 高 | 技術 / 運用 | 自動返信メール（D-3）の実SMTPプロバイダの選定と、送信元アドレス・SPF/DKIM 設定の確定。候補: SendGrid / Mailgun / Resend / Gmail SMTP。実装側（Cloud Functions + Trigger Email Extension）は完了済みで、Extension への `SMTP_CONNECTION_URI`・`DEFAULT_FROM` の投入が残課題。 | `[ ] 未着手` |  |
 | R-8 | 中 | 運用 | DM経由のお問い合わせに対するユーザー宛受付通知の運用フロー。フォーム経由は D-3 で自動化済みだが、DM経由はメールアドレスを取得できないため別運用が必要（管理画面から手動送信する／DM内で定型文返信で済ませる、等）。 | `[ ] 未着手` |  |
+| R-9 | 高 | 技術 / 運用 / 費用 | 自動返信メールの送信元を、有料の Google Workspace 独自ドメインメール（例: `info@molkkynist.com`）にするか、無料の Gmail アカウント（例: `molkkynist@gmail.com`）にするかを石井さんに確認する。Workspace は独自ドメイン表示で信頼感が高く返信窓口にも使いやすい一方、月額費用が発生する。無料 Gmail は費用を抑えられ、現行の Gmail SMTP 実装をそのまま使える一方、送信元が `@gmail.com` になり公式感は弱くなる。どちらを選んでも Functions Secret（`SMTP_USER` / `SMTP_PASS` / `SMTP_FROM`）の設定で対応可能。 | `[ ] 未着手` |  |
 
-> 2026-05-21 時点: D-3 実装完了に伴い R-7（SMTP プロバイダ選定）・R-8（DM 経由フロー）を追加。
+> 2026-05-22 時点: R-7（SMTP プロバイダ選定）は Gmail SMTP 方式に決定し、D-6へ反映済み。
+> 2026-05-22 時点: 送信元メールを Google Workspace 独自ドメインにするか無料 Gmail にするかは R-9 で検討。
+> 2026-05-21 時点: D-3 実装完了に伴い R-8（DM 経由フロー）を追加。
 > 2026-05-21 時点: R-1 / R-2 / R-5 を決定し、各ドキュメントに反映済み（[TODO.md](TODO.md) C-1 / A-3 / D-1、[PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)、[SITE_STRUCTURE.md](SITE_STRUCTURE.md)、[CONTENT_GUIDELINES.md](CONTENT_GUIDELINES.md)、[FIREBASE_ARCHITECTURE.md](FIREBASE_ARCHITECTURE.md)、[ADMIN_REQUIREMENTS.md](ADMIN_REQUIREMENTS.md)）。
 
 ---

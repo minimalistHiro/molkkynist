@@ -106,7 +106,7 @@ Molkkynist のサイトは、最初から全機能を作り込まず、公開に
 - 読み込み中やデータ未登録時の表示作成
 - お問い合わせフォームの設置（Firestore `events` から参加日程候補を取得しトグル選択、送信内容を `contactSubmissions` に書き込み）
 - プライバシーポリシーページの整備（フォーム公開の前提）
-- お問い合わせフォーム送信時の自動返信メール（Cloud Functions + Firebase Extensions「Trigger Email from Firestore」。実装ファイルは `functions/index.js`、Extension 設定は `extensions/README.md` を参照。SMTP プロバイダ選定は R-7）
+- お問い合わせフォーム送信時の自動返信メール（Cloud Functions + `nodemailer` + Gmail SMTP。実装ファイルは `functions/index.js` を参照。SMTP Secret 設定と送信用Googleアカウント準備は D-6）
 
 成果物:
 
@@ -145,7 +145,7 @@ Molkkynist のサイトは、最初から全機能を作り込まず、公開に
 - 管理画面共通JSとして `js/admin-auth.js`、ログイン制御 `js/admin-login.js`、イベント管理 `js/admin-events.js`、お問い合わせ管理 `js/admin-contact-submissions.js` を追加。
 - `mail` コレクションは管理画面から直接読まず、Cloud Functions callable `getMailDeliveryStates` で `delivery.state` を取得する構成にした。Functions 環境変数 `ADMIN_UID` と `firestore.rules` / `js/firebase-config.js` の `YOUR_ADMIN_UID` は本番UID確定後に差し替える。
 - 2026年5月21日に Firebase プロジェクト `molkkynist-a0abd` と連携。Webアプリ `Molkkynist` を作成し、`js/firebase-config.js` へSDK設定値を反映。Firebase Hosting は `https://molkkynist-a0abd.web.app` へデプロイ済み。Firestore default データベース、Security Rules、Indexes もデプロイ済み。
-- Firestore は `asia-northeast1`（東京）で再作成済み。Cloud Functions は `sendAutoReplyOnContactCreate` と `getMailDeliveryStates` を `asia-northeast1` にデプロイ済み。Authentication の石井さん用ユーザー作成、管理者UID反映、Trigger Email Extension / SMTP 設定は残作業。
+- Firestore は `asia-northeast1`（東京）で再作成済み。Cloud Functions は `sendAutoReplyOnContactCreate` と `getMailDeliveryStates` を `asia-northeast1` にデプロイ済み。2026年5月22日に自動返信メールを Gmail SMTP 直送方式へ変更。Authentication の石井さん用ユーザー作成、管理者UID反映、SMTP Secret 設定、送信用Googleアカウント準備は残作業。
 - 活動レポート管理、メンバー管理、サイト基本設定、Storage画像アップロードは未実装。
 
 ## 第6段階: 公開前確認

@@ -13,6 +13,14 @@
 
 ---
 
+## 2026-05-22
+
+| ID | 区分 | 対象 | 内容 | 備考 |
+|----|------|------|------|------|
+| C-4 | 独自対応 | HTML / CSS | ホームページ最下部のフッター付近に予約ボタンとSNSアイコン導線を追加 | `index.html` のフッター直前に `footer-reserve` セクションを追加し、上段中央にカプセル型の「ご予約はこちら」ボタン、下段にX・Instagram・LINEの3つのSNSアイコンリンクを配置。予約導線は既存フォーム `contact.html#contact-form` へ接続し、SNSリンクは正式URL確定まで仮リンクで実装。`css/styles.css` に `footer-reserve` / `footer-social` / `social-link` / `button--reserve` を追加。実装計画書: `plans/in_progress/20260522_batch_c-2-c-4.md`。 |
+| C-3 | 独自対応 | HTML / CSS / JavaScript | スマートフォン表示時のヘッダーナビゲーションをハンバーガーメニュー化 | 公開8ページのヘッダーへ `nav-toggle` ボタンを追加し、`js/site-nav.js` で `aria-expanded` と `.is-open` を切り替える最小JSを実装。リンク選択、メニュー外クリック、Escキー、デスクトップ幅復帰時に閉じる挙動を追加。デスクトップでは横並びナビを維持し、スマートフォンでは縦並びメニューとして表示。実装計画書: `plans/in_progress/20260522_batch_c-2-c-4.md`。 |
+| C-2 | 独自対応 | assets / HTML / CSS | ヘッダー左上のブランド名テキストを英字ロゴ画像に差し替え | 既存 `assets/images/logos/molkkynist-title-logo.png` から英字ワードマーク部分を切り出し、透明背景PNG `assets/images/logos/molkkynist-wordmark.png` を追加。公開8ページの `.brand__name` テキストを `.brand__wordmark` 画像へ置換し、既存アイコンは維持。ヘッダー内でロゴ高さとナビ干渉を抑えるCSSを追加。実装計画書: `plans/in_progress/20260522_batch_c-2-c-4.md`。 |
+
 ## 2026-05-21
 
 | ID | 区分 | 対象 | 内容 | 備考 |

@@ -19,6 +19,7 @@
     <meta name="twitter:image" content="https://molkkynist-a0abd.web.app/assets/images/logos/molkkynist-logo.png">
     <title>活動レポート | Molkkynist</title>
     <link rel="stylesheet" href="css/styles.css">
+    <script src="js/site-nav.js" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">本文へ移動</a>
@@ -26,14 +27,21 @@
       <div class="site-header__inner">
         <a class="brand" href="index.html" aria-label="Molkkynist トップページ">
           <img class="brand__mark" src="assets/images/logos/molkkynist-logo.png" alt="" width="48" height="48">
-          <span class="brand__name">Molkkynist</span>
+          <img class="brand__wordmark" src="assets/images/logos/molkkynist-wordmark.png" alt="Molkkynist" width="1008" height="140">
         </a>
-        <nav class="site-nav" aria-label="メインナビゲーション">
-          <a href="about.html">Molkkynistについて</a>
-          <a href="molkky.html">モルックとは</a>
-          <a href="events.html">イベント</a>
-          <a href="reports.html" aria-current="page">活動レポート</a>
-          <a href="members.html">メンバー</a>
+        <button class="nav-toggle" type="button" aria-controls="site-nav" aria-expanded="false">
+          <span class="visually-hidden">メニューを開閉</span>
+          <span class="nav-toggle__line"></span>
+          <span class="nav-toggle__line"></span>
+          <span class="nav-toggle__line"></span>
+        </button>
+        <nav id="site-nav" class="site-nav" aria-label="メインナビゲーション">
+          <a href="index.html#about">Molkkynistについて</a>
+          <a href="index.html#schedule">次回イベント</a>
+          <a href="index.html#flow">参加の流れ</a>
+          <a href="index.html#reports">活動レポート</a>
+          <a href="index.html#members">メンバー</a>
+          <a href="index.html#faq">よくある質問</a>
           <a href="contact.html">参加・お問い合わせ</a>
         </nav>
       </div>

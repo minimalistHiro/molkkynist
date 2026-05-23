@@ -633,6 +633,163 @@ dd {
     var(--color-surface-container);
 }
 
+.report-carousel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.report-carousel__viewport {
+  overflow: hidden;
+  border-radius: var(--radius-md);
+}
+
+.report-carousel__track {
+  display: flex;
+  gap: 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transition: transform 0.6s ease;
+  will-change: transform;
+}
+
+.report-carousel__slide {
+  flex: 0 0 calc((100% - 18px * 2) / 3);
+}
+
+.report-news-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1px solid rgba(117, 88, 77, 0.16);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-card);
+  box-shadow: var(--shadow-soft);
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.report-news-card:hover,
+.report-news-card:focus-visible {
+  box-shadow: var(--shadow-touch);
+  transform: translateY(-2px);
+}
+
+.report-news-card__visual {
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  background:
+    linear-gradient(135deg, rgba(117, 88, 77, 0.28), rgba(238, 238, 233, 0.9)),
+    var(--color-surface-container);
+}
+
+.report-news-card__visual--soft {
+  background:
+    linear-gradient(135deg, rgba(75, 174, 79, 0.16), rgba(181, 147, 135, 0.24)),
+    var(--color-surface-container);
+}
+
+.report-news-card__visual--wood {
+  background:
+    linear-gradient(135deg, rgba(181, 147, 135, 0.32), rgba(238, 238, 233, 0.9)),
+    var(--color-surface-container);
+}
+
+.report-news-card__visual--lime {
+  background:
+    linear-gradient(135deg, rgba(221, 237, 73, 0.42), rgba(190, 202, 185, 0.4)),
+    var(--color-surface-container);
+}
+
+.report-news-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px 20px 22px;
+}
+
+.report-news-card__date {
+  color: var(--color-wood);
+  font-size: 0.84rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.report-news-card__title {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1.02rem;
+  line-height: 1.55;
+}
+
+.report-carousel__controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.report-carousel__nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid rgba(117, 88, 77, 0.24);
+  border-radius: 999px;
+  background: var(--color-surface-card);
+  color: var(--color-wood);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.report-carousel__nav:hover,
+.report-carousel__nav:focus-visible {
+  border-color: var(--color-grass);
+  background: rgba(221, 237, 73, 0.32);
+  color: var(--color-grass);
+}
+
+.report-carousel__dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.report-carousel__dot {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border: 1px solid rgba(117, 88, 77, 0.32);
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.report-carousel__dot:hover,
+.report-carousel__dot:focus-visible {
+  border-color: var(--color-grass);
+}
+
+.report-carousel__dot.is-active {
+  border-color: var(--color-grass);
+  background: var(--color-grass);
+  transform: scale(1.15);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .report-carousel__track {
+    transition: none;
+  }
+}
+
 .member-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
@@ -1742,6 +1899,10 @@ dd {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .report-carousel__slide {
+    flex: 0 0 calc((100% - 18px) / 2);
+  }
+
   .partner-logos {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1810,6 +1971,14 @@ dd {
   .list-panel--two,
   .pillar-grid {
     grid-template-columns: 1fr;
+  }
+
+  .report-carousel__slide {
+    flex: 0 0 100%;
+  }
+
+  .report-carousel__track {
+    gap: 0;
   }
 
   .partner-logos {

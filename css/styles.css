@@ -261,7 +261,8 @@ p {
   display: block;
   width: min(420px, 78vw);
   height: auto;
-  margin: 0 0 18px;
+  padding-top: 8px;
+  margin: 0 0 36px;
 }
 
 .hero__photo {
@@ -269,7 +270,7 @@ p {
   width: 100%;
   max-width: 560px;
   height: auto;
-  margin: 0 0 28px;
+  margin: 16px 0 32px;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft);
 }

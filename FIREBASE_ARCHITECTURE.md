@@ -133,6 +133,23 @@ createdAt
 updatedAt
 ```
 
+### news
+
+トップページ「お知らせ」カルーセルおよびお知らせ詳細ページ `news.html` に表示する告知記事を保存します。
+2026年5月24日時点では、`js/news-detail.js` に4件のダミーデータをクライアント側で持たせている状態であり、Firestore コレクションは未作成。管理画面と公開サイトでのコレクション読み書きを実装するタイミングで作成する。
+
+主なフィールド（案）:
+
+```text
+title
+body            # 段落配列または改行区切りの長文
+publishDate     # 表示用の配信日
+imageUrl        # 詳細ページの上部ビジュアル（未指定時はCSSプレースホルダー）
+isPublished
+createdAt
+updatedAt
+```
+
 ### reports
 
 活動レポートを保存します。

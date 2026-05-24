@@ -8,20 +8,18 @@
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   carousels.forEach((root) => {
+    const viewport = root.querySelector(".report-carousel__viewport");
     const track = root.querySelector("[data-report-carousel-track]");
     const slides = track ? Array.from(track.children) : [];
 
-    if (!track || slides.length === 0) {
+    if (!viewport || !track || slides.length === 0) {
       return;
     }
 
-    const prevButton = root.querySelector("[data-report-carousel-prev]");
-    const nextButton = root.querySelector("[data-report-carousel-next]");
-    const dotsContainer = root.querySelector("[data-report-carousel-dots]");
     const interval = Number(root.dataset.interval) || 5000;
 
     let visibleCount = getVisibleCount();
-    let pageCount = Math.max(1, slides.length - visibleCount + 1);
+    let pageCount = computePageCount(visibleCount);
     let currentIndex = 0;
     let timerId = null;
 
@@ -32,6 +30,17 @@
       return 3;
     }
 
+    function isPeekMode() {
+      return visibleCount === 1;
+    }
+
+    function computePageCount(visible) {
+      if (visible === 1) {
+        return slides.length;
+      }
+      return Math.max(1, slides.length - visible + 1);
+    }
+
     function getGap() {
       const styles = window.getComputedStyle(track);
       const gap = parseFloat(styles.columnGap || styles.gap || "0");
@@ -39,22 +48,26 @@
     }
 
     function update() {
-      if (slides.length === 0) return;
       const slideWidth = slides[0].getBoundingClientRect().width;
       const gap = getGap();
-      const offset = currentIndex * (slideWidth + gap);
-      track.style.transform = `translateX(-${offset}px)`;
+      const viewportWidth = viewport.getBoundingClientRect().width;
+      const centerOffset = isPeekMode()
+        ? (viewportWidth - slideWidth) / 2
+        : 0;
+      const offset = currentIndex * (slideWidth + gap) - centerOffset;
+      track.style.transform = `translateX(${-offset}px)`;
 
-      const dots = dotsContainer ? Array.from(dotsContainer.children) : [];
-      dots.forEach((dot, i) => {
-        const isActive = i === currentIndex;
-        dot.classList.toggle("is-active", isActive);
-        dot.setAttribute("aria-selected", String(isActive));
-        dot.setAttribute("tabindex", isActive ? "0" : "-1");
-      });
+      root.classList.toggle("report-carousel--peek", isPeekMode());
 
       slides.forEach((slide, i) => {
-        const isVisible = i >= currentIndex && i < currentIndex + visibleCount;
+        let isVisible;
+        if (isPeekMode()) {
+          isVisible = i === currentIndex;
+          slide.classList.toggle("is-active", isVisible);
+        } else {
+          isVisible = i >= currentIndex && i < currentIndex + visibleCount;
+          slide.classList.remove("is-active");
+        }
         slide.setAttribute("aria-hidden", String(!isVisible));
       });
     }
@@ -67,27 +80,6 @@
 
     function next() {
       goTo(currentIndex + 1);
-    }
-
-    function prev() {
-      goTo(currentIndex - 1);
-    }
-
-    function buildDots() {
-      if (!dotsContainer) return;
-      dotsContainer.innerHTML = "";
-      for (let i = 0; i < pageCount; i += 1) {
-        const dot = document.createElement("button");
-        dot.type = "button";
-        dot.className = "report-carousel__dot";
-        dot.setAttribute("role", "tab");
-        dot.setAttribute("aria-label", `${i + 1}番目のレポートを表示`);
-        dot.addEventListener("click", () => {
-          goTo(i);
-          restartTimer();
-        });
-        dotsContainer.appendChild(dot);
-      }
     }
 
     function startTimer() {
@@ -110,31 +102,23 @@
     }
 
     function rebuild() {
-      const previousVisibleCount = visibleCount;
       visibleCount = getVisibleCount();
-      pageCount = Math.max(1, slides.length - visibleCount + 1);
+      pageCount = computePageCount(visibleCount);
       if (currentIndex > pageCount - 1) {
         currentIndex = pageCount - 1;
-      }
-      if (previousVisibleCount !== visibleCount) {
-        buildDots();
       }
       update();
     }
 
-    if (prevButton) {
-      prevButton.addEventListener("click", () => {
-        prev();
+    slides.forEach((slide, i) => {
+      slide.addEventListener("click", (event) => {
+        if (!isPeekMode()) return;
+        if (i === currentIndex) return;
+        event.preventDefault();
+        goTo(i);
         restartTimer();
       });
-    }
-
-    if (nextButton) {
-      nextButton.addEventListener("click", () => {
-        next();
-        restartTimer();
-      });
-    }
+    });
 
     root.addEventListener("mouseenter", stopTimer);
     root.addEventListener("mouseleave", startTimer);
@@ -161,7 +145,6 @@
       }
     });
 
-    buildDots();
     update();
     startTimer();
   });

@@ -13,6 +13,15 @@
 
 ---
 
+## 2026-05-24
+
+| ID | 区分 | 対象 | 内容 | 備考 |
+|----|------|------|------|------|
+| C-7 | 独自対応 | HTML | メンバー一覧専用ページ `members.html` を廃止し、一覧表示をトップページ `#members` セクションに統合 | `index.html` の `#members` セクション右上の「メンバー紹介へ」ボタンを撤去し、`section-heading--with-link` ラッパーを通常の `section-heading` に戻した。`members.html` をリポジトリから削除。全公開ページ（`about` / `contact` / `events` / `index` / `molkky` / `news` / `privacy` / `reports` / `member`）のフッター「メンバー」リンクと、`member.html` の「メンバー一覧へ戻る」ボタンの参照先を `index.html#members` に変更。個別メンバー詳細テンプレート `member.html?id=xxx` と `js/member-detail.js` は存続。`SITE_STRUCTURE.md`「6. メンバー紹介」「初期実装の優先順位」「初期静的サイト実装メモ」「2026-05-24 追加実装」、`FIREBASE_ARCHITECTURE.md`「公開サイトと管理画面の関係」、`ROADMAP.md` 2026-05-24 進捗を同期。 |
+| C-8 | 独自対応 | HTML / CSS | `index.html` の `#about` から3つのアクティビティカード（Activity 01〜03）を撤去し、ヒーロー文言を一文に簡素化 | `#about` セクション内の `pillar-grid` ブロック（「定期イベントの開催」「初心者サポート」「地域とのつながり」の3カード）を削除し、トップでは文章紹介と `about.html` への導線テキストリンクに集約。未使用となった `.pillar-grid` / `.pillar-card` / `.pillar-card p` と、2つのレスポンシブブレークポイント内の `pillar-grid` 参照を `css/styles.css` から削除。あわせてヒーローの2文構成のリードを「Molkkynistは「モルックをもっと身近な遊びに。」をコンセプトにしたモルックコミュニティです」の一文に置き換え、`#hero-title` 専用の文字サイズ縮小スタイル（`clamp(1.4rem, 3.2vw, 2rem)` / モバイル `clamp(1.25rem, 5.2vw, 1.7rem)`）を追加してワードマーク主体のヒーローに合わせて見出しの重みを抑えた。`SITE_STRUCTURE.md`「2026-05-24 追加実装」、`CONTENT_GUIDELINES.md`「ヒーローキャッチコピー」、`ROADMAP.md` 2026-05-24 進捗を同期。 |
+
+---
+
 ## 2026-05-23
 
 | ID | 区分 | 対象 | 内容 | 備考 |

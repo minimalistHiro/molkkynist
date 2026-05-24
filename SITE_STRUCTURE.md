@@ -133,24 +133,11 @@ reports.html
 
 ### 6. メンバー紹介
 
-想定ファイル:
+メンバー紹介専用ページ（旧 `members.html`）は 2026-05-24 に廃止し、トップページの `#members` セクションに統合した。
 
-```text
-members.html
-```
-
-役割:
-
-- 運営メンバーの人柄を伝える
-- 初参加者が安心できる接点をつくる
-
-主な掲載内容:
-
-- 主催者の石井さんの紹介
-- 共同メンバーの紹介
-- 役割
-- コメント
-- 写真またはイラスト
+- 一覧表示はトップページ `#members` セクションで行う（仕様は `DESIGN_GUIDELINES.md`「メンバーカード」を参照）。
+- 個別メンバー詳細は共通テンプレート `member.html?id=xxx` を `news.html` と同じパターンで使用する（詳細データは `js/member-detail.js` の `MEMBER_ITEMS`）。
+- 全公開ページのフッター「メンバー」リンクと、`member.html` の「メンバー一覧へ戻る」ボタンは `index.html#members` を指す。
 
 ### 7. 参加・お問い合わせ
 
@@ -336,7 +323,7 @@ privacy.html
 - モルックとは
 - イベント一覧
 - 活動レポート仮ページ
-- メンバー紹介
+- メンバー紹介（トップページ `#members` セクションへ統合済み、個別詳細は `member.html?id=xxx`）
 - Instagram DM 導線
 
 ### 第2段階
@@ -354,8 +341,7 @@ privacy.html
 - `molkky.html`
 - `events.html`
 - `reports.html`
-- `members.html`
-- `member.html`
+- `member.html`（個別メンバー詳細テンプレート。一覧ページ `members.html` は 2026-05-24 に廃止）
 - `contact.html`
 
 イベント、活動レポート、メンバー紹介は、将来 Firestore から読み込む前提で `article` カード単位の構造を基本にする。
@@ -393,6 +379,17 @@ Instagram DM 導線は全ページに配置し、正式URLが確定するまで�
   - 詳細データは `js/member-detail.js` の `MEMBER_ITEMS`（id=ishii / member-a / member-b）にベタ書きし、将来 Firestore `members` コレクションへの差し替えを前提とする。
   - 一覧カードは「コンパクトな円形プレースホルダー（96px）＋役割＋名前」のみに簡素化し、本文・引用は詳細ページに集約。
   - メンバー一覧グリッドの列数は PC=3 / タブレット=2 / スマートフォン=**2**（従来の1列から変更）に統一。
+- メンバー紹介専用ページ `members.html` を廃止し、一覧表示をトップページ `#members` セクションに一本化。
+  - `index.html` の `#members` セクション右上にあった「メンバー紹介へ」ボタンを撤去し、`section-heading--with-link` ラッパーを通常の `section-heading` に戻した。
+  - 全公開ページ（`about` / `contact` / `events` / `index` / `molkky` / `news` / `privacy` / `reports` / `member`）のフッター「メンバー」リンクと、`member.html` の「メンバー一覧へ戻る」ボタンの参照先を `index.html#members` に変更。
+  - 個別メンバー詳細ページ `member.html?id=xxx` は存続（一覧から詳細への導線パターンを維持）。
+- `index.html` の `#about` セクションから3つのアクティビティカード（Activity 01〜03 = `pillar-grid` ブロック）を撤去。
+  - 「定期イベントの開催」「初心者サポート」「地域とのつながり」の3カードはトップでの常設掲載をやめ、文章ベースの紹介と `about.html` への導線（テキストリンク「Molkkynistの活動方針を詳しく見る」）に集約。
+  - 未使用となった `.pillar-grid` / `.pillar-card` 系 CSS を `css/styles.css` から削除。
+- `index.html` のヒーローリード文を一文に簡素化。
+  - 旧: 「Molkkynistは、初心者も経験者も一緒に楽しめるモルックコミュニティです。 / 晴れた日の公園で自然に人が集まるような、気軽であたたかい場を育てています。」
+  - 新: 「Molkkynistは「モルックをもっと身近な遊びに。」をコンセプトにしたモルックコミュニティです」
+  - あわせて `#hero-title` の文字サイズを `clamp(1.4rem, 3.2vw, 2rem)`（モバイルでは `clamp(1.25rem, 5.2vw, 1.7rem)`）に縮小し、ワードマーク主体のヒーローに合わせて見出しの重みを抑えた。
 
 ### 第3段階
 

@@ -290,6 +290,12 @@ p {
   color: var(--color-text-muted);
 }
 
+.hero__content > h1,
+#hero-title {
+  font-size: clamp(1.4rem, 3.2vw, 2rem);
+  line-height: 1.35;
+}
+
 .hero__lead {
   max-width: 680px;
   font-size: clamp(1rem, 2vw, 1.18rem);
@@ -932,24 +938,6 @@ dd {
   color: var(--color-text-muted);
   font-size: 0.8rem;
   font-weight: 600;
-}
-
-.pillar-grid {
-  display: grid;
-  gap: 18px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.pillar-card {
-  padding: 22px;
-  border: 1px solid rgba(117, 88, 77, 0.16);
-  border-radius: var(--radius-md);
-  background: var(--color-surface-card);
-  box-shadow: var(--shadow-soft);
-}
-
-.pillar-card p {
-  color: var(--color-text-muted);
 }
 
 .schedule-list {
@@ -1877,8 +1865,7 @@ dd {
 
   .card-grid--three,
   .step-grid,
-  .member-grid,
-  .pillar-grid {
+  .member-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -1923,6 +1910,10 @@ dd {
     font-size: clamp(1.9rem, 10vw, 2.65rem);
   }
 
+  #hero-title {
+    font-size: clamp(1.25rem, 5.2vw, 1.7rem);
+  }
+
   .site-header__inner,
   .hero,
   .section,
@@ -1954,8 +1945,7 @@ dd {
   .card-grid--three,
   .card-grid--two,
   .step-grid,
-  .list-panel--two,
-  .pillar-grid {
+  .list-panel--two {
     grid-template-columns: 1fr;
   }
 

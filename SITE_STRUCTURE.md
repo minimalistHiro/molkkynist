@@ -355,6 +355,7 @@ privacy.html
 - `events.html`
 - `reports.html`
 - `members.html`
+- `member.html`
 - `contact.html`
 
 イベント、活動レポート、メンバー紹介は、将来 Firestore から読み込む前提で `article` カード単位の構造を基本にする。
@@ -387,6 +388,11 @@ Instagram DM 導線は全ページに配置し、正式URLが確定するまで�
   - 表示件数は4枚で固定。
   - カードクリックで共通テンプレート `news.html?id=xxx` に遷移し、`js/news-detail.js` が URLパラメータからダミーデータを描画する。
   - ダミーデータ（id=001〜004）は将来 Firestore `news` コレクションへの差し替えを前提に、`js/news-detail.js` にベタ書き。
+- メンバー一覧（`index.html#members` / `members.html`）のカード仕様を変更。
+  - カードを `<a class="member-card">` に変更し、クリックで共通テンプレート `member.html?id=xxx` に遷移する仕組みを `news` と同じパターンで導入。
+  - 詳細データは `js/member-detail.js` の `MEMBER_ITEMS`（id=ishii / member-a / member-b）にベタ書きし、将来 Firestore `members` コレクションへの差し替えを前提とする。
+  - 一覧カードは「コンパクトな円形プレースホルダー（96px）＋役割＋名前」のみに簡素化し、本文・引用は詳細ページに集約。
+  - メンバー一覧グリッドの列数は PC=3 / タブレット=2 / スマートフォン=**2**（従来の1列から変更）に統一。
 
 ### 第3段階
 

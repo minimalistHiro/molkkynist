@@ -918,6 +918,15 @@ dd {
   font-size: 0.92rem;
 }
 
+.prose__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+  object-fit: cover;
+}
+
 .about-figure figcaption {
   margin-top: 10px;
 }

@@ -59,10 +59,13 @@ about.html
 molkky.html
 events.html
 reports.html
-members.html
+member.html         # 個別メンバー詳細テンプレート（?id=xxx で出し分け）
+news.html           # 個別お知らせ詳細テンプレート（?id=xxx で出し分け）
 contact.html
 privacy.html
 ```
+
+メンバー一覧は専用ページを廃止し、トップページ `#members` セクションに統合済み（2026-05-24）。
 
 管理画面:
 

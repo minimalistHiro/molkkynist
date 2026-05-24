@@ -858,19 +858,6 @@ dd {
   margin-top: 32px;
 }
 
-.about-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
-  gap: 36px;
-  margin-bottom: 36px;
-}
-
-.about-figure {
-  margin: 0;
-  color: var(--color-text-muted);
-  font-size: 0.92rem;
-}
-
 .prose__image {
   display: block;
   width: 100%;
@@ -878,10 +865,6 @@ dd {
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-soft);
   object-fit: cover;
-}
-
-.about-figure figcaption {
-  margin-top: 10px;
 }
 
 .image-placeholder {
@@ -905,10 +888,6 @@ dd {
   color: var(--color-text-muted);
   font-size: 0.8rem;
   font-weight: 600;
-}
-
-.image-placeholder--group {
-  min-height: 280px;
 }
 
 .pillar-grid {
@@ -1806,8 +1785,7 @@ dd {
   .site-header__inner,
   .hero__inner,
   .split-layout,
-  .contact-panel,
-  .about-layout {
+  .contact-panel {
     grid-template-columns: 1fr;
   }
 

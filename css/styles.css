@@ -2107,8 +2107,12 @@ dd {
 
 .member-detail .page-hero {
   padding-top: 48px;
-  padding-bottom: 24px;
+  padding-bottom: 12px;
   border-bottom: 0;
+}
+
+.member-detail .page-hero + .section {
+  padding-top: 24px;
 }
 
 .member-detail__heading {

@@ -724,67 +724,20 @@ dd {
   line-height: 1.55;
 }
 
-.report-carousel__controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-}
-
-.report-carousel__nav {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border: 1px solid rgba(117, 88, 77, 0.24);
-  border-radius: 999px;
-  background: var(--color-surface-card);
-  color: var(--color-wood);
-  font-size: 1.4rem;
-  line-height: 1;
+.report-carousel--peek .report-carousel__slide {
+  opacity: 0.5;
   cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  transition: opacity 0.4s ease;
 }
 
-.report-carousel__nav:hover,
-.report-carousel__nav:focus-visible {
-  border-color: var(--color-grass);
-  background: rgba(221, 237, 73, 0.32);
-  color: var(--color-grass);
-}
-
-.report-carousel__dots {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.report-carousel__dot {
-  width: 10px;
-  height: 10px;
-  padding: 0;
-  border: 1px solid rgba(117, 88, 77, 0.32);
-  border-radius: 999px;
-  background: transparent;
-  cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
-}
-
-.report-carousel__dot:hover,
-.report-carousel__dot:focus-visible {
-  border-color: var(--color-grass);
-}
-
-.report-carousel__dot.is-active {
-  border-color: var(--color-grass);
-  background: var(--color-grass);
-  transform: scale(1.15);
+.report-carousel--peek .report-carousel__slide.is-active {
+  opacity: 1;
+  cursor: default;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .report-carousel__track {
+  .report-carousel__track,
+  .report-carousel--peek .report-carousel__slide {
     transition: none;
   }
 }
@@ -1982,11 +1935,11 @@ dd {
   }
 
   .report-carousel__slide {
-    flex: 0 0 100%;
+    flex: 0 0 72%;
   }
 
   .report-carousel__track {
-    gap: 0;
+    gap: 12px;
   }
 
   .partner-logos {

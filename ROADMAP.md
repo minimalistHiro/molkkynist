@@ -40,6 +40,7 @@ Molkkynist のサイトは、最初から全機能を作り込まず、公開に
 - 2026年5月21日に R-1 / R-2 / R-5 を決定。お問い合わせフォームは Googleフォームではなく Firebase 連携の独自フォームに切り替え（必須: 名前・メール／任意: 電話番号／用件区分4種／参加希望時は Firestore `events` から日程取得しトグル選択）。協力団体・スポンサーはトップ下部にロゴ並べ表示（参考: モルックマニアのパートナー募集）。現時点の掲載対象はココシバのみ。モルックルール記事のSEOブログ化は見送り。
 - 2026年5月21日に E-1（SEO 基本対策）を実装。全公開8ページ（`index` / `about` / `molkky` / `events` / `reports` / `members` / `contact` / `privacy`）に `meta name="keywords"`、`link rel="canonical"`、OGP（`og:type` / `og:site_name` / `og:locale` / `og:title` / `og:description` / `og:url` / `og:image`）、Twitter Card（`twitter:card=summary` / `title` / `description` / `image`）を追加。`index.html` のみ JSON-LD（Organization スキーマ）を追加。公開ドメインは `https://molkkynist-a0abd.web.app/` に確定済み。OGP 画像は暫定でロゴ画像を採用（OGP 専用画像作成時に差し替え）。
 - 2026年5月22日に公開8ページの共通ヘッダーを更新。ブランド名テキストを英字ワードマーク画像 `assets/images/logos/molkkynist-wordmark.png` に差し替え、スマートフォン表示ではハンバーガーメニューで主要セクションを開閉できるようにした。あわせて `index.html` のフッター直前に「ご予約はこちら」ボタンとX・Instagram・LINEのSNSアイコン導線を追加。
+- 2026年5月24日に `index.html` の `#about` と `#schedule` の間に `#news`（お知らせ）セクションを新設。活動レポートカルーセル（`report-carousel` / `report-news-card`）と同じ UI を流用し、ダミーカード4枚を自動スクロール表示する。お知らせ詳細用に共通テンプレート `news.html` と描画スクリプト `js/news-detail.js` を追加し、`?id=xxx` の URLパラメータでクライアント側ダミーデータを出し分ける。CSS には詳細ページ用の `.news-detail__visual` 系プレースホルダーを追加。Firestore `news` コレクションおよび `admin/news.html` は後続フェーズで実装する。
 - 試作版（見た目中心）を1週間目処で作成し、リンクをLINEで石井さんに共有予定。
 - 次回ミーティング: 2026年5月23日（土）21:00。AP関連の確認とサイト試作版の共有を予定。
 - サイト試作版の宣伝機会: 2026年6月7日のスローマーケット（ココシバ）、2026年6月13日のモルクッキング。
@@ -129,6 +130,7 @@ Molkkynist のサイトは、最初から全機能を作り込まず、公開に
 - イベント管理機能
 - 活動レポート管理機能
 - メンバー管理機能
+- お知らせ管理機能（`admin/news.html` / Firestore `news` コレクション）
 - 画像アップロード機能
 - お問い合わせ管理機能（`contactSubmissions` の一覧・詳細表示、`mail` の `delivery.state` 確認）
 

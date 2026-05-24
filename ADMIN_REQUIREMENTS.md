@@ -39,6 +39,7 @@
 
 - `admin/reports.html`
 - `admin/members.html`
+- `admin/news.html`
 - `admin/settings.html`
 - Storage を使った画像アップロード
 
@@ -111,6 +112,35 @@ admin/events.html
 - 持ち物
 - 雨天時の対応
 - 公開状態
+
+## お知らせ管理要件
+
+想定画面:
+
+```text
+admin/news.html
+```
+
+できること:
+
+- お知らせ記事を追加する
+- お知らせ記事を編集する
+- お知らせを非公開にする
+- 配信日を更新する
+- 必要に応じてカードビジュアルを差し替える
+
+入力項目:
+
+- タイトル
+- 本文
+- 配信日
+- カードビジュアル（暫定はカラープレースホルダー、将来は画像）
+- 公開状態
+
+備考:
+
+- 2026年5月24日時点では、トップページ `#news` カルーセルと共通テンプレート `news.html` のみ実装済み（ダミーデータ4件をクライアントJS `js/news-detail.js` で表示）。
+- Firestore `news` コレクションと管理画面 `admin/news.html` は未実装。`FIREBASE_ARCHITECTURE.md` の `news` コレクション案に従って後続フェーズで実装する。
 
 ## 活動レポート管理要件
 

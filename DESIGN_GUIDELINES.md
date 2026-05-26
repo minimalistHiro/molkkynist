@@ -262,7 +262,8 @@ Molkkynist のロゴ素材は以下を使用します。
 - 配置場所: `assets/images/activity/`
 - ファイル名: `activity-01.jpg` 〜 `activity-09.jpg`（左上から右下へ、`activity-01` `activity-02` `activity-03` / `activity-04` `activity-05` `activity-06` / `activity-07` `activity-08` `activity-09` の順）
 - 想定アスペクト比: 正方形（CSS で `aspect-ratio: 1 / 1` / `object-fit: cover`）。原画が長方形でも CSS 側でトリミングされる
-- 画像はWeb表示用に長辺 1200px 程度へリサイズし、JPEG 品質 80〜85 を目安に最適化してから配置する
+- 画像はWeb表示用に 800px 四方へリサイズし、JPEG 品質 70〜75 を目安に最適化してから配置する
+- スマートフォン向けに `activity-01-400.jpg` 〜 `activity-09-400.jpg` の 400px 四方の軽量版も用意し、`srcset` で表示幅に応じて読み分ける
 - 撮影写真を優先。屋外の活気が伝わるカットを選び、顔出し可否を確認のうえ使用する
 - 画像未配置の枠は `.activity-grid__item` の背景グラデーションがプレースホルダーとして表示される
 

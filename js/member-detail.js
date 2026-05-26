@@ -4,33 +4,36 @@
       name: "石井さん",
       roleLabel: "主催者",
       visualVariant: "",
-      paragraphs: [
-        "Molkkynistの活動を企画・運営する中心メンバーです。正式な紹介文は後日掲載します。",
-        "初めての方が安心して輪に入れるよう、当日の進行やルール説明を担当することが多いです。"
-      ],
+      startedReason: "公園で気軽に楽しめるモルックの雰囲気にひかれ、初めての方も一緒に遊べる場をつくりたいと思ったことがきっかけです。",
+      favoriteThings: "散歩、コーヒー、外で過ごす時間。天気の良い日に人が自然と集まる場所が好きです。",
+      firstTimerMessage: "ルールを知らなくても大丈夫です。当日は基本から説明するので、まずは見学だけでも気軽に来てください。",
       quote: "初めての方も、まずは見学から気軽にどうぞ。"
     },
     "member-a": {
       name: "運営メンバー A",
       roleLabel: "共同メンバー",
       visualVariant: "soft",
-      paragraphs: [
-        "イベント進行や参加者サポートを担当する想定の掲載枠です。",
-        "正式なプロフィール文と写真は、公開前に確認したうえで差し替えます。"
-      ],
-      quote: "ルール説明やチーム分けをサポートします。"
+      startedReason: "友人に誘われて参加したイベントで、経験に関係なく盛り上がれるところが楽しく、続けて参加するようになりました。",
+      favoriteThings: "音楽、写真、休日のカフェ巡り。活動の日は写真を撮りながら雰囲気を残すことも好きです。",
+      firstTimerMessage: "ひとりでの参加でも、その場で自然にチームを組めます。わからないことは近くのメンバーに声をかけてください。",
+      quote: "初参加の方が輪に入りやすい雰囲気づくりを大切にしています。"
     },
     "member-b": {
       name: "運営メンバー B",
       roleLabel: "共同メンバー",
       visualVariant: "wood",
-      paragraphs: [
-        "活動レポートや写真整理を担当する想定の掲載枠です。",
-        "正式なプロフィール文と写真は、公開前に確認したうえで差し替えます。"
-      ],
-      quote: "当日の雰囲気が伝わる更新を準備します。"
+      startedReason: "運動が得意でなくても楽しめるスポーツを探していたときにモルックを知り、ほどよい戦略性と気軽さに魅力を感じました。",
+      favoriteThings: "ボードゲーム、読書、季節のイベント。ゆっくり会話しながら遊べる時間が好きです。",
+      firstTimerMessage: "うまく投げられなくても楽しめるのがモルックの良いところです。まずは一投だけ試す気持ちで参加してください。",
+      quote: "勝ち負けよりも、みんなで笑える時間を大事にしています。"
     }
   };
+
+  const MEMBER_DETAIL_FIELDS = [
+    ["モルックを始めたきっかけ", "startedReason"],
+    ["モルック以外の好きなこと", "favoriteThings"],
+    ["初参加者へのメッセージ", "firstTimerMessage"]
+  ];
 
   function getId() {
     const params = new URLSearchParams(window.location.search);
@@ -58,15 +61,17 @@
     }
     if (bodyEl) {
       bodyEl.innerHTML = "";
-      item.paragraphs.forEach((text) => {
+      MEMBER_DETAIL_FIELDS.forEach(([label, key]) => {
+        const text = item[key];
+        if (!text) return;
         const p = document.createElement("p");
-        p.textContent = text;
+        p.textContent = `${label}：${text}`;
         bodyEl.appendChild(p);
       });
       if (item.quote) {
         const q = document.createElement("p");
         q.className = "quote";
-        q.textContent = item.quote;
+        q.textContent = `ひとことコメント：${item.quote}`;
         bodyEl.appendChild(q);
       }
     }

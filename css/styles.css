@@ -2,6 +2,7 @@
   --color-surface: #fafaf5;
   --color-surface-card: #ffffff;
   --color-surface-container: #eeeee9;
+  --color-surface-field: #f3f7ee;
   --color-text: #1a1c19;
   --color-text-muted: #3f4a3c;
   --color-outline: #becab9;
@@ -31,7 +32,7 @@ html {
 
 body {
   margin: 0;
-  background: var(--color-surface);
+  background: #fbfbf3;
   color: var(--color-text);
   font-family: var(--font-base);
   font-weight: 500;
@@ -124,7 +125,7 @@ p {
   position: sticky;
   top: 0;
   z-index: 20;
-  border-bottom: 1px solid rgba(190, 202, 185, 0.72);
+  border-bottom: 1px solid rgba(190, 202, 185, 0.48);
   background: rgba(250, 250, 245, 0.94);
   backdrop-filter: blur(16px);
 }
@@ -461,7 +462,7 @@ p {
 }
 
 .section--muted {
-  background: rgba(238, 238, 233, 0.74);
+  background: var(--color-surface-field);
 }
 
 .section__inner,
@@ -473,7 +474,8 @@ p {
 }
 
 .page-hero {
-  border-bottom: 1px solid rgba(190, 202, 185, 0.56);
+  border-bottom: 0;
+  background: var(--color-surface-field);
 }
 
 .page-hero__inner {
@@ -491,13 +493,33 @@ p {
   margin-bottom: 10px;
   color: var(--color-wood);
   font-size: 0.76rem;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0;
 }
 
 .section-heading {
   max-width: 760px;
   margin-bottom: 28px;
+}
+
+.section-heading h2,
+.page-hero h1,
+.cta-band h2 {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 18px;
+}
+
+.section-heading h2::after,
+.page-hero h1::after,
+.cta-band h2::after {
+  display: block;
+  width: 64px;
+  height: 5px;
+  margin-top: 10px;
+  border-radius: 999px;
+  background: var(--color-lime);
+  content: "";
 }
 
 .section-heading--with-link {
@@ -939,9 +961,7 @@ dd {
 }
 
 .cta-band {
-  background:
-    linear-gradient(180deg, rgba(250, 250, 245, 0.98), rgba(238, 238, 233, 0.86)),
-    var(--color-surface-container);
+  background: var(--color-surface-field);
 }
 
 .cta-band__inner {
@@ -950,9 +970,9 @@ dd {
   justify-content: space-between;
   gap: 28px;
   padding: 28px;
-  border: 1px solid rgba(117, 88, 77, 0.16);
+  border: 1px solid rgba(117, 88, 77, 0.12);
   border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.76);
+  background: rgba(255, 255, 255, 0.7);
   box-shadow: var(--shadow-soft);
 }
 
@@ -1267,15 +1287,16 @@ dd {
   color: var(--color-text-muted);
 }
 
-.venue-details {
+.schedule-venue-action {
   margin-top: 24px;
 }
 
-.venue-details__summary {
+.venue-link-button {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
+  width: 100%;
   min-height: 60px;
   padding: 16px 24px;
   border: 1px solid rgba(117, 88, 77, 0.24);
@@ -1287,18 +1308,9 @@ dd {
   line-height: 1.35;
   text-align: center;
   box-shadow: var(--shadow-touch);
-  cursor: pointer;
 }
 
-.venue-details__summary::-webkit-details-marker {
-  display: none;
-}
-
-.venue-details__summary::marker {
-  content: "";
-}
-
-.venue-details__icon {
+.venue-link-button__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1312,31 +1324,9 @@ dd {
   transition: transform 0.2s ease;
 }
 
-.venue-details[open] .venue-details__icon {
-  transform: rotate(180deg);
-}
-
-.venue-details__panel {
-  margin-top: 18px;
-  padding: 24px;
-  border: 1px solid rgba(117, 88, 77, 0.16);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface-card);
-  box-shadow: var(--shadow-soft);
-}
-
-.venue-details__heading {
-  max-width: 720px;
-  margin-bottom: 20px;
-}
-
-.venue-details__heading h3 {
-  margin-bottom: 8px;
-  font-size: clamp(1.25rem, 3vw, 1.6rem);
-}
-
-.venue-details__heading p:not(.section__label) {
-  color: var(--color-text-muted);
+.venue-link-button:hover .venue-link-button__icon,
+.venue-link-button:focus-visible .venue-link-button__icon {
+  transform: translateX(3px);
 }
 
 .venue-list {
@@ -1369,7 +1359,7 @@ dd {
   gap: 8px;
 }
 
-.venue-card h4 {
+.venue-card h3 {
   margin: 0;
   color: var(--color-text);
   font-size: clamp(1.05rem, 2.4vw, 1.28rem);
@@ -1398,6 +1388,12 @@ dd {
   line-height: 1.3;
   white-space: nowrap;
   cursor: default;
+}
+
+.venue-page-note {
+  margin-top: 18px;
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
 }
 
 .flow-notes {
@@ -2256,13 +2252,9 @@ dd {
     color: var(--color-grass);
   }
 
-  .venue-details__summary {
+  .venue-link-button {
     min-height: 56px;
     padding: 14px 18px;
-  }
-
-  .venue-details__panel {
-    padding: 18px;
   }
 
   .venue-card {

@@ -359,61 +359,37 @@ p {
   position: relative;
   display: grid;
   justify-items: center;
-  max-width: 720px;
+  max-width: 780px;
   margin: 36px auto 0;
-  padding: 0 clamp(54px, 10vw, 92px);
+  padding: 0 clamp(72px, 10vw, 108px);
 }
 
 .guide-cta__board {
   position: relative;
-  isolation: isolate;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 88px;
-  padding: 18px clamp(22px, 5vw, 48px);
-  overflow: hidden;
-  border: 2px solid rgba(96, 63, 40, 0.28);
-  border-radius: 24px 22px 26px 21px / 18px 24px 20px 24px;
-  background:
-    radial-gradient(circle at 18% 36%, rgba(96, 63, 40, 0.2) 0 6px, transparent 7px),
-    radial-gradient(circle at 78% 64%, rgba(96, 63, 40, 0.14) 0 8px, transparent 9px),
-    repeating-linear-gradient(7deg, rgba(255, 255, 255, 0.22) 0 7px, rgba(117, 88, 77, 0.08) 8px 13px),
-    linear-gradient(180deg, #d1a36f, #b77d45 52%, #9f6736);
+  min-height: clamp(104px, 14vw, 132px);
+  padding: 24px clamp(46px, 6vw, 76px);
+  border: 0;
+  background-image: url("../assets/images/ui/wooden-cta-board.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
   color: #2f1c11;
   text-align: center;
-  text-shadow: 0 1px 0 rgba(255, 241, 204, 0.72);
-  box-shadow: 0 16px 28px rgba(117, 88, 77, 0.14);
+  text-shadow: 0 1px 0 rgba(255, 241, 204, 0.82);
+  filter: drop-shadow(0 16px 18px rgba(117, 88, 77, 0.18));
   transform: rotate(-0.4deg);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.guide-cta__board::before,
-.guide-cta__board::after {
-  position: absolute;
-  z-index: -1;
-  content: "";
-  pointer-events: none;
-}
-
-.guide-cta__board::before {
-  inset: 10px 14px;
-  border-top: 1px solid rgba(255, 247, 220, 0.4);
-  border-bottom: 1px solid rgba(77, 48, 30, 0.16);
-  border-radius: inherit;
-}
-
-.guide-cta__board::after {
-  inset: 0;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.22), transparent 28%, rgba(77, 48, 30, 0.12));
-  mix-blend-mode: soft-light;
+  transition: filter 0.2s ease, transform 0.2s ease;
 }
 
 .guide-cta__board:hover,
 .guide-cta__board:focus-visible {
-  box-shadow: 0 20px 32px rgba(117, 88, 77, 0.18);
+  filter: drop-shadow(0 20px 22px rgba(117, 88, 77, 0.22));
   transform: translateY(-2px) rotate(-0.4deg);
 }
 
@@ -422,6 +398,7 @@ p {
   display: block;
   position: relative;
   z-index: 1;
+  white-space: nowrap;
 }
 
 .guide-cta__board span {
@@ -440,28 +417,23 @@ p {
 
 .guide-cta__mascot {
   position: absolute;
-  bottom: -8px;
+  top: 50%;
   z-index: 2;
-  width: clamp(72px, 12vw, 96px);
-  height: clamp(98px, 15vw, 128px);
-  background-image: url("../assets/images/logos/molkkynist-logo-mark.png");
-  background-repeat: no-repeat;
-  background-size: auto 128px;
-  filter: drop-shadow(0 8px 10px rgba(117, 88, 77, 0.16));
-  mix-blend-mode: multiply;
+  width: clamp(126px, 16vw, 156px);
+  max-width: none;
+  height: auto;
+  filter: drop-shadow(0 10px 12px rgba(117, 88, 77, 0.16));
   pointer-events: none;
 }
 
 .guide-cta__mascot--left {
   left: 0;
-  background-position: left top;
-  transform: rotate(-3deg);
+  transform: translateY(-50%) rotate(-3deg);
 }
 
 .guide-cta__mascot--right {
   right: 0;
-  background-position: right top;
-  transform: rotate(3deg);
+  transform: translateY(-50%) rotate(3deg);
 }
 
 .button-row--sub-actions {
@@ -1916,9 +1888,12 @@ dd {
   border-radius: 999px;
   background: var(--color-surface-card);
   color: var(--color-wood);
-  font-size: 0.82rem;
-  font-weight: 900;
   box-shadow: var(--shadow-soft);
+}
+
+.social-link__icon {
+  width: 22px;
+  height: 22px;
 }
 
 .social-link:hover {
@@ -2057,29 +2032,24 @@ dd {
 
   .guide-cta {
     margin-top: 32px;
-    padding: 54px 0 0;
+    padding: 0 46px;
   }
 
   .guide-cta__board {
-    min-height: 78px;
-    padding: 16px 20px;
-    border-radius: 18px 20px 18px 21px / 16px 18px 20px 18px;
+    min-height: 104px;
+    padding: 20px 52px;
   }
 
   .guide-cta__mascot {
-    top: 0;
-    bottom: auto;
-    width: 58px;
-    height: 78px;
-    background-size: auto 86px;
+    width: 104px;
   }
 
   .guide-cta__mascot--left {
-    left: 20px;
+    left: -2px;
   }
 
   .guide-cta__mascot--right {
-    right: 20px;
+    right: -2px;
   }
 
   .card-grid--three,

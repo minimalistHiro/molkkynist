@@ -162,6 +162,7 @@ Stitch の Fluid Grid を採用し、静的HTML/CSSで扱いやすいレスポ�
 - Instagram DM への導線を最重要CTAとして扱う。
 - 参加申し込みやInstagram DMなど、ページ内で最も重要な案内には木目板風のCTAを使ってよい。木目はCSSグラデーションまたは Image Gen で作成した文字なし素材を使い、テキストはHTMLで配置する。
 - キャラクター付きCTAを使う場合も、すべてのリンクを装飾CTAに置き換えない。通常ボタンは一覧、カード、フォーム、フッター固定導線などで継続利用する。
+- トップページ「参加の流れ」の案内役CTAでは、左右キャラクターを個別の背景透明PNG（`assets/images/characters/molkkynist-character-green.png` / `molkkynist-character-brown.png`）として扱い、木板は Image Gen で作成した背景透明PNG（`assets/images/ui/wooden-cta-board.png`）を使う。木板画像には文字を含めず、中央テキストはHTMLで重ねる。
 
 ### チップ・状態ラベル
 

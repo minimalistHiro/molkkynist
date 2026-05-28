@@ -13,6 +13,14 @@
 
 ---
 
+## 2026-05-28
+
+| ID | 区分 | 対象 | 内容 | 備考 |
+|----|------|------|------|------|
+| A-4 | 会議決定 | assets / HTML / CSS | ココシバの実ロゴ画像を背景透過PNGに差し替え | `assets/images/partners/cocoshiba-transparent.png` を追加し、`index.html` の `#partners` セクションでココシバロゴの参照先を差し替え。募集枠の「Logo」プレースホルダーを撤去し、掲載済みロゴのみを並べる構成に整理。`css/styles.css` の `partner-logos` / `partner-logo` / `partner-logo__image` を、透過ロゴが余白なく自然に見えるレイアウトへ調整。 |
+
+---
+
 ## 2026-05-24
 
 | ID | 区分 | 対象 | 内容 | 備考 |

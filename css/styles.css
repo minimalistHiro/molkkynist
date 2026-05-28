@@ -378,22 +378,25 @@ p {
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: clamp(72px, 9vw, 88px);
-  padding: 18px clamp(42px, 5vw, 68px);
-  border: 1px solid rgba(0, 110, 28, 0.18);
-  border-radius: var(--radius-pill);
-  background: var(--color-grass);
-  color: #ffffff;
+  min-height: clamp(96px, 12vw, 122px);
+  padding: 22px clamp(42px, 5vw, 68px);
+  border: 0;
+  background-image: url("../assets/images/ui/wooden-cta-board.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  color: #2f1c11;
   text-align: center;
-  text-shadow: none;
-  box-shadow: var(--shadow-touch);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  text-shadow: 0 1px 0 rgba(255, 241, 204, 0.82);
+  filter: drop-shadow(0 16px 18px rgba(117, 88, 77, 0.18));
+  transform: rotate(-0.4deg);
+  transition: filter 0.2s ease, transform 0.2s ease;
 }
 
 .guide-cta__board:hover,
 .guide-cta__board:focus-visible {
-  box-shadow: 0 14px 30px rgba(117, 88, 77, 0.12);
-  transform: translateY(-2px);
+  filter: drop-shadow(0 20px 22px rgba(117, 88, 77, 0.22));
+  transform: translateY(-2px) rotate(-0.4deg);
 }
 
 .guide-cta__board span,
@@ -412,7 +415,7 @@ p {
 
 .guide-cta__board small {
   margin-top: 4px;
-  color: rgba(255, 255, 255, 0.78);
+  color: rgba(47, 28, 17, 0.78);
   font-size: 0.82rem;
   font-weight: 800;
   line-height: 1.4;
@@ -2099,7 +2102,8 @@ dd {
   }
 
   .partner-logos {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 28px 24px;
   }
 
   .schedule-item {
@@ -2213,7 +2217,16 @@ dd {
   }
 
   .partner-logos {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px 16px;
+  }
+
+  .partner-logo {
+    min-height: 72px;
+  }
+
+  .partner-logo__image {
+    max-height: 78px;
   }
 
   .schedule-item {

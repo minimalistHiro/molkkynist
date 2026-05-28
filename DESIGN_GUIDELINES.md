@@ -134,7 +134,7 @@ Stitch の Fluid Grid を採用し、静的HTML/CSSで扱いやすいレスポ�
 - メンバー詳細ページ（`member.html`）の構成は、ページヒーローを `Members` ラベルのみに簡素化し（`.member-detail .page-hero { border-bottom: 0; }` で他ページの page-hero の下線を継承させない）、本文セクションの先頭にアイコン（`.member-detail__visual`）→ 役割（`.member-detail__role`）→ 名前（h1）の順で配置し、`.member-detail__heading` で役割と名前を中央寄せでまとめる。本文（`.prose`）はその下に通常配置。
 - トップページの「活動の様子」セクション（`#activity`）は、正方形写真を 3×3 グリッド（`activity-grid`）で並べて見せる。PC / タブレット / SP いずれも 3 列固定、gap は 8px、各セルは `aspect-ratio: 1 / 1`、`object-fit: cover`、角丸 `--radius-md`。写真クリックは不可（装飾のみ）。画像は `assets/images/activity/activity-01.jpg` 〜 `activity-09.jpg` を参照し、未配置時は黄色〜緑系の淡いグラデーション（`--color-lime` / `--color-fresh` をベースにした半透明レイヤー）をカラープレースホルダーとして表示する。セクション下部には `reports.html` への導線ボタン「活動レポートを見る」を残す。
 - トップページの「お知らせ」セクションは、`report-carousel` / `report-news-card` のカルーセル UI で、正方形ビジュアル＋日付＋タイトルで構成したニュースカードを横スライドする。PC は3枚グリッド、タブレットは2枚グリッドで表示し、スマートフォンは中央1枚＋両隣のカードが見切れるピーク表示にする。スマートフォンでは非アクティブ（両隣）カードは半透明で表示し、タップするとそのカードに送って中央に強調する。5秒間隔で自動送りし、`prefers-reduced-motion` 有効時、ホバー・フォーカス時、タブ非表示時は自動送りを停止する。前後ボタンやドットインジケータは設けない。カード遷移先は `news.html?id=xxx`。
-- トップページの重要CTAには、左右のキャラクターが案内しているような「案内役CTA」を限定採用する。中央の文言は画像内文字ではなくHTMLテキストで配置し、CTA本体はカプセル型・単色背景で可読性を優先する。
+- トップページの重要CTAには、左右のキャラクターが案内しているような「案内役CTA」を限定採用する。中央の文言は画像内文字ではなくHTMLテキストで配置する。トップページ「参加の流れ」の案内CTAに限り、木目板画像をCTA本体に使う。
 
 ## 角丸・影・立体感
 
@@ -163,9 +163,9 @@ Stitch の Fluid Grid を採用し、静的HTML/CSSで扱いやすいレスポ�
 - 主要ボタンはグラデーションを使わず、必要に応じて控えめな影で押せる要素として見せる。
 - 副ボタンはカプセル型、白背景、Wood Brown 系の細い枠線を基本にする。
 - Instagram DM への導線を最重要CTAとして扱う。
-- 参加申し込みやInstagram DMなど、ページ内で最も重要な案内も、通常ボタンと同じくカプセル型・単色背景を基本にする。
+- 参加申し込みやInstagram DMなど、ページ内で最も重要な通常ボタンも、カプセル型・単色背景を基本にする。
 - キャラクター付きCTAを使う場合も、すべてのリンクを装飾CTAに置き換えない。通常ボタンは一覧、カード、フォーム、フッター固定導線などで継続利用する。
-- トップページ「参加の流れ」の案内役CTAでは、左右キャラクターを個別の背景透明PNG（`assets/images/characters/molkkynist-character-green.png` / `molkkynist-character-brown.png`）として扱い、CTA本体はHTML/CSSのカプセル型ボタンで作る。
+- トップページ「参加の流れ」の案内役CTAでは、左右キャラクターを個別の背景透明PNG（`assets/images/characters/molkkynist-character-green.png` / `molkkynist-character-brown.png`）として扱い、CTA本体には木目板画像（`assets/images/ui/wooden-cta-board.png`）を使う。木板画像には文字を含めず、中央テキストはHTMLで重ねる。
 
 ### チップ・状態ラベル
 

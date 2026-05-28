@@ -763,6 +763,7 @@ dd {
 .report-carousel__viewport {
   overflow: hidden;
   border-radius: var(--radius-md);
+  touch-action: pan-y;
 }
 
 .report-carousel__track {
@@ -847,6 +848,10 @@ dd {
 .report-carousel--peek .report-carousel__slide.is-active {
   opacity: 1;
   cursor: default;
+}
+
+.report-carousel--peek.is-dragging .report-carousel__track {
+  transition: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1306,25 +1311,6 @@ dd {
   line-height: 1.35;
   text-align: center;
   box-shadow: var(--shadow-touch);
-}
-
-.venue-link-button__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.72);
-  color: var(--color-grass);
-  font-size: 1.1rem;
-  transition: transform 0.2s ease;
-}
-
-.venue-link-button:hover .venue-link-button__icon,
-.venue-link-button:focus-visible .venue-link-button__icon {
-  transform: translateX(3px);
 }
 
 .venue-list {

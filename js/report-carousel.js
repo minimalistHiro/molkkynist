@@ -22,6 +22,13 @@
     let pageCount = computePageCount(visibleCount);
     let currentIndex = 0;
     let timerId = null;
+    let isDragging = false;
+    let dragPointerId = null;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let dragDeltaX = 0;
+    let dragMoved = false;
+    let suppressClick = false;
 
     function getVisibleCount() {
       const width = window.innerWidth;
@@ -47,15 +54,23 @@
       return Number.isNaN(gap) ? 0 : gap;
     }
 
-    function update() {
+    function getOffset() {
       const slideWidth = slides[0].getBoundingClientRect().width;
       const gap = getGap();
       const viewportWidth = viewport.getBoundingClientRect().width;
       const centerOffset = isPeekMode()
         ? (viewportWidth - slideWidth) / 2
         : 0;
-      const offset = currentIndex * (slideWidth + gap) - centerOffset;
-      track.style.transform = `translateX(${-offset}px)`;
+      return currentIndex * (slideWidth + gap) - centerOffset;
+    }
+
+    function setTrackOffset(offset, dragOffset = 0) {
+      track.style.transform = `translateX(${-offset + dragOffset}px)`;
+    }
+
+    function update() {
+      const offset = getOffset();
+      setTrackOffset(offset);
 
       root.classList.toggle("report-carousel--peek", isPeekMode());
 
@@ -77,6 +92,88 @@
       currentIndex = ((index % pageCount) + pageCount) % pageCount;
       update();
     }
+
+    function resetDragState() {
+      isDragging = false;
+      dragPointerId = null;
+      dragStartX = 0;
+      dragStartY = 0;
+      dragDeltaX = 0;
+      dragMoved = false;
+      root.classList.remove("is-dragging");
+    }
+
+    function finishDrag() {
+      if (!isDragging) return;
+
+      const slideWidth = slides[0].getBoundingClientRect().width;
+      const threshold = Math.min(90, Math.max(40, slideWidth * 0.18));
+      const shouldMove = Math.abs(dragDeltaX) >= threshold;
+      const direction = dragDeltaX < 0 ? 1 : -1;
+
+      if (shouldMove) {
+        goTo(currentIndex + direction);
+      } else {
+        update();
+      }
+
+      const shouldRestart = dragMoved;
+      suppressClick = dragMoved;
+      resetDragState();
+
+      if (shouldRestart) {
+        restartTimer();
+        window.setTimeout(() => {
+          suppressClick = false;
+        }, 350);
+      }
+    }
+
+    viewport.addEventListener("pointerdown", (event) => {
+      if (!isPeekMode()) return;
+      if (pageCount <= 1) return;
+      if (!event.isPrimary) return;
+      if (event.pointerType === "mouse") return;
+
+      isDragging = true;
+      dragPointerId = event.pointerId;
+      dragStartX = event.clientX;
+      dragStartY = event.clientY;
+      dragDeltaX = 0;
+      dragMoved = false;
+      stopTimer();
+      root.classList.add("is-dragging");
+      viewport.setPointerCapture(event.pointerId);
+    });
+
+    viewport.addEventListener("pointermove", (event) => {
+      if (!isDragging || event.pointerId !== dragPointerId) return;
+
+      const deltaX = event.clientX - dragStartX;
+      const deltaY = event.clientY - dragStartY;
+      const isHorizontal = Math.abs(deltaX) > Math.abs(deltaY) + 8;
+
+      if (!dragMoved && !isHorizontal) {
+        return;
+      }
+
+      dragMoved = true;
+      dragDeltaX = deltaX;
+      setTrackOffset(getOffset(), dragDeltaX);
+      event.preventDefault();
+    });
+
+    viewport.addEventListener("pointerup", (event) => {
+      if (!isDragging || event.pointerId !== dragPointerId) return;
+      finishDrag();
+    });
+
+    viewport.addEventListener("pointercancel", (event) => {
+      if (!isDragging || event.pointerId !== dragPointerId) return;
+      update();
+      resetDragState();
+      startTimer();
+    });
 
     function next() {
       goTo(currentIndex + 1);
@@ -112,6 +209,10 @@
 
     slides.forEach((slide, i) => {
       slide.addEventListener("click", (event) => {
+        if (suppressClick) {
+          event.preventDefault();
+          return;
+        }
         if (!isPeekMode()) return;
         if (i === currentIndex) return;
         event.preventDefault();

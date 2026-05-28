@@ -35,7 +35,7 @@
 | ID | 区分 | 対象 | 内容 | 備考 |
 |----|------|------|------|------|
 | C-6 | 独自対応 | HTML / CSS / assets | トップページ「協力団体・スポンサー」をロゴのみのレイアウトに変更し、ココシバのロゴ画像を配置 | `index.html` の `#partners` セクションを、ロゴ＋団体名＋役割の3段カード（`partner-card` / `partner-grid`）から、ロゴ画像のみを並べる `partner-logo` / `partner-logos` 構造に置き換え。新規ディレクトリ `assets/images/partners/` を追加し、ココシバの公式ロゴ（Antenna Books & Cafe ココシバ）を `cocoshiba.png` として配置。`css/styles.css` の旧 `.partner-card*` 系を、`max-width: 200px / max-height: 90px / object-fit: contain` の `.partner-logo__image` を含む新クラス群に書き換え、PC4カラム・タブレット／モバイル2カラムのレスポンシブ対応に調整。`DESIGN_GUIDELINES.md`「パートナー枠」項を新仕様（1枠1ロゴ、画像配置・命名ルール、テキスト併記なし）に書き換え。 |
-| C-5 | 独自対応 | HTML / CSS / JavaScript | トップページ「次回イベント / 開催スケジュール」を月次カレンダー表示に変更 | `index.html` のスケジュールセクションから「イベント一覧へ」ボタンと「準備中／企画中」の静的2カードを削除し、`schedule-calendar` ブロック（月見出し＋前月／翌月ナビ、7列カレンダーグリッド、当月イベント一覧、ステータス行）に置き換え。新規 `js/schedule-calendar.js`（ESモジュール）で Firestore `events` の `isPublished == true` を取得し、該当日セルを淡い緑＋ドットでハイライト、カレンダー下に当月イベント（日付・タイトル・時間・場所）を縦並び表示。Firebase 未設定時はカレンダーのみ描画する安全側フォールバック。`css/styles.css` に `schedule-calendar*` 一式と 680px 以下のモバイル調整を追加。`SITE_STRUCTURE.md`「次回イベント / 開催スケジュール」項と `DESIGN_GUIDELINES.md`「静的スケジュールリスト」項を新仕様（月次カレンダー）に書き換え。 |
+| C-5 | 独自対応 | HTML / CSS / JavaScript | トップページ「開催スケジュール」を月次カレンダー表示に変更 | `index.html` のスケジュールセクションから「イベント一覧へ」ボタンと「準備中／企画中」の静的2カードを削除し、`schedule-calendar` ブロック（月見出し＋前月／翌月ナビ、7列カレンダーグリッド、当月イベント一覧、ステータス行）に置き換え。新規 `js/schedule-calendar.js`（ESモジュール）で Firestore `events` の `isPublished == true` を取得し、該当日セルを淡い緑＋ドットでハイライト、カレンダー下に当月イベント（日付・タイトル・時間・場所）を縦並び表示。Firebase 未設定時はカレンダーのみ描画する安全側フォールバック。`css/styles.css` に `schedule-calendar*` 一式と 680px 以下のモバイル調整を追加。`SITE_STRUCTURE.md`「開催スケジュール」項と `DESIGN_GUIDELINES.md`「静的スケジュールリスト」項を新仕様（月次カレンダー）に書き換え。 |
 
 ## 2026-05-22
 

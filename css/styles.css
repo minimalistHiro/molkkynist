@@ -242,20 +242,21 @@ p {
 .hero {
   padding: 72px var(--space-page) 56px;
   background: var(--color-surface-warm);
+  text-align: center;
 }
 
 .hero__inner {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
-  align-items: end;
-  max-width: var(--max-width);
-  min-height: min(680px, calc(100svh - 92px));
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  max-width: 900px;
+  min-height: auto;
   margin: 0 auto;
   gap: 40px;
 }
 
 .hero__content {
-  max-width: 760px;
+  max-width: 900px;
 }
 
 .hero__logo {
@@ -266,17 +267,17 @@ p {
 .hero__wordmark {
   display: block;
   width: 100%;
-  max-width: 440px;
+  max-width: 520px;
   height: auto;
-  margin: 0 0 16px;
+  margin: 0 auto 18px;
 }
 
 .hero__photo {
   display: block;
   width: 100%;
-  max-width: 560px;
+  max-width: 760px;
   height: auto;
-  margin: 8px 0 32px;
+  margin: 8px auto 32px;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft);
 }
@@ -299,12 +300,16 @@ p {
 
 .hero__content > h1,
 #hero-title {
+  max-width: 760px;
+  margin-right: auto;
+  margin-left: auto;
   font-size: clamp(1.4rem, 3.2vw, 2rem);
   line-height: 1.35;
 }
 
 .hero__lead {
   max-width: 680px;
+  margin: 0 auto;
   font-size: clamp(1rem, 2vw, 1.18rem);
 }
 

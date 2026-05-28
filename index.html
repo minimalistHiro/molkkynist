@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="css/styles.css">
     <script src="js/site-nav.js" defer></script>
     <script src="js/report-carousel.js" defer></script>
+    <script src="js/schedule-calendar-fallback.js" defer></script>
     <script type="module" src="js/schedule-calendar.js"></script>
     <script type="application/ld+json">
     {
@@ -65,7 +66,7 @@
         <div class="hero__inner">
           <div class="hero__content">
             <img class="hero__wordmark" src="assets/images/logos/molkkynist-wordmark-hero.png" alt="Molkkynist" width="1037" height="202">
-            <img class="hero__photo" src="assets/images/hero/hero-main.jpg" srcset="assets/images/hero/hero-main-800.jpg 800w, assets/images/hero/hero-main.jpg 1200w" sizes="(max-width: 980px) calc(100vw - 32px), 560px" alt="モルックを楽しむメンバーの様子" width="1200" height="900">
+            <img class="hero__photo" src="assets/images/hero/hero-main.jpg" srcset="assets/images/hero/hero-main-800.jpg 800w, assets/images/hero/hero-main.jpg 1200w" sizes="(max-width: 980px) calc(100vw - 32px), 760px" alt="モルックを楽しむメンバーの様子" width="1200" height="900">
             <h1 id="hero-title">「モルックをもっと身近な遊びに。」をコンセプトにしたコミュニティです</h1>
             <div class="hero__lead">
               <p>Molkkynistは、モルックを通じて人が自然につながる場所を目指しているコミュニティです。</p>
@@ -102,6 +103,7 @@
       <section id="news" class="section" aria-labelledby="news-title">
         <div class="section__inner">
           <div class="section-heading">
+            <p class="section__label">News</p>
             <h2 id="news-title">お知らせ</h2>
           </div>
           <div
@@ -160,7 +162,7 @@
           <div class="section-heading">
             <div>
               <p class="section__label">Upcoming Schedule</p>
-              <h2 id="schedule-title">次回イベント / 開催スケジュール</h2>
+              <h2 id="schedule-title">開催スケジュール</h2>
               <p class="section-lead">直近の開催予定をまとめています。色付きの日付にイベントがあります。</p>
             </div>
           </div>
@@ -356,7 +358,7 @@
           <div class="section-heading">
             <p class="section__label">FAQ</p>
             <h2 id="faq-title">よくある質問</h2>
-            <p class="section-lead">参加検討の際に多くいただく質問を13問にまとめました。</p>
+            <p class="section-lead">参加検討の際に多くいただく質問を14問にまとめました。</p>
           </div>
           <ul class="faq-list faq-accordion" aria-label="よくある質問一覧">
             <li>
@@ -402,7 +404,15 @@
             <li>
               <details class="faq-accordion__item">
                 <summary>
-                  <h3>Q6. 雨天時はどうなりますか？</h3>
+                  <h3>Q6. 当日のお支払い方法は何がありますか？</h3>
+                </summary>
+                <p>現金とPayPayに対応しております。</p>
+              </details>
+            </li>
+            <li>
+              <details class="faq-accordion__item">
+                <summary>
+                  <h3>Q7. 雨天時はどうなりますか？</h3>
                 </summary>
                 <p>※ 雨天時対応の最終方針が確定次第、こちらに掲載します。決定までの間は、開催判断をお問い合わせフォームまたは Instagram でご案内します。</p>
               </details>
@@ -410,7 +420,7 @@
             <li>
               <details class="faq-accordion__item">
                 <summary>
-                  <h3>Q7. 見学だけでも可能ですか？</h3>
+                  <h3>Q8. 見学だけでも可能ですか？</h3>
                 </summary>
                 <p>見学のみのご参加も歓迎しています。実際の雰囲気を確認してから次回参加を決めていただくこともできますので、お気軽にお越しください。</p>
               </details>
@@ -418,7 +428,7 @@
             <li>
               <details class="faq-accordion__item">
                 <summary>
-                  <h3>Q8. 当日のキャンセルはどうすればいいですか？</h3>
+                  <h3>Q9. 当日のキャンセルはどうすればいいですか？</h3>
                 </summary>
                 <p>当日のキャンセルは Instagram DM またはお問い合わせフォームから一報いただけると助かります。理由は問いませんので、お気軽にご連絡ください。</p>
               </details>
@@ -426,7 +436,7 @@
             <li>
               <details class="faq-accordion__item">
                 <summary>
-                  <h3>Q9. 駐車場はありますか／アクセス方法は？</h3>
+                  <h3>Q10. 駐車場はありますか／アクセス方法は？</h3>
                 </summary>
                 <p>会場によって異なります。各イベントページに開催場所とアクセス情報を掲載していますので、申込前にご確認ください。公共交通機関のご利用も歓迎です。</p>
               </details>
@@ -434,7 +444,7 @@
             <li>
               <details class="faq-accordion__item">
                 <summary>
-                  <h3>Q10. 運動が苦手でも楽しめますか？</h3>
+                  <h3>Q11. 運動が苦手でも楽しめますか？</h3>
                 </summary>
                 <p>モルックは走ったり激しく動いたりする競技ではありません。木の棒を投げてピンを倒すシンプルな遊びなので、運動が得意でない方でも十分に楽しめます。</p>
               </details>
@@ -442,7 +452,7 @@
             <li>
               <details class="faq-accordion__item">
                 <summary>
-                  <h3>Q11. シニアでも参加できますか？</h3>
+                  <h3>Q12. シニアでも参加できますか？</h3>
                 </summary>
                 <p>年齢を問わず楽しめる競技です。フィンランド発祥のスポーツで、海外では幅広い世代の方が一緒に楽しんでいます。無理のない範囲でご参加いただけます。</p>
               </details>
@@ -450,7 +460,7 @@
             <li>
               <details class="faq-accordion__item">
                 <summary>
-                  <h3>Q12. 写真撮影はされますか？SNS掲載されますか？</h3>
+                  <h3>Q13. 写真撮影はされますか？SNS掲載されますか？</h3>
                 </summary>
                 <p>活動の記録のため当日写真を撮影することがあります。SNS掲載を希望されない場合は、当日その旨をお伝えいただければ配慮いたします。</p>
               </details>
@@ -458,7 +468,7 @@
             <li>
               <details class="faq-accordion__item">
                 <summary>
-                  <h3>Q13. 道具は持参が必要ですか？</h3>
+                  <h3>Q14. 道具は持参が必要ですか？</h3>
                 </summary>
                 <p>モルックの道具はすべてこちらで用意しますので、持参の必要はありません。手ぶらでお越しいただけます。</p>
               </details>

@@ -1,4 +1,4 @@
-// トップページ「次回イベント / 開催スケジュール」の月次カレンダー。
+// トップページ「開催スケジュール」の月次カレンダー。
 // Firestore の events から公開済みイベントを取得し、該当日をハイライトする。
 // Firebase 未設定時や読み込み失敗時は、カレンダーのみ表示する安全側のフォールバック。
 
@@ -23,6 +23,8 @@ if (root) {
 }
 
 async function initCalendar(container) {
+  container.dataset.calendarModuleActive = "true";
+
   const titleEl = container.querySelector("[data-calendar-title]");
   const gridEl = container.querySelector("[data-calendar-grid]");
   const eventsListEl = container.querySelector("[data-calendar-events]");

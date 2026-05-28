@@ -271,7 +271,7 @@ UI表示用ロゴマークはヘッダー、フッター、SNS誘導付近など
 
 - セレクタ: `.report-news-card__visual`、`.report-card__visual`、`.news-detail__visual`
 - トップのお知らせカードは正方形、詳細ページは `16 / 9`・最大幅 800px を基準にする。
-- 角丸はカード内ビジュアルで `var(--radius-md)`、詳細ページの大きなビジュアルで `var(--radius-lg)` を使う。影は控えめな `--shadow-card` を基準にする。
+- 角丸はトップのお知らせカードとカード内ビジュアルで `var(--radius-news-card)`、レポートカード内ビジュアルで `var(--radius-md)`、詳細ページの大きなビジュアルで `var(--radius-lg)` を使う。影は控えめな `--shadow-card` を基準にする。
 - カラー: `--color-surface-field` を基本に、`--soft` / `--wood` / `--lime` のモディファイアで淡い芝生色、木色、ライム色を使い分ける。
 - 強いグラデーションは使わず、薄い枠線や控えめな内側線で面を整理する。実写写真や生成画像が入ったときに、プレースホルダーが主張しすぎない状態を優先する。
 - 将来 Firestore に画像URLを持たせた段階で、`img` 要素または `background-image` へ差し替える前提。
@@ -369,6 +369,7 @@ CSS は `css/styles.css` を基準に管理します。
   --shadow-soft: 0 4px 12px rgba(117, 88, 77, 0.08);
   --radius-sm: 4px;
   --radius-md: 8px;
+  --radius-news-card: 12px;
   --radius-lg: 16px;
   --container-max: 1200px;
 }

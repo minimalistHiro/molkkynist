@@ -717,7 +717,7 @@ dd {
 .faq-accordion__item summary {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 34px;
+  grid-template-columns: minmax(0, 1fr) 20px;
   gap: 12px;
   align-items: center;
   min-height: 60px;
@@ -731,23 +731,18 @@ dd {
 }
 
 .faq-accordion__item summary::after {
-  display: grid;
-  width: 34px;
-  height: 34px;
-  place-items: center;
-  border-radius: 50%;
-  background: rgba(221, 237, 73, 0.58);
-  color: var(--color-text);
-  font-size: 0.78rem;
-  font-weight: 900;
-  line-height: 1;
-  content: "▼";
-  transition: transform 0.2s ease, background-color 0.2s ease;
+  justify-self: center;
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid var(--color-text);
+  border-bottom: 2px solid var(--color-text);
+  content: "";
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
 }
 
 .faq-accordion__item[open] summary::after {
-  background: rgba(0, 110, 28, 0.12);
-  transform: rotate(180deg);
+  transform: rotate(225deg);
 }
 
 .faq-accordion__item summary:focus-visible {

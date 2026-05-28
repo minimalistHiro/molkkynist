@@ -9,6 +9,7 @@
   const setOpen = (isOpen) => {
     toggle.setAttribute("aria-expanded", String(isOpen));
     nav.classList.toggle("is-open", isOpen);
+    document.body.classList.toggle("nav-open", isOpen);
   };
 
   toggle.addEventListener("click", () => {

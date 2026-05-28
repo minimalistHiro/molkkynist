@@ -64,14 +64,22 @@
     <main id="main">
       <section class="hero" aria-labelledby="hero-title">
         <div class="hero__inner">
-          <div class="hero__content">
-            <img class="hero__wordmark" src="assets/images/logos/molkkynist-wordmark-hero.png" alt="Molkkynist" width="1037" height="202">
-            <img class="hero__photo" src="assets/images/hero/hero-main.jpg" srcset="assets/images/hero/hero-main-800.jpg 800w, assets/images/hero/hero-main.jpg 1200w" sizes="(max-width: 980px) calc(100vw - 32px), 760px" alt="モルックを楽しむメンバーの様子" width="1200" height="900">
-            <h1 id="hero-title">「モルックをもっと身近な遊びに。」をコンセプトにしたコミュニティです</h1>
-            <div class="hero__lead">
-              <p>Molkkynistは、モルックを通じて人が自然につながる場所を目指しているコミュニティです。</p>
-              <p>運動が得意かどうか、モルックを知っているかどうかは関係ありません。初めての方も、一人で参加する方も、その場でルールを覚えながら一緒に楽しめる雰囲気を大切にしています。</p>
-              <p>晴れた日の公園にふらっと集まるように、気軽に参加できて、気づけば誰かと笑っている。そんな体験をきっかけに、モルックの楽しさをもっと多くの人に届けていきたいと考えています。</p>
+          <div class="hero__panel">
+            <picture class="hero__media">
+              <source srcset="assets/images/hero/hero-main-800.jpg" media="(max-width: 680px)">
+              <img src="assets/images/hero/hero-main.jpg" alt="モルックを楽しむメンバーの様子" width="1200" height="900" fetchpriority="high">
+            </picture>
+            <div class="hero__content">
+              <p class="hero__kicker">週末の公園が、もっと楽しくなる。</p>
+              <h1 id="hero-title">モルックを、もっと身近な遊びに。</h1>
+              <div class="hero__lead">
+                <p>Molkkynistは、フィンランド生まれの「モルック」を気軽に楽しむためのコミュニティです。</p>
+                <p>経験も道具も必要ありません。晴れた日の公園で、新しいつながりを一緒に楽しみませんか。</p>
+              </div>
+              <div class="hero__actions" aria-label="トップページの主要導線">
+                <a class="button button--primary hero__button" href="#schedule">イベントに参加する</a>
+                <a class="button button--secondary hero__button hero__button--light" href="#about">詳しく見る</a>
+              </div>
             </div>
           </div>
         </div>
@@ -288,33 +296,33 @@
             </div>
             <a class="button button--secondary" href="reports.html">活動レポートを見る</a>
           </div>
-          <ul class="activity-grid" aria-label="活動の様子の写真">
-            <li class="activity-grid__item">
-              <img src="assets/images/activity/activity-01.jpg" srcset="assets/images/activity/activity-01-400.jpg 400w, assets/images/activity/activity-01.jpg 800w" sizes="(max-width: 680px) calc((100vw - 48px) / 3), (min-width: 1296px) 395px, calc((100vw - 112px) / 3)" alt="活動の様子1" width="800" height="800" loading="lazy" decoding="async">
+          <ul class="activity-grid activity-grid--collage" aria-label="活動の様子の写真">
+            <li class="activity-grid__item activity-grid__item--large">
+              <img src="assets/images/activity/activity-01.jpg" srcset="assets/images/activity/activity-01-400.jpg 400w, assets/images/activity/activity-01.jpg 800w" sizes="(max-width: 680px) calc(100vw - 32px), (min-width: 1296px) 590px, 48vw" alt="活動の様子1" width="800" height="800" loading="lazy" decoding="async">
             </li>
-            <li class="activity-grid__item">
-              <img src="assets/images/activity/activity-02.jpg" srcset="assets/images/activity/activity-02-400.jpg 400w, assets/images/activity/activity-02.jpg 800w" sizes="(max-width: 680px) calc((100vw - 48px) / 3), (min-width: 1296px) 395px, calc((100vw - 112px) / 3)" alt="活動の様子2" width="800" height="800" loading="lazy" decoding="async">
+            <li class="activity-grid__item activity-grid__item--tall">
+              <img src="assets/images/activity/activity-05.jpg" srcset="assets/images/activity/activity-05-400.jpg 400w, assets/images/activity/activity-05.jpg 800w" sizes="(max-width: 680px) calc((100vw - 42px) / 2), (min-width: 1296px) 390px, 32vw" alt="活動の様子5" width="800" height="800" loading="lazy" decoding="async">
             </li>
-            <li class="activity-grid__item">
-              <img src="assets/images/activity/activity-03.jpg" srcset="assets/images/activity/activity-03-400.jpg 400w, assets/images/activity/activity-03.jpg 800w" sizes="(max-width: 680px) calc((100vw - 48px) / 3), (min-width: 1296px) 395px, calc((100vw - 112px) / 3)" alt="活動の様子3" width="800" height="800" loading="lazy" decoding="async">
+            <li class="activity-grid__item activity-grid__item--small">
+              <img src="assets/images/activity/activity-02.jpg" srcset="assets/images/activity/activity-02-400.jpg 400w, assets/images/activity/activity-02.jpg 800w" sizes="(max-width: 680px) calc((100vw - 42px) / 2), (min-width: 1296px) 190px, 16vw" alt="活動の様子2" width="800" height="800" loading="lazy" decoding="async">
             </li>
-            <li class="activity-grid__item">
-              <img src="assets/images/activity/activity-04.jpg" srcset="assets/images/activity/activity-04-400.jpg 400w, assets/images/activity/activity-04.jpg 800w" sizes="(max-width: 680px) calc((100vw - 48px) / 3), (min-width: 1296px) 395px, calc((100vw - 112px) / 3)" alt="活動の様子4" width="800" height="800" loading="lazy" decoding="async">
+            <li class="activity-grid__item activity-grid__item--medium">
+              <img src="assets/images/activity/activity-07.jpg" srcset="assets/images/activity/activity-07-400.jpg 400w, assets/images/activity/activity-07.jpg 800w" sizes="(max-width: 680px) calc((100vw - 42px) / 2), (min-width: 1296px) 390px, 32vw" alt="活動の様子7" width="800" height="800" loading="lazy" decoding="async">
             </li>
-            <li class="activity-grid__item">
-              <img src="assets/images/activity/activity-05.jpg" srcset="assets/images/activity/activity-05-400.jpg 400w, assets/images/activity/activity-05.jpg 800w" sizes="(max-width: 680px) calc((100vw - 48px) / 3), (min-width: 1296px) 395px, calc((100vw - 112px) / 3)" alt="活動の様子5" width="800" height="800" loading="lazy" decoding="async">
+            <li class="activity-grid__item activity-grid__item--wide">
+              <img src="assets/images/activity/activity-03.jpg" srcset="assets/images/activity/activity-03-400.jpg 400w, assets/images/activity/activity-03.jpg 800w" sizes="(max-width: 680px) calc(100vw - 32px), (min-width: 1296px) 590px, 48vw" alt="活動の様子3" width="800" height="800" loading="lazy" decoding="async">
             </li>
-            <li class="activity-grid__item">
-              <img src="assets/images/activity/activity-06.jpg" srcset="assets/images/activity/activity-06-400.jpg 400w, assets/images/activity/activity-06.jpg 800w" sizes="(max-width: 680px) calc((100vw - 48px) / 3), (min-width: 1296px) 395px, calc((100vw - 112px) / 3)" alt="活動の様子6" width="800" height="800" loading="lazy" decoding="async">
+            <li class="activity-grid__item activity-grid__item--small">
+              <img src="assets/images/activity/activity-09.jpg" srcset="assets/images/activity/activity-09-400.jpg 400w, assets/images/activity/activity-09.jpg 800w" sizes="(max-width: 680px) calc((100vw - 42px) / 2), (min-width: 1296px) 190px, 16vw" alt="活動の様子9" width="800" height="800" loading="lazy" decoding="async">
             </li>
-            <li class="activity-grid__item">
-              <img src="assets/images/activity/activity-07.jpg" srcset="assets/images/activity/activity-07-400.jpg 400w, assets/images/activity/activity-07.jpg 800w" sizes="(max-width: 680px) calc((100vw - 48px) / 3), (min-width: 1296px) 395px, calc((100vw - 112px) / 3)" alt="活動の様子7" width="800" height="800" loading="lazy" decoding="async">
+            <li class="activity-grid__item activity-grid__item--medium">
+              <img src="assets/images/activity/activity-04.jpg" srcset="assets/images/activity/activity-04-400.jpg 400w, assets/images/activity/activity-04.jpg 800w" sizes="(max-width: 680px) calc((100vw - 42px) / 2), (min-width: 1296px) 390px, 32vw" alt="活動の様子4" width="800" height="800" loading="lazy" decoding="async">
             </li>
-            <li class="activity-grid__item">
-              <img src="assets/images/activity/activity-08.jpg" srcset="assets/images/activity/activity-08-400.jpg 400w, assets/images/activity/activity-08.jpg 800w" sizes="(max-width: 680px) calc((100vw - 48px) / 3), (min-width: 1296px) 395px, calc((100vw - 112px) / 3)" alt="活動の様子8" width="800" height="800" loading="lazy" decoding="async">
+            <li class="activity-grid__item activity-grid__item--wide">
+              <img src="assets/images/activity/activity-08.jpg" srcset="assets/images/activity/activity-08-400.jpg 400w, assets/images/activity/activity-08.jpg 800w" sizes="(max-width: 680px) calc(100vw - 32px), (min-width: 1296px) 590px, 48vw" alt="活動の様子8" width="800" height="800" loading="lazy" decoding="async">
             </li>
-            <li class="activity-grid__item">
-              <img src="assets/images/activity/activity-09.jpg" srcset="assets/images/activity/activity-09-400.jpg 400w, assets/images/activity/activity-09.jpg 800w" sizes="(max-width: 680px) calc((100vw - 48px) / 3), (min-width: 1296px) 395px, calc((100vw - 112px) / 3)" alt="活動の様子9" width="800" height="800" loading="lazy" decoding="async">
+            <li class="activity-grid__item activity-grid__item--medium">
+              <img src="assets/images/activity/activity-06.jpg" srcset="assets/images/activity/activity-06-400.jpg 400w, assets/images/activity/activity-06.jpg 800w" sizes="(max-width: 680px) calc((100vw - 42px) / 2), (min-width: 1296px) 390px, 32vw" alt="活動の様子6" width="800" height="800" loading="lazy" decoding="async">
             </li>
           </ul>
         </div>
@@ -518,9 +526,14 @@
       </section>
     </main>
 
-    <section class="footer-reserve" aria-label="予約とSNSリンク">
+    <section class="footer-reserve" aria-labelledby="footer-reserve-title">
       <div class="footer-reserve__inner">
-        <a class="button button--primary button--reserve" href="contact.html#contact-form">ご予約はこちら</a>
+        <div class="footer-reserve__content">
+          <p class="footer-reserve__label">Instagram DM</p>
+          <h2 id="footer-reserve-title">モルキニストに入ってモルックを楽しみませんか</h2>
+          <p>参加希望、見学希望、協力のご相談はInstagram DMからお気軽にご連絡ください。まずはふらっと、遊びに来ませんか。</p>
+        </div>
+        <a class="button button--reserve" href="#" aria-label="Instagram DM（仮リンク）">Instagram DMで申し込む</a>
         <nav class="footer-social" aria-label="SNSリンク">
           <a class="social-link" href="#" aria-label="X（仮リンク）">
             <img class="social-link__icon" src="assets/images/social/x.svg" alt="" width="22" height="22">

@@ -269,14 +269,11 @@ p {
 }
 
 .hero__panel::before {
-  background:
-    linear-gradient(90deg, rgba(250, 250, 245, 0.82) 0%, rgba(250, 250, 245, 0.48) 46%, rgba(250, 250, 245, 0.08) 100%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(0, 110, 28, 0.14) 100%);
-  backdrop-filter: blur(1px);
+  display: none;
 }
 
 .hero__panel::after {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.46) 0%, rgba(255, 255, 255, 0) 38%);
+  display: none;
 }
 
 .hero__media {
@@ -344,13 +341,16 @@ p {
   color: var(--color-text-muted);
 }
 
-#hero-title {
+.hero__title {
   max-width: 560px;
   margin-bottom: 0;
-  color: var(--color-grass);
-  font-size: clamp(2.1rem, 5.4vw, 4.5rem);
-  font-weight: 900;
-  line-height: 1.05;
+}
+
+.hero__title-image {
+  display: block;
+  width: min(100%, 560px);
+  height: auto;
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.28));
 }
 
 .hero__lead,
@@ -2332,12 +2332,6 @@ dd {
     min-height: clamp(460px, 66vh, 660px);
   }
 
-  .hero__panel::before {
-    background:
-      linear-gradient(90deg, rgba(250, 250, 245, 0.86) 0%, rgba(250, 250, 245, 0.56) 58%, rgba(250, 250, 245, 0.14) 100%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.12) 50%, rgba(0, 110, 28, 0.14) 100%);
-  }
-
   .hero__intro {
     grid-template-columns: 1fr;
     gap: 18px;
@@ -2417,10 +2411,6 @@ dd {
     font-size: clamp(1.9rem, 10vw, 2.65rem);
   }
 
-  #hero-title {
-    font-size: clamp(1.85rem, 8.4vw, 2.65rem);
-  }
-
   .site-header__inner,
   .hero,
   .section,
@@ -2447,12 +2437,6 @@ dd {
     border-radius: 12px;
   }
 
-  .hero__panel::before {
-    background:
-      linear-gradient(180deg, rgba(250, 250, 245, 0.72) 0%, rgba(250, 250, 245, 0.36) 50%, rgba(250, 250, 245, 0.1) 100%),
-      rgba(255, 255, 255, 0.08);
-  }
-
   .hero__media img {
     object-position: 62% center;
   }
@@ -2468,6 +2452,10 @@ dd {
 
   .hero__wordmark {
     max-width: 340px;
+  }
+
+  .hero__title-image {
+    width: min(82vw, 360px);
   }
 
   .hero__lead {

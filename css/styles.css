@@ -1187,6 +1187,10 @@ dd {
   display: grid;
   justify-items: center;
   gap: 30px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
   text-align: center;
 }
 

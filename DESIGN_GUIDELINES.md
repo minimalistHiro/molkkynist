@@ -168,6 +168,7 @@ Stitch の Fluid Grid を採用し、静的HTML/CSSで扱いやすいレスポ�
 - フッター直前の参加CTAは、緑背景に白文字の反転UIとして扱う。見出しは大きめに置き、お問い合わせフォームボタンは白背景＋Grass Green文字にして、緑の面の中で最も押せる要素として見せる。
 - キャラクター付きCTAを使う場合も、すべてのリンクを装飾CTAに置き換えない。通常ボタンは一覧、カード、フォーム、フッター固定導線などで継続利用する。
 - トップページ「参加の流れ」と下部フォーム案内の案内役CTAでは、左右キャラクターを個別の背景透明PNG（`assets/images/characters/molkkynist-character-green.png` / `molkkynist-character-brown.png`）として扱い、CTA本体には木目板画像（`assets/images/ui/wooden-cta-board.png`）を使う。木板画像には文字を含めず、中央テキストはHTMLで重ねる。
+- 下部フォーム案内の案内役CTAは、白いカード枠の中に入れず、周囲のセクション背景になじませて配置する。
 
 ### チップ・状態ラベル
 

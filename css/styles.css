@@ -560,6 +560,10 @@ p {
   content: "→";
 }
 
+.text-nowrap {
+  white-space: nowrap;
+}
+
 .section,
 .page-hero,
 .cta-band {
@@ -1177,6 +1181,19 @@ dd {
 
 .cta-band__inner > div {
   max-width: 760px;
+}
+
+.cta-band--form .cta-band__inner {
+  display: grid;
+  justify-items: center;
+  gap: 30px;
+  text-align: center;
+}
+
+.cta-band--form .guide-cta {
+  width: min(100%, 820px);
+  max-width: 820px;
+  margin-top: 0;
 }
 
 .contact-panel {

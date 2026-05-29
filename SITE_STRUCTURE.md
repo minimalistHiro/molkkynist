@@ -21,7 +21,7 @@ index.html
 - Molkkynist の第一印象を伝える
 - モルック未経験者にも入りやすい雰囲気をつくる
 - 次回イベントや最近の活動を見せる
-- Instagram DM への導線を置く
+- お問い合わせフォームへの導線を置く
 
 主な掲載内容:
 
@@ -34,9 +34,9 @@ index.html
 - 活動の様子（既存9枚の活動写真を、縦横比に変化をつけた `activity-grid` コラージュで並べるセクション `#activity`。画像は `assets/images/activity/activity-01.jpg` 〜 `activity-09.jpg` を参照。写真クリック不可・装飾のみ。セクション上部に `reports.html` への導線ボタン「活動レポートを見る」を配置する）
 - メンバー紹介への導線
 - よくある質問（14問のフル版。回答50〜120字。詳細は `CONTENT_GUIDELINES.md`）
-- Instagram DM へのリンク
+- お問い合わせフォームへの案内CTA
 - 協力団体・スポンサー（ロゴ並べ表示。現時点の掲載対象はココシバのみ）
-- フッター直前の参加・SNS導線（緑背景のCTAとして「モルキニストに入ってモルックを楽しみませんか」を掲出し、Instagram DM の仮リンクボタン、X / Instagram / LINE の仮リンクを置く）
+- フッター直前の参加・SNS導線（緑背景のCTAとして「モルキニストに入ってモルックを楽しみませんか」を掲出し、お問い合わせフォームへのボタン、X / Instagram / LINE の仮リンクを置く）
 
 トップページのメインビジュアルは、活動写真の上にアイコンなしの白い `Molkkynist + since 2024` ワードマーク画像を直接重ねる。写真を白くぼかす加工や緑色のテキスト見出しは使わず、説明文と参加CTAはメインビジュアル下に分離する。
 
@@ -368,12 +368,12 @@ privacy.html
 - `contact.html`
 
 イベント、活動レポート、メンバー紹介は、将来 Firestore から読み込む前提で `article` カード単位の構造を基本にする。
-Instagram DM 導線は全ページに配置し、正式URLが確定するまでは仮リンクとして扱う。
+Instagram DM 導線は必要なページに残しつつ、参加申し込みの主要導線はお問い合わせフォームへ集約する。
 
 ### 2026-05-21 追加実装
 
 - `privacy.html` を新規作成（F-1）。全ページ footer から導線を設置。
-- `index.html` を C-1 の構成に再整理（`#about` → `#schedule` → `#flow` → `#activity` → `#members` → `#faq` → `#instagram` → `#partners`）。
+- `index.html` を C-1 の構成に再整理（`#about` → `#schedule` → `#flow` → `#activity` → `#members` → `#faq` → `#contact-form-cta` → `#partners`）。
 - `contact.html` に Firebase 連携の独自お問い合わせフォーム（D-1）を実装。
   - 関連スクリプト: `js/firebase-config.js`（設定値テンプレート） / `js/contact-form.js`（フォーム制御、Firebase v10 モジュラー CDN を利用）
   - 参加希望時は Firestore `events` から `isPublished==true` かつ `eventDate>=今日` の日程を取得しトグル表示

@@ -9,6 +9,7 @@
   --color-outline: #becab9;
   --color-grass: #006e1c;
   --color-fresh: #4bae4f;
+  --color-menu-grass: #3f9d52;
   --color-lime: #dded49;
   --color-wood: #75584d;
   --color-soft-wood: #b59387;
@@ -2297,7 +2298,7 @@ dd {
     gap: 28px;
     min-height: 100dvh;
     padding: calc(72px + env(safe-area-inset-top)) 24px calc(40px + env(safe-area-inset-bottom));
-    background: var(--color-grass);
+    background: var(--color-menu-grass);
     color: var(--color-surface-card);
   }
 

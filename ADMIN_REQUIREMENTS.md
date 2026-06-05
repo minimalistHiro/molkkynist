@@ -220,6 +220,8 @@ admin/contact-submissions.html
 - セキュリティルール (`firestore.rules`) で `contactSubmissions` は管理者のみ read/update/delete 可。`mail` コレクションは管理画面からも参照不可（Cloud Functions の Admin SDK のみアクセス）。送信状況の表示はサーバーサイド経由（Cloud Functions の callable 関数等）で実装する想定。
 - 2026-06-05 D-7 実装後は、callable `getMailDeliveryStates` が `mail.delivery.state` を返す際の管理者判定を複数UID対応にしている。Functions 環境変数は `ADMIN_UIDS`（カンマ区切り）を優先し、既存 `ADMIN_UID` も互換用に読み込む。
 - 2026-06-05 B-1 で Cloud Functions 実行サービスアカウント `264727261204-compute@developer.gserviceaccount.com` に `roles/datastore.user` を付与済み。これにより、`mail` コレクションへの送信状態記録に必要なFirestore読み書き権限は設定済み。
+- 2026-06-05 D-8 で、本番 `admin/contact-submissions.html` からお問い合わせ一覧・詳細閲覧と自動返信メール送信状態の取得を確認済み。新規テストお問い合わせ `d8-test-20260605160454` では `mail.delivery.state=SUCCESS` が記録され、管理画面でも「送信済み」と表示された。
+- 2026-06-05 D-8 で、Callable Function `getMailDeliveryStates` をブラウザから呼び出せるように、Cloud Run サービス `getmaildeliverystates` へ `allUsers` の `roles/run.invoker` を付与済み。外部からの到達は許可しつつ、実際の利用可否は Functions 内部のFirebase管理者UID判定で制御する。
 
 ## サイト基本設定要件
 
@@ -274,9 +276,9 @@ admin/settings.html
 
 ## 今後決めること
 
-- ログイン方式
 - 石井さんの Firebase Authentication アカウント
-- 管理者 UID の管理方法
+- 石井さんの管理者UID（確定後に `js/firebase-config.js` / `firestore.rules` / Functions 環境変数 `ADMIN_UIDS` へ追加）
+- 石井さんUID追加後の本番ログイン・操作確認
 - 管理画面のデザイン
 - 画像アップロードの上限
 - 下書き保存を必要とするか

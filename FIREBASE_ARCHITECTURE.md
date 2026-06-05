@@ -346,8 +346,9 @@ Functions Secret として下記を設定します。
 - Firestore: default データベースを `asia-northeast1`（東京）で作成済み
 - Firestore Rules / Indexes: デプロイ済み
 - Cloud Functions: `asia-northeast1` にデプロイ済み（`sendAutoReplyOnContactCreate` / `getMailDeliveryStates`）
-- Firebase Authentication: あなたのUIDは管理者として先行反映済み。石井さん用ユーザー作成と石井さんUIDの追加が未完了
-- 自動返信メール: 2026-05-22 に Gmail SMTP 直送方式へ変更済み。2026-06-05 に送信用メールを `molkkynist@gmail.com` に確定し、`SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM` / `SMTP_SECURE` を設定済み。テスト送信も成功確認済み。`mail` コレクションへの送信状態記録に必要なFirestore権限は B-1 で対応済み。
+- Firebase Authentication: あなたのUIDは管理者として先行反映済み。2026-06-05 D-8 で本番管理画面ログイン、イベント管理、お問い合わせ管理の先行確認済み。石井さん用ユーザー作成と石井さんUIDの追加が未完了
+- 自動返信メール: 2026-05-22 に Gmail SMTP 直送方式へ変更済み。2026-06-05 に送信用メールを `molkkynist@gmail.com` に確定し、`SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM` / `SMTP_SECURE` を設定済み。テスト送信も成功確認済み。`mail` コレクションへの送信状態記録に必要なFirestore権限は B-1 で対応済み。D-8 の新規テストお問い合わせ `d8-test-20260605160454` では `mail.delivery.state=SUCCESS` と管理画面の「送信済み」表示を確認済み。
+- Cloud Run Invoker: 2026-06-05 D-8 で、Callable Function `getMailDeliveryStates` の Cloud Run サービス `getmaildeliverystates` へ `allUsers` の `roles/run.invoker` を付与済み。関数内部でFirebase管理者UID判定を行う。
 
 ## 初期段階での注意点
 
@@ -360,7 +361,7 @@ Functions Secret として下記を設定します。
 
 - 石井さんの Firebase Authentication ユーザー
 - 石井さんの管理者UID（決定次第 `js/firebase-config.js` / `firestore.rules` / Functions 環境変数 `ADMIN_UIDS` に追加）
-- Cloud Functions 環境変数 `ADMIN_UIDS`（`getMailDeliveryStates` の管理者判定用。カンマ区切りで複数UIDを指定）
+- Cloud Functions 環境変数 `ADMIN_UIDS` への石井さんUID追加（`getMailDeliveryStates` の管理者判定用。カンマ区切りで複数UIDを指定）
 - Firestore の正式なデータ構造
 - 画像アップロードのサイズ制限
 - DM 経由の申込時にユーザーへ受付メールを送る運用フロー（管理画面から手動送信するか）

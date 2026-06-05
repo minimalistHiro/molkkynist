@@ -215,7 +215,7 @@ news.html
 管理画面は一般ユーザー向けのナビゲーションには表示せず、石井さんが URL を直接開く形を基本とします。
 
 2026年5月21日時点で、初期管理画面として `admin/login.html`、`admin/index.html`、`admin/events.html`、`admin/contact-submissions.html` を実装済みです。
-ログイン方式はメールアドレス + パスワードを採用し、管理者UIDは `js/firebase-config.js` の `adminConfig.adminUids` と Firebase 側の設定値で制御します。2026年6月5日時点では、あなたのUID `PvM8qIBG1ETC2Y7qM3PFj1i2ASk2` を先行登録済みです。
+ログイン方式はメールアドレス + パスワードを採用し、管理者UIDは `js/firebase-config.js` の `adminConfig.adminUids` と Firebase 側の設定値で制御します。2026年6月5日時点では、あなたのUID `PvM8qIBG1ETC2Y7qM3PFj1i2ASk2` を先行登録し、本番でイベント管理とお問い合わせ管理の操作確認まで完了しています。石井さんUIDの追加は D-5 の残作業です。
 
 ### 1. 管理画面ログイン
 

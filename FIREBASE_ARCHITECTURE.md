@@ -310,16 +310,18 @@ Functions Secret として下記を設定します。
 
 - `SMTP_HOST`: `smtp.gmail.com`
 - `SMTP_PORT`: `587`
-- `SMTP_USER`: 送信用メールアドレス（例: `info@molkkynist.com`）
+- `SMTP_USER`: `molkkynist@gmail.com`
 - `SMTP_PASS`: Google アカウントのアプリパスワード等
-- `SMTP_FROM`: 表示名付き送信元（例: `Molkkynist <info@molkkynist.com>`）
+- `SMTP_FROM`: `Molkkynist <molkkynist@gmail.com>`
 - `SMTP_SECURE`: `false`
 
-返信先は `REPLY_TO_EMAIL` 環境変数で上書きできます。未設定時は `info@molkkynist.com` を使います。
+返信先は `REPLY_TO_EMAIL` 環境変数で上書きできます。未設定時は `molkkynist@gmail.com` を使います。
 
-2026-05-22 時点で `SMTP_HOST=smtp.gmail.com`、`SMTP_PORT=587`、`SMTP_SECURE=false` は Firebase Secret に設定済みです。`SMTP_USER`、`SMTP_PASS`、`SMTP_FROM` は送信用Googleアカウントとアプリパスワード確定後に設定します。
+2026-06-05 時点で `SMTP_HOST=smtp.gmail.com`、`SMTP_PORT=587`、`SMTP_USER=molkkynist@gmail.com`、`SMTP_PASS`、`SMTP_FROM=Molkkynist <molkkynist@gmail.com>`、`SMTP_SECURE=false` は Firebase Secret に設定済みです。
 
-送信用Googleアカウントは、Google Workspace の独自ドメインメール（例: `info@molkkynist.com`）でも、無料 Gmail（例: `molkkynist@gmail.com`）でも技術的には対応できます。費用・信頼感・返信窓口としての運用しやすさを比較し、R-9 で石井さんに確認してから確定します。
+2026-06-05 に Firestore REST 経由で `contactSubmissions` を作成し、Cloud Functions ログで `molkkynist@gmail.com` 宛の自動返信メール送信成功を確認済みです。
+
+現時点では Cloud Functions 実行サービスアカウントの Firestore 書き込み権限不足により、`mail` コレクションへの送信状態記録は失敗します。`functions/index.js` では `safeMailSet()` / `safeMailUpdate()` により、送信状態記録の失敗で自動返信メール送信自体が止まらないようにしています。管理画面の送信状態表示を完全に動かすには、実行サービスアカウントへ Firestore 書き込み権限を付与する必要があります（TODO B-1）。
 
 ### Firebase 設定ファイル一式
 
@@ -343,7 +345,7 @@ Functions Secret として下記を設定します。
 - Firestore Rules / Indexes: デプロイ済み
 - Cloud Functions: `asia-northeast1` にデプロイ済み（`sendAutoReplyOnContactCreate` / `getMailDeliveryStates`）
 - Firebase Authentication: 石井さん用ユーザー作成と管理者UID反映が未完了
-- 自動返信メール: 2026-05-22 に Gmail SMTP 直送方式へ変更済み。`SMTP_HOST` / `SMTP_PORT` / `SMTP_SECURE` は設定済み。送信用メール方式の決定（R-9）、送信用Googleアカウント準備、`SMTP_USER` / `SMTP_PASS` / `SMTP_FROM` 設定、テスト送信は未完了
+- 自動返信メール: 2026-05-22 に Gmail SMTP 直送方式へ変更済み。2026-06-05 に送信用メールを `molkkynist@gmail.com` に確定し、`SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM` / `SMTP_SECURE` を設定済み。テスト送信も成功確認済み。`mail` コレクションへの送信状態記録は権限不足のため B-1 で継続対応。
 
 ## 初期段階での注意点
 
@@ -359,6 +361,4 @@ Functions Secret として下記を設定します。
 - Cloud Functions 環境変数 `ADMIN_UID`（`getMailDeliveryStates` の管理者判定用）
 - Firestore の正式なデータ構造
 - 画像アップロードのサイズ制限
-- 自動返信メールの送信用Googleアカウント（Google Workspace 独自ドメインメール / 無料 Gmail のどちらにするか）とアプリパスワード
-- 自動返信メールの送信元表示名（`SMTP_FROM`）
 - DM 経由の申込時にユーザーへ受付メールを送る運用フロー（管理画面から手動送信するか）

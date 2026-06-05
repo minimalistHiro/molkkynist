@@ -40,7 +40,7 @@ const SMTP_PASS = defineSecret("SMTP_PASS");
 const SMTP_FROM = defineSecret("SMTP_FROM");
 const SMTP_SECURE = defineSecret("SMTP_SECURE");
 
-const REPLY_TO_EMAIL = process.env.REPLY_TO_EMAIL || "info@molkkynist.com";
+const REPLY_TO_EMAIL = process.env.REPLY_TO_EMAIL || "molkkynist@gmail.com";
 const INSTAGRAM_DM_URL = "https://www.instagram.com/molkkynist/";
 const SITE_URL = "https://molkkynist-a0abd.web.app/";
 const ADMIN_UID = process.env.ADMIN_UID || "YOUR_ADMIN_UID";
@@ -93,7 +93,7 @@ exports.sendAutoReplyOnContactCreate = onDocumentCreated(
     const mailRef = db.collection("mail").doc();
 
     try {
-      await mailRef.set({
+      await safeMailSet(mailRef, {
         to: email,
         replyTo: REPLY_TO_EMAIL,
         message: { subject, text, html },
@@ -123,7 +123,7 @@ exports.sendAutoReplyOnContactCreate = onDocumentCreated(
         html,
       });
 
-      await mailRef.update({
+      await safeMailUpdate(mailRef, {
         "delivery.state": "SUCCESS",
         "delivery.endTime": FieldValue.serverTimestamp(),
         "delivery.messageId": result.messageId || "",
@@ -142,7 +142,8 @@ exports.sendAutoReplyOnContactCreate = onDocumentCreated(
         to: email,
         error: errorMessage,
       });
-      await mailRef.set(
+      await safeMailSet(
+        mailRef,
         {
           to: email,
           replyTo: REPLY_TO_EMAIL,
@@ -242,6 +243,32 @@ async function buildScheduleLines(submission) {
     });
 }
 
+async function safeMailSet(mailRef, data, options) {
+  try {
+    if (options) {
+      await mailRef.set(data, options);
+    } else {
+      await mailRef.set(data);
+    }
+  } catch (err) {
+    logger.warn("[autoReply] mail コレクションへの記録に失敗", {
+      path: mailRef.path,
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+}
+
+async function safeMailUpdate(mailRef, data) {
+  try {
+    await mailRef.update(data);
+  } catch (err) {
+    logger.warn("[autoReply] mail コレクションの更新に失敗", {
+      path: mailRef.path,
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+}
+
 function formatEventDate(value) {
   if (!value) return "日程未定";
   try {
@@ -323,8 +350,8 @@ function renderTextBody({ name, inquiryLabel, scheduleLines, message }) {
 ${inquiryLabel}
 ${scheduleBlock}${messageBlock}
 ────────────────────────────────────
-※このメールは自動送信です。本メールへ直接ご返信いただいても受付できません。
-　ご返信が必要な場合は、お手数ですが下記のいずれかからご連絡ください。
+※このメールは自動送信です。このメールへ返信すると、お問い合わせ窓口メールに届きます。
+　お急ぎの場合は Instagram DM からもご連絡いただけます。
 
 ・お問い合わせ窓口メール: ${REPLY_TO_EMAIL}
 ・Instagram DM: ${INSTAGRAM_DM_URL}
@@ -367,8 +394,8 @@ function renderHtmlBody({ name, inquiryLabel, scheduleLines, message }) {
     ${messageHtml}
     <hr style="border:none;border-top:1px solid #e2e2e2;margin:32px 0 16px;">
     <p style="font-size:12.5px;color:#666;line-height:1.7;">
-      ※このメールは自動送信です。本メールへ直接ご返信いただいても受付できません。<br>
-      ご返信が必要な場合は、お手数ですが下記のいずれかからご連絡ください。
+      ※このメールは自動送信です。このメールへ返信すると、お問い合わせ窓口メールに届きます。<br>
+      お急ぎの場合は Instagram DM からもご連絡いただけます。
     </p>
     <ul style="font-size:12.5px;color:#666;padding-left:20px;line-height:1.7;">
       <li>お問い合わせ窓口メール: <a href="mailto:${escapeHtml(REPLY_TO_EMAIL)}">${escapeHtml(REPLY_TO_EMAIL)}</a></li>

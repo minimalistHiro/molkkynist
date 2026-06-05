@@ -13,6 +13,14 @@
 
 ---
 
+## 2026-06-05
+
+| ID | 区分 | 対象 | 内容 | 備考 |
+|----|------|------|------|------|
+| D-6 | 独自対応 | Firebase / 運用 / DNS | 自動返信メールを Gmail SMTP 方式で本番送信できるようにする | 送信用メールを無料 Gmail アカウント `molkkynist@gmail.com` に確定。石井さん側で2段階認証とApp Passwordを発行し、Firebase Functions Secret に `SMTP_HOST=smtp.gmail.com`、`SMTP_PORT=587`、`SMTP_USER=molkkynist@gmail.com`、`SMTP_PASS`、`SMTP_FROM=Molkkynist <molkkynist@gmail.com>`、`SMTP_SECURE=false` を設定。`functions/index.js` の返信先初期値を `molkkynist@gmail.com` に変更し、自動返信メール文面を「このメールへ返信すると、お問い合わせ窓口メールに届く」表現へ更新。`firebase deploy --only functions --project molkkynist-a0abd` でデプロイし、Firestore REST 経由のフォーム相当テスト `codex-test-20260605-1425` に対して自動返信メール送信成功ログを確認。`mail` コレクションへの送信状態記録はCloud Functions実行サービスアカウントのFirestore書き込み権限不足により B-1 で継続対応。 |
+
+---
+
 ## 2026-05-28
 
 | ID | 区分 | 対象 | 内容 | 備考 |

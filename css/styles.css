@@ -484,7 +484,7 @@ p {
 }
 
 .button--with-icon {
-  gap: clamp(32px, 9vw, 52px);
+  gap: clamp(28px, 7vw, 42px);
 }
 
 .button--with-icon .button__icon {

@@ -484,10 +484,7 @@ p {
 }
 
 .button--with-icon {
-  display: grid;
-  grid-template-columns: 24px max-content;
-  justify-content: space-between;
-  gap: 18px;
+  gap: clamp(32px, 9vw, 52px);
 }
 
 .button--with-icon .button__icon {
@@ -500,7 +497,7 @@ p {
 .button--with-icon span {
   display: block;
   width: auto;
-  text-align: right;
+  text-align: left;
 }
 
 .button--outline-black .button__icon {

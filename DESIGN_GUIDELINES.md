@@ -83,6 +83,7 @@ Stitch では見出しに `Plus Jakarta Sans`、本文に `Be Vietnam Pro` が�
 ### 基本フォント
 
 - 日本語本文: `Noto Sans JP`、`Hiragino Sans`、`Yu Gothic`、system sans-serif を優先する。
+- 公開ページと管理画面は Google Fonts から `Noto Sans JP` の `400`、`500`、`600`、`700`、`800`、`900` を読み込み、サイト全体の日本語・UIテキストを `Noto Sans JP` に統一する。
 - 英字ロゴ周辺や短い英字見出し: `Plus Jakarta Sans` を補助的に使う。
 - UIテキストや本文: 日本語の可読性を優先し、欧文フォントだけに依存しない。
 

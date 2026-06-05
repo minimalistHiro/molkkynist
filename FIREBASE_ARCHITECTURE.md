@@ -323,7 +323,7 @@ Functions Secret として下記を設定します。
 
 2026-06-05 に Firestore REST 経由で `contactSubmissions` を作成し、Cloud Functions ログで `molkkynist@gmail.com` 宛の自動返信メール送信成功を確認済みです。
 
-現時点では Cloud Functions 実行サービスアカウントの Firestore 書き込み権限不足により、`mail` コレクションへの送信状態記録は失敗します。`functions/index.js` では `safeMailSet()` / `safeMailUpdate()` により、送信状態記録の失敗で自動返信メール送信自体が止まらないようにしています。管理画面の送信状態表示を完全に動かすには、実行サービスアカウントへ Firestore 書き込み権限を付与する必要があります（TODO B-1）。
+2026年6月5日に B-1 として Cloud Functions 実行サービスアカウント `264727261204-compute@developer.gserviceaccount.com` へ `roles/datastore.user` を付与済みです。`mail` コレクションへの送信状態記録に必要なFirestore読み書き権限は設定済みです。`functions/index.js` では引き続き `safeMailSet()` / `safeMailUpdate()` により、送信状態記録の失敗で自動返信メール送信自体が止まらないようにしています。
 
 ### Firebase 設定ファイル一式
 
@@ -347,7 +347,7 @@ Functions Secret として下記を設定します。
 - Firestore Rules / Indexes: デプロイ済み
 - Cloud Functions: `asia-northeast1` にデプロイ済み（`sendAutoReplyOnContactCreate` / `getMailDeliveryStates`）
 - Firebase Authentication: あなたのUIDは管理者として先行反映済み。石井さん用ユーザー作成と石井さんUIDの追加が未完了
-- 自動返信メール: 2026-05-22 に Gmail SMTP 直送方式へ変更済み。2026-06-05 に送信用メールを `molkkynist@gmail.com` に確定し、`SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM` / `SMTP_SECURE` を設定済み。テスト送信も成功確認済み。`mail` コレクションへの送信状態記録は権限不足のため B-1 で継続対応。
+- 自動返信メール: 2026-05-22 に Gmail SMTP 直送方式へ変更済み。2026-06-05 に送信用メールを `molkkynist@gmail.com` に確定し、`SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM` / `SMTP_SECURE` を設定済み。テスト送信も成功確認済み。`mail` コレクションへの送信状態記録に必要なFirestore権限は B-1 で対応済み。
 
 ## 初期段階での注意点
 

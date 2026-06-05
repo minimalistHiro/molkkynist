@@ -484,14 +484,23 @@ p {
 }
 
 .button--with-icon {
-  gap: 18px;
+  position: relative;
+  gap: 0;
 }
 
 .button--with-icon .button__icon {
+  position: absolute;
+  left: 32px;
   width: 24px;
   height: 24px;
   margin: 0;
   flex: 0 0 auto;
+}
+
+.button--with-icon span {
+  display: block;
+  width: 100%;
+  text-align: center;
 }
 
 .button--outline-black .button__icon {
@@ -1610,26 +1619,9 @@ dd {
 }
 
 .schedule-venue-action {
-  margin-top: 24px;
-}
-
-.venue-link-button {
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 12px;
-  width: 100%;
-  min-height: 60px;
-  padding: 16px 24px;
-  border: 1px solid rgba(0, 110, 28, 0.18);
-  border-radius: var(--radius-pill);
-  background: var(--color-grass);
-  color: #ffffff;
-  font-size: clamp(1rem, 2.5vw, 1.18rem);
-  font-weight: 900;
-  line-height: 1.35;
-  text-align: center;
-  box-shadow: var(--shadow-touch);
+  margin-top: 24px;
 }
 
 .venue-list {
@@ -2711,11 +2703,6 @@ dd {
     color: var(--color-grass);
   }
 
-  .venue-link-button {
-    min-height: 56px;
-    padding: 14px 18px;
-  }
-
   .venue-card {
     border-radius: var(--radius-md);
   }
@@ -2762,6 +2749,10 @@ dd {
   .button-row {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .button-row--centered {
+    align-items: center;
   }
 
   .contact-form {

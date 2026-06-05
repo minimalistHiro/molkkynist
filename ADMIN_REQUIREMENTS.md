@@ -219,7 +219,7 @@ admin/contact-submissions.html
 - DM 経由のお問い合わせはこの画面には記録されない（Instagram 側で完結）。受領通知の運用は R-8 で検討中。
 - セキュリティルール (`firestore.rules`) で `contactSubmissions` は管理者のみ read/update/delete 可。`mail` コレクションは管理画面からも参照不可（Cloud Functions の Admin SDK のみアクセス）。送信状況の表示はサーバーサイド経由（Cloud Functions の callable 関数等）で実装する想定。
 - 2026-06-05 D-7 実装後は、callable `getMailDeliveryStates` が `mail.delivery.state` を返す際の管理者判定を複数UID対応にしている。Functions 環境変数は `ADMIN_UIDS`（カンマ区切り）を優先し、既存 `ADMIN_UID` も互換用に読み込む。
-- 2026-06-05 時点では、自動返信メール自体は Gmail SMTP で送信成功を確認済み。ただし Cloud Functions 実行サービスアカウントの Firestore 書き込み権限不足により、`mail` コレクションへの送信状態記録は未完了。管理画面上の送信状態表示を完全に動かすには、B-1 の権限設定対応が必要。
+- 2026-06-05 B-1 で Cloud Functions 実行サービスアカウント `264727261204-compute@developer.gserviceaccount.com` に `roles/datastore.user` を付与済み。これにより、`mail` コレクションへの送信状態記録に必要なFirestore読み書き権限は設定済み。
 
 ## サイト基本設定要件
 

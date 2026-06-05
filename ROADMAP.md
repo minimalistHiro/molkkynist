@@ -149,7 +149,7 @@ Molkkynist のサイトは、最初から全機能を作り込まず、公開に
 
 - 2026年5月21日に初期管理画面を実装。`admin/login.html`、`admin/index.html`、`admin/events.html`、`admin/contact-submissions.html` を追加し、Firebase Authentication のメールアドレス + パスワード方式、管理者UID判定、イベント追加・編集・公開切替、お問い合わせ一覧・詳細表示、自動返信メール送信状態確認を実装。
 - 管理画面共通JSとして `js/admin-auth.js`、ログイン制御 `js/admin-login.js`、イベント管理 `js/admin-events.js`、お問い合わせ管理 `js/admin-contact-submissions.js` を追加。
-- `mail` コレクションは管理画面から直接読まず、Cloud Functions callable `getMailDeliveryStates` で `delivery.state` を取得する構成にした。Functions 環境変数 `ADMIN_UID` と `firestore.rules` / `js/firebase-config.js` の `YOUR_ADMIN_UID` は本番UID確定後に差し替える。
+- `mail` コレクションは管理画面から直接読まず、Cloud Functions callable `getMailDeliveryStates` で `delivery.state` を取得する構成にした。2026年6月5日に D-7 として管理者UIDを複数UID対応に変更し、あなたのUID `PvM8qIBG1ETC2Y7qM3PFj1i2ASk2` を `js/firebase-config.js` / `firestore.rules` / Cloud Functions 管理者判定へ先行登録済み。石井さんUID確定後は `adminUids` 配列と Functions 環境変数 `ADMIN_UIDS` へ追加する。
 - 2026年5月21日に Firebase プロジェクト `molkkynist-a0abd` と連携。Webアプリ `Molkkynist` を作成し、`js/firebase-config.js` へSDK設定値を反映。Firebase Hosting は `https://molkkynist-a0abd.web.app` へデプロイ済み。Firestore default データベース、Security Rules、Indexes もデプロイ済み。
 - Firestore は `asia-northeast1`（東京）で再作成済み。Cloud Functions は `sendAutoReplyOnContactCreate` と `getMailDeliveryStates` を `asia-northeast1` にデプロイ済み。2026年5月22日に自動返信メールを Gmail SMTP 直送方式へ変更。2026年6月5日に送信用Gmail `molkkynist@gmail.com`、App Password、SMTP Secret 設定を反映し、フォーム相当のテスト送信で自動返信メール送信成功を確認済み。Authentication の石井さん用ユーザー作成と管理者UID反映は残作業。管理画面のメール送信状態表示は、Cloud Functions 実行サービスアカウントの Firestore 書き込み権限設定（B-1）が必要。
 - 活動レポート管理、メンバー管理、サイト基本設定、Storage画像アップロードは未実装。

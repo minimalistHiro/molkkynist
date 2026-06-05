@@ -109,8 +109,10 @@ admin/members.html
 想定:
 
 ```text
-adminUid = 石井さんの Firebase Authentication UID
+adminUids = 管理者の Firebase Authentication UID 一覧
 ```
+
+2026年6月5日時点では、あなたのUID `PvM8qIBG1ETC2Y7qM3PFj1i2ASk2` を先行登録済みです。石井さんのUIDが確定したら同じ一覧へ追加します。
 
 ## Firestore コレクション案
 
@@ -266,7 +268,7 @@ Firebase コンソールで本番プロジェクトを作成したら、`js/fire
 
 - `admin/login.html`
   - Firebase Authentication のメールアドレス + パスワードでログイン
-  - `js/firebase-config.js` の `adminConfig.adminUid` とログインユーザーUIDを照合
+  - `js/firebase-config.js` の `adminConfig.adminUids` とログインユーザーUIDを照合
 - `admin/index.html`
   - イベント管理・お問い合わせ管理への入口
   - 一般公開ページからはリンクしない
@@ -284,8 +286,8 @@ Firebase コンソールで本番プロジェクトを作成したら、`js/fire
 - `js/admin-events.js` … イベント管理
 - `js/admin-contact-submissions.js` … お問い合わせ管理
 
-`js/firebase-config.js` には `adminConfig.adminUid` を追加しています。
-初期値は `YOUR_ADMIN_UID` のため、石井さんのFirebase Authentication UID確定後に差し替えてください。
+`js/firebase-config.js` には `adminConfig.adminUids` を追加しています。
+2026年6月5日時点では、あなたのUID `PvM8qIBG1ETC2Y7qM3PFj1i2ASk2` を先行登録済みです。石井さんのFirebase Authentication UID確定後に配列へ追加してください。
 
 ## サーバーサイド実装（2026-05-21 追加 / 2026-05-22 更新）
 
@@ -298,7 +300,7 @@ Firebase コンソールで本番プロジェクトを作成したら、`js/fire
 - callable: `getMailDeliveryStates`
   - 管理画面のお問い合わせ管理から呼び出し
   - `contactSubmissions/{id}` に紐づく `mail.delivery.state` を返す
-  - 管理者判定は Functions 環境変数 `ADMIN_UID` と `request.auth.uid` の一致で行う
+  - 管理者判定は Functions 環境変数 `ADMIN_UIDS`（カンマ区切り）または互換用 `ADMIN_UID` と `request.auth.uid` の一致で行う
 
 メール本文（テキスト/HTML）と件名は `functions/index.js` 内で生成しており、文面方針は `CONTENT_GUIDELINES.md`「自動返信メール文面」に記載しています。
 
@@ -332,7 +334,7 @@ Functions Secret として下記を設定します。
 - `firestore.rules` … 公開コレクション読み取り公開、`contactSubmissions` は create 限定（型・件数バリデーション付き）、`mail` は一般ユーザー全面禁止
 - `firestore.indexes.json` … `events` (`isPublished` + `eventDate` asc) と `reports` (`isPublished` + `eventDate` desc) の複合インデックス
 
-セキュリティルール内の `YOUR_ADMIN_UID` は、石井さんの Firebase Authentication UID が確定したタイミングで差し替えてください。
+セキュリティルールの管理者UID配列には、あなたのUID `PvM8qIBG1ETC2Y7qM3PFj1i2ASk2` を先行登録済みです。石井さんの Firebase Authentication UID が確定したタイミングで配列へ追加してください。
 
 ### Firebase 構築状況（2026-05-21）
 
@@ -344,7 +346,7 @@ Functions Secret として下記を設定します。
 - Firestore: default データベースを `asia-northeast1`（東京）で作成済み
 - Firestore Rules / Indexes: デプロイ済み
 - Cloud Functions: `asia-northeast1` にデプロイ済み（`sendAutoReplyOnContactCreate` / `getMailDeliveryStates`）
-- Firebase Authentication: 石井さん用ユーザー作成と管理者UID反映が未完了
+- Firebase Authentication: あなたのUIDは管理者として先行反映済み。石井さん用ユーザー作成と石井さんUIDの追加が未完了
 - 自動返信メール: 2026-05-22 に Gmail SMTP 直送方式へ変更済み。2026-06-05 に送信用メールを `molkkynist@gmail.com` に確定し、`SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM` / `SMTP_SECURE` を設定済み。テスト送信も成功確認済み。`mail` コレクションへの送信状態記録は権限不足のため B-1 で継続対応。
 
 ## 初期段階での注意点
@@ -357,8 +359,8 @@ Functions Secret として下記を設定します。
 ## 今後決めること
 
 - 石井さんの Firebase Authentication ユーザー
-- 管理者 UID（決定次第 `firestore.rules` の `YOUR_ADMIN_UID` を差し替え）
-- Cloud Functions 環境変数 `ADMIN_UID`（`getMailDeliveryStates` の管理者判定用）
+- 石井さんの管理者UID（決定次第 `js/firebase-config.js` / `firestore.rules` / Functions 環境変数 `ADMIN_UIDS` に追加）
+- Cloud Functions 環境変数 `ADMIN_UIDS`（`getMailDeliveryStates` の管理者判定用。カンマ区切りで複数UIDを指定）
 - Firestore の正式なデータ構造
 - 画像アップロードのサイズ制限
 - DM 経由の申込時にユーザーへ受付メールを送る運用フロー（管理画面から手動送信するか）

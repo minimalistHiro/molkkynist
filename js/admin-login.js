@@ -23,7 +23,7 @@ async function initLogin(formEl) {
     submitButton.disabled = true;
     showAdminStatus(
       statusEl,
-      "Firebase設定値または管理者UIDが未設定です。設定後にログインできます。",
+      "Firebase設定値または管理者UID一覧が未設定です。設定後にログインできます。",
       "info"
     );
     return;
@@ -55,4 +55,3 @@ async function initLogin(formEl) {
     }
   });
 }
-

@@ -43,7 +43,8 @@ const SMTP_SECURE = defineSecret("SMTP_SECURE");
 const REPLY_TO_EMAIL = process.env.REPLY_TO_EMAIL || "molkkynist@gmail.com";
 const INSTAGRAM_DM_URL = "https://www.instagram.com/molkkynist/";
 const SITE_URL = "https://molkkynist-a0abd.web.app/";
-const ADMIN_UID = process.env.ADMIN_UID || "YOUR_ADMIN_UID";
+const DEFAULT_ADMIN_UIDS = ["PvM8qIBG1ETC2Y7qM3PFj1i2ASk2"];
+const ADMIN_UIDS = parseAdminUids(process.env.ADMIN_UIDS, process.env.ADMIN_UID, DEFAULT_ADMIN_UIDS);
 
 const INQUIRY_TYPE_LABELS = {
   participate: "参加希望",
@@ -287,15 +288,31 @@ function formatEventDate(value) {
 }
 
 function assertAdmin(request) {
-  if (!ADMIN_UID || ADMIN_UID.startsWith("YOUR_")) {
+  if (ADMIN_UIDS.length === 0) {
     throw new HttpsError(
       "failed-precondition",
-      "ADMIN_UID が未設定です。Cloud Functions の環境変数へ管理者UIDを設定してください。"
+      "管理者UIDが未設定です。Cloud Functions の環境変数 ADMIN_UIDS へ管理者UID一覧を設定してください。"
     );
   }
-  if (!request.auth || request.auth.uid !== ADMIN_UID) {
+  if (!request.auth || !ADMIN_UIDS.includes(request.auth.uid)) {
     throw new HttpsError("permission-denied", "管理者のみ利用できます。");
   }
+}
+
+function parseAdminUids(...sources) {
+  const values = sources.flatMap((source) => {
+    if (Array.isArray(source)) return source;
+    if (typeof source !== "string") return [];
+    return source.split(",");
+  });
+
+  return Array.from(
+    new Set(
+      values
+        .map((uid) => String(uid).trim())
+        .filter((uid) => uid && !uid.startsWith("YOUR_"))
+    )
+  );
 }
 
 function formatCallableDate(value) {

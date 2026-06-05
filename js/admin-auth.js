@@ -21,6 +21,10 @@ export function hasAdminSetup() {
   return isFirebaseConfigured(firebaseConfig) && isAdminConfigured(adminConfig);
 }
 
+export function isConfiguredAdminUid(uid) {
+  return Array.isArray(adminConfig.adminUids) && adminConfig.adminUids.includes(uid);
+}
+
 export async function getAdminApp() {
   if (!isFirebaseConfigured(firebaseConfig)) {
     throw new Error("Firebase設定値が未設定です。");
@@ -43,7 +47,7 @@ export async function requireAdmin(statusEl) {
   if (!hasAdminSetup()) {
     showAdminStatus(
       statusEl,
-      "Firebase設定値または管理者UIDが未設定です。js/firebase-config.js と firestore.rules の YOUR_* を本番値へ差し替えてください。",
+      "Firebase設定値または管理者UID一覧が未設定です。js/firebase-config.js と firestore.rules の管理者UIDを本番値へ差し替えてください。",
       "error"
     );
     return null;
@@ -61,7 +65,7 @@ export async function requireAdmin(statusEl) {
         return;
       }
 
-      if (user.uid !== adminConfig.adminUid) {
+      if (!isConfiguredAdminUid(user.uid)) {
         await signOut(auth);
         showAdminStatus(statusEl, "このアカウントには管理画面への権限がありません。", "error");
         resolve(null);
@@ -98,4 +102,3 @@ export function clearAdminStatus(statusEl) {
   statusEl.textContent = "";
   statusEl.hidden = true;
 }
-

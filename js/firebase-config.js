@@ -15,7 +15,7 @@ export const firebaseConfig = {
 };
 
 export const adminConfig = {
-  adminUid: "YOUR_ADMIN_UID",
+  adminUids: ["PvM8qIBG1ETC2Y7qM3PFj1i2ASk2"],
 };
 
 export function isFirebaseConfigured(config) {
@@ -30,8 +30,9 @@ export function isFirebaseConfigured(config) {
 export function isAdminConfigured(config = adminConfig) {
   return (
     config &&
-    typeof config.adminUid === "string" &&
-    config.adminUid.length > 0 &&
-    !config.adminUid.startsWith("YOUR_")
+    Array.isArray(config.adminUids) &&
+    config.adminUids.some(
+      (uid) => typeof uid === "string" && uid.length > 0 && !uid.startsWith("YOUR_")
+    )
   );
 }

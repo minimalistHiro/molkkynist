@@ -21,7 +21,7 @@
 
 - `admin/login.html`
   - メールアドレス + パスワードでログイン
-  - `js/firebase-config.js` の `adminConfig.adminUid` で管理者UIDを照合
+  - `js/firebase-config.js` の `adminConfig.adminUids` で管理者UID一覧を照合
   - Firebase設定値または管理者UIDが未設定の場合はログインを無効化
 - `admin/index.html`
   - イベント管理・お問い合わせ管理への導線
@@ -218,7 +218,7 @@ admin/contact-submissions.html
 - 自動返信メールの文面（件名・本文・HTML）は管理画面では編集しない。コード `functions/index.js` の `renderTextBody()` / `renderHtmlBody()` で管理する。文面方針は `CONTENT_GUIDELINES.md`「自動返信メール文面」を参照。
 - DM 経由のお問い合わせはこの画面には記録されない（Instagram 側で完結）。受領通知の運用は R-8 で検討中。
 - セキュリティルール (`firestore.rules`) で `contactSubmissions` は管理者のみ read/update/delete 可。`mail` コレクションは管理画面からも参照不可（Cloud Functions の Admin SDK のみアクセス）。送信状況の表示はサーバーサイド経由（Cloud Functions の callable 関数等）で実装する想定。
-- 2026-05-21 実装では、callable `getMailDeliveryStates` が `mail.delivery.state` を返す。Functions 環境変数 `ADMIN_UID` の設定が必要。
+- 2026-06-05 D-7 実装後は、callable `getMailDeliveryStates` が `mail.delivery.state` を返す際の管理者判定を複数UID対応にしている。Functions 環境変数は `ADMIN_UIDS`（カンマ区切り）を優先し、既存 `ADMIN_UID` も互換用に読み込む。
 - 2026-06-05 時点では、自動返信メール自体は Gmail SMTP で送信成功を確認済み。ただし Cloud Functions 実行サービスアカウントの Firestore 書き込み権限不足により、`mail` コレクションへの送信状態記録は未完了。管理画面上の送信状態表示を完全に動かすには、B-1 の権限設定対応が必要。
 
 ## サイト基本設定要件

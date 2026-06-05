@@ -57,7 +57,7 @@ async function initContactSubmissionsPage() {
         console.error("[admin-contact] メール送信状態の取得に失敗しました", error);
         showAdminStatus(
           statusEl,
-          "お問い合わせは取得できましたが、メール送信状態の取得に失敗しました。Cloud Functions の ADMIN_UID 設定とデプロイ状態を確認してください。",
+          "お問い合わせは取得できましたが、メール送信状態の取得に失敗しました。Cloud Functions の ADMIN_UIDS 設定とデプロイ状態を確認してください。",
           "error"
         );
       }
@@ -199,4 +199,3 @@ function escapeHtml(value) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
-

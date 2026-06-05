@@ -10,7 +10,8 @@ rules_version = '2';
 //   Cloud Functions (Admin SDK) からのみ書き込まれる
 //
 // 運用メモ:
-// - 下記 ADMIN_UID は石井さんの Firebase Authentication UID に差し替えること。
+// - 下記 ADMIN_UIDS は管理者の Firebase Authentication UID 一覧。
+//   石井さんの UID が確定したら配列へ追加すること。
 //   custom claim (admin == true) に切り替える場合は isAdmin() を書き換える。
 
 service cloud.firestore {
@@ -18,7 +19,9 @@ service cloud.firestore {
 
     function isAdmin() {
       return request.auth != null
-        && request.auth.uid == 'YOUR_ADMIN_UID';
+        && request.auth.uid in [
+          'PvM8qIBG1ETC2Y7qM3PFj1i2ASk2'
+        ];
     }
 
     function isPublishedDoc() {

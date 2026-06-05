@@ -171,7 +171,7 @@ Stitch の Fluid Grid を採用し、静的HTML/CSSで扱いやすいレスポ�
 - キャラクター付きCTAを使う場合も、すべてのリンクを装飾CTAに置き換えない。通常ボタンは一覧、カード、フォーム、フッター固定導線などで継続利用する。
 - 大きめの主要導線は、共通サイズクラス `.button--pill-large` を使い、横幅 `min(82vw, 320px)`、高さ `60px`、太めのCTA文字に揃える。スマートフォンでもこのサイズを維持し、全幅化させない。
 - 緑の主要CTAは `.button--green` を使い、背景は Grass Green、文字は白にする。公式SNS系の白背景ボタンは `.button--outline-black` と `.button--with-icon` を組み合わせ、黒い太めの枠線、黒文字、左側アイコンで構成する。
-- トップページ「参加の流れ」末尾の「公式Instagram」ボタンは、白背景、黒い太めの枠線、黒文字、左側のInstagramアイコンで構成し、公式SNS導線として視認性を高める。
+- 公開サイト内のInstagram系ボタンは、文言を「公式Instagram」に統一する。白背景、黒い太めの枠線、黒文字、左側のInstagramアイコンで構成し、公式SNS導線として視認性を高める。
 - トップページ「参加の流れ」と下部フォーム案内の案内役CTAでは、左右キャラクターを個別の背景透明PNG（`assets/images/characters/molkkynist-character-green.png` / `molkkynist-character-brown.png`）として扱い、CTA本体には木目板画像（`assets/images/ui/wooden-cta-board.png`）を使う。木板画像には文字を含めず、中央テキストはHTMLで重ねる。
 - 下部フォーム案内の案内役CTAは、白いカード枠の中に入れず、協力団体・スポンサーと同じ背景色になじませて配置する。
 

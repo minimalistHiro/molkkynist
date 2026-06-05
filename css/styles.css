@@ -490,6 +490,7 @@ p {
 .button--with-icon .button__icon {
   width: 24px;
   height: 24px;
+  margin: 0;
   flex: 0 0 auto;
 }
 
@@ -1309,7 +1310,7 @@ dd {
   text-align: left;
 }
 
-.dm-card img {
+.dm-card > img {
   width: 64px;
   height: 64px;
   margin-bottom: 16px;

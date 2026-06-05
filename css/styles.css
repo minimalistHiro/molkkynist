@@ -484,13 +484,13 @@ p {
 }
 
 .button--with-icon {
-  position: relative;
-  gap: 0;
+  display: grid;
+  grid-template-columns: 24px max-content;
+  justify-content: space-between;
+  gap: 18px;
 }
 
 .button--with-icon .button__icon {
-  position: absolute;
-  left: 32px;
   width: 24px;
   height: 24px;
   margin: 0;
@@ -499,8 +499,8 @@ p {
 
 .button--with-icon span {
   display: block;
-  width: 100%;
-  text-align: center;
+  width: auto;
+  text-align: right;
 }
 
 .button--outline-black .button__icon {

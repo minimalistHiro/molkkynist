@@ -34,7 +34,6 @@ index.html
 - 活動の様子（既存9枚の活動写真を、縦横比に変化をつけた `activity-grid` コラージュで並べるセクション `#activity`。画像は `assets/images/activity/activity-01.jpg` 〜 `activity-09.jpg` を参照。写真クリック不可・装飾のみ。セクション上部に活動レポートへの導線ボタンは置かない）
 - メンバー紹介への導線
 - よくある質問（14問のフル版。回答50〜120字。詳細は `CONTENT_GUIDELINES.md`）
-- お問い合わせフォームへの案内CTA
 - 協力団体・スポンサー（ロゴ並べ表示。現時点の掲載対象はココシバのみ）
 - フッター直前の参加・SNS導線（緑背景のCTAとして「モルキニストに入ってモルックを楽しみませんか」を掲出し、お問い合わせフォームへのボタン、X / Instagram / LINE の仮リンクを置く）
 
@@ -373,7 +372,7 @@ Instagram DM 導線は必要なページに残しつつ、参加申し込みの�
 ### 2026-05-21 追加実装
 
 - `privacy.html` を新規作成（F-1）。全ページ footer から導線を設置。
-- `index.html` を C-1 の構成に再整理（`#about` → `#schedule` → `#flow` → `#activity` → `#members` → `#faq` → `#contact-form-cta` → `#partners`）。
+- `index.html` を C-1 の構成に再整理（`#about` → `#schedule` → `#flow` → `#activity` → `#members` → `#faq` → `#partners`）。
 - `contact.html` に Firebase 連携の独自お問い合わせフォーム（D-1）を実装。
   - 関連スクリプト: `js/firebase-config.js`（設定値テンプレート） / `js/contact-form.js`（フォーム制御、Firebase v10 モジュラー CDN を利用）
   - 参加希望時は Firestore `events` から `isPublished==true` かつ `eventDate>=今日` の日程を取得しトグル表示
@@ -417,6 +416,7 @@ Instagram DM 導線は必要なページに残しつつ、参加申し込みの�
 ### 2026-06-03 追加実装
 
 - `index.html` の `#about`（モルックとは）セクションをPC表示で交互2カラム構成に変更。
+- `index.html` のヒーロー紹介エリアと `#about`（モルックとは）セクションの境目を、直線ではなく1周期分の大きな波形に変更。
   - 1段目は左に本文・右に写真、2段目は左に写真・右に本文を配置する。
   - スマートフォン表示は従来どおり本文と写真を縦に積む構成を維持する。
 

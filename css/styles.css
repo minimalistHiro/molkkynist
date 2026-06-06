@@ -620,7 +620,6 @@ p {
 }
 
 #about {
-  --about-wave-drop: clamp(16px, 4vw, 32px);
   --about-wave-height: clamp(56px, 12vw, 132px);
   position: relative;
   z-index: 1;
@@ -630,7 +629,7 @@ p {
 #about::before {
   position: absolute;
   right: 0;
-  bottom: calc(100% - var(--about-wave-drop));
+  bottom: 100%;
   left: 0;
   z-index: 0;
   height: var(--about-wave-height);

@@ -620,6 +620,7 @@ p {
 }
 
 #about {
+  --about-wave-drop: clamp(16px, 4vw, 32px);
   --about-wave-height: clamp(56px, 12vw, 132px);
   position: relative;
   z-index: 1;
@@ -629,7 +630,7 @@ p {
 #about::before {
   position: absolute;
   right: 0;
-  bottom: 100%;
+  bottom: calc(100% - var(--about-wave-drop));
   left: 0;
   z-index: 0;
   height: var(--about-wave-height);
@@ -2654,7 +2655,7 @@ dd {
 
   .hero {
     padding-top: 24px;
-    padding-bottom: 40px;
+    padding-bottom: 78px;
   }
 
   .hero__panel {

@@ -178,20 +178,26 @@ updatedAt
 ### members
 
 メンバー情報を保存します。
+2026年6月6日に、管理画面 `admin/members.html` からの追加・編集・公開切替・表示順管理と、公開サイト `index.html#members` / `member.html?id=xxx` のFirestore読み込みを実装済み。未登録時や取得失敗時は、初期ダミーデータ3名をフォールバック表示する。
 
 主なフィールド:
 
 ```text
 name
 role
-profile
-comment
 imageUrl
+visualVariant
+startedReason
+favoriteThings
+firstTimerMessage
+comment
 displayOrder
 isPublished
 createdAt
 updatedAt
 ```
+
+公開サイトでは `isPublished == true` かつ `displayOrder` 昇順で取得するため、`firestore.indexes.json` に `members` 用複合インデックスを定義する。
 
 ### siteSettings
 

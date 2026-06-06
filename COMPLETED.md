@@ -17,6 +17,7 @@
 
 | ID | 区分 | 対象 | 内容 | 備考 |
 |----|------|------|------|------|
+| D-12 | 独自対応 | 管理画面 / Firestore | メンバー管理と公開サイトのFirestore連携 | R-10を確定し、`admin/members.html` と `js/admin-members.js` を追加。Firestore `members` で名前、役割、写真またはアイコン画像URL、アイコン色、モルックを始めたきっかけ、モルック以外の好きなこと、初参加者へのメッセージ、ひとことコメント、表示順、公開状態を追加・編集できるようにした。トップページ `#members` は `js/member-list.js` で公開済み `members` を表示し、`member.html?id=xxx` は `js/member-detail.js` でFirestoreメンバーを優先表示する構成へ移行。未登録・取得失敗時は `js/member-data.js` の初期3名をフォールバック表示する。`firestore.indexes.json` に `members` 用複合インデックスを追加し、2026-06-06 に Hosting / Firestore indexes をデプロイ済み。 |
 | D-9 | 独自対応 | 管理画面 / Firestore | お問い合わせ管理に対応ステータスと対応メモを追加 | `js/admin-contact-submissions.js` を更新し、詳細欄から `contactSubmissions.responseStatus`（未対応 / 対応中 / 対応済み）と `responseMemo` を保存できるようにした。保存時は `responseUpdatedAt` と `responseUpdatedBy` も記録する。送信一覧には対応ステータスチップを表示し、選択中のお問い合わせをハイライトする。`css/styles.css` に管理メモフォームと選択状態のスタイルを追加し、`ADMIN_REQUIREMENTS.md` / `FIREBASE_ARCHITECTURE.md` / `ROADMAP.md` を同期。 |
 
 ---

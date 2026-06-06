@@ -30,7 +30,7 @@ index.html
 - Molkkynist の短い紹介（モルキニストの第一印象：活動写真＋活動内容紹介を含む）
 - お知らせ（正方形ビジュアル＋日付＋タイトルのニュースカードを横スライドするカルーセル `report-carousel` / `report-news-card`。PC は3枚グリッド / タブレットは2枚グリッド / SP は中央1枚＋両隣ピーク表示。SPでは両隣カードのタップ、または横スワイプでカードを切り替える。5秒間隔で自動送り、前後ボタン・ドットインジケータは設けない。各カードは共通テンプレート `news.html` に `?id=xxx` を付けて遷移する。表示データは Firestore `news` の公開済み記事から取得し、未登録・取得失敗時は初期ダミーデータをフォールバック表示する）
 - 開催スケジュール（月次カレンダー表示。Firestore `events` の公開済みイベントを当該日にハイライトし、カレンダー下に当月のイベント一覧を表示する。`events.html` への導線ボタンは廃止。カレンダー下に「開催場所の詳細」のリンクボタンを置き、`venues.html` へ遷移させる）
-- 参加の流れ（3ステップ＋併記情報＋CTAボタン。詳細は `CONTENT_GUIDELINES.md`）
+- 参加の流れ（3ステップ＋併記情報＋CTAボタン。各ステップは `assets/images/generated/flow/flow-icon-choose.png` / `flow-icon-apply.png` / `flow-icon-join.png` のアイコンと番号・見出し・本文で構成する。詳細は `CONTENT_GUIDELINES.md`）
 - 活動の様子（既存9枚の活動写真を、縦横比に変化をつけた `activity-grid` コラージュで並べるセクション `#activity`。画像は `assets/images/activity/activity-01.jpg` 〜 `activity-09.jpg` を参照。写真クリック不可・装飾のみ。セクション上部に活動レポートへの導線ボタンは置かない）
 - メンバー紹介への導線
 - よくある質問（14問のフル版。回答50〜120字。詳細は `CONTENT_GUIDELINES.md`）
@@ -159,7 +159,7 @@ reports.html
 メンバー紹介専用ページ（旧 `members.html`）は 2026-05-24 に廃止し、トップページの `#members` セクションに統合した。
 
 - 一覧表示はトップページ `#members` セクションで行う（仕様は `DESIGN_GUIDELINES.md`「メンバーカード」を参照）。
-- 個別メンバー詳細は共通テンプレート `member.html?id=xxx` を `news.html` と同じパターンで使用する（詳細データは `js/member-detail.js` の `MEMBER_ITEMS`）。
+- 個別メンバー詳細は共通テンプレート `member.html?id=xxx` を `news.html` と同じパターンで使用する。公開データは Firestore `members` の公開済みメンバーから取得し、未登録・取得失敗時は初期ダミーデータをフォールバック表示する。
 - 全公開ページのフッター「メンバー」リンクと、`member.html` の「メンバー一覧へ戻る」ボタンは `index.html#members` を指す。
 
 ### 8. 参加・お問い合わせ
@@ -367,7 +367,7 @@ privacy.html
 - `member.html`（個別メンバー詳細テンプレート。一覧ページ `members.html` は 2026-05-24 に廃止）
 - `contact.html`
 
-イベント、活動レポート、メンバー紹介は、将来 Firestore から読み込む前提で `article` カード単位の構造を基本にする。
+イベント、メンバー紹介は Firestore から読み込む。活動レポートは将来 Firestore へ移行する前提で、`article` カード単位の構造を基本にする。
 Instagram DM 導線は必要なページに残しつつ、参加申し込みの主要導線はお問い合わせフォームへ集約する。
 
 ### 2026-05-21 追加実装
@@ -399,7 +399,7 @@ Instagram DM 導線は必要なページに残しつつ、参加申し込みの�
   - ダミーデータ（id=001〜004）は `js/news-data.js` に分離し、トップカルーセルと詳細ページで共通利用する。
 - メンバー一覧（`index.html#members` / `members.html`）のカード仕様を変更。
   - カードを `<a class="member-card">` に変更し、クリックで共通テンプレート `member.html?id=xxx` に遷移する仕組みを `news` と同じパターンで導入。
-  - 詳細データは `js/member-detail.js` の `MEMBER_ITEMS`（id=ishii / member-a / member-b）にベタ書きし、将来 Firestore `members` コレクションへの差し替えを前提とする。
+  - 詳細データは Firestore `members` を優先して表示し、未登録・取得失敗時は `js/member-data.js` の初期ダミーデータ（id=ishii / member-a / member-b）を表示する。
   - 一覧カードは「コンパクトな円形プレースホルダー（96px）＋役割＋名前」のみに簡素化し、本文・引用は詳細ページに集約。
   - メンバー一覧グリッドの列数は PC=3 / タブレット=2 / スマートフォン=**2**（従来の1列から変更）に統一。
 - メンバー紹介専用ページ `members.html` を廃止し、一覧表示をトップページ `#members` セクションに一本化。

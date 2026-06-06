@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="css/styles.css">
     <script src="js/site-nav.js" defer></script>
     <script type="module" src="js/news-list.js"></script>
+    <script type="module" src="js/member-list.js"></script>
     <script src="js/report-carousel.js" defer></script>
     <script src="js/schedule-calendar-fallback.js" defer></script>
     <script type="module" src="js/schedule-calendar.js"></script>
@@ -122,7 +123,7 @@
             </div>
             <a class="text-link" href="about.html">Molkkynistの活動方針を詳しく見る</a>
             <figure class="about-wide-illustration" aria-label="モルックを楽しむキャラクターのイラスト">
-              <img src="assets/images/generated/molkkynist-molkky-wide-banner-imagegen.png" alt="芝生の上でモルックを楽しむMolkkynistのキャラクター" width="1915" height="821" loading="lazy" decoding="async">
+              <img src="assets/images/generated/molkkynist-molkky-wide-banner-transparent.png" alt="芝生の上でモルックを楽しむMolkkynistのキャラクター" width="1915" height="821" loading="lazy" decoding="async">
             </figure>
           </div>
         </div>
@@ -257,19 +258,52 @@
           </div>
           <div class="step-grid">
             <article class="step-card">
-              <span class="step-card__number">1</span>
-              <h3>イベントを選ぶ</h3>
-              <p>開催スケジュールから参加したい日を選びます。</p>
+              <img
+                class="step-card__icon"
+                src="assets/images/generated/flow/flow-icon-choose.png"
+                alt=""
+                width="724"
+                height="724"
+              >
+              <div class="step-card__body">
+                <div class="step-card__heading">
+                  <span class="step-card__number">1</span>
+                  <h3>イベントを選ぶ</h3>
+                </div>
+                <p>開催スケジュールから参加したい日を選びます。</p>
+              </div>
             </article>
             <article class="step-card">
-              <span class="step-card__number">2</span>
-              <h3>申し込む</h3>
-              <p>Instagram DM またはお問い合わせフォームから連絡してください。受付完了のメールが、登録いただいたメールアドレスへ自動で届きます。</p>
+              <img
+                class="step-card__icon"
+                src="assets/images/generated/flow/flow-icon-apply.png"
+                alt=""
+                width="724"
+                height="724"
+              >
+              <div class="step-card__body">
+                <div class="step-card__heading">
+                  <span class="step-card__number">2</span>
+                  <h3>申し込む</h3>
+                </div>
+                <p>Instagram DM またはお問い合わせフォームから連絡してください。受付完了のメールが、登録いただいたメールアドレスへ自動で届きます。</p>
+              </div>
             </article>
             <article class="step-card">
-              <span class="step-card__number">3</span>
-              <h3>当日参加する</h3>
-              <p>当日は集合場所にお越しください。初参加の方も見学のみの方も歓迎します。</p>
+              <img
+                class="step-card__icon"
+                src="assets/images/generated/flow/flow-icon-join.png"
+                alt=""
+                width="724"
+                height="724"
+              >
+              <div class="step-card__body">
+                <div class="step-card__heading">
+                  <span class="step-card__number">3</span>
+                  <h3>当日参加する</h3>
+                </div>
+                <p>当日は集合場所にお越しください。初参加の方も見学のみの方も歓迎します。</p>
+              </div>
             </article>
           </div>
 
@@ -355,7 +389,7 @@
             <h2 id="members-title">運営メンバー</h2>
             <p class="section-lead">初参加の方が安心して声をかけられるよう、運営メンバーの人柄も少しずつ紹介していきます。</p>
           </div>
-          <div class="member-grid">
+          <div class="member-grid" data-member-list>
             <a class="member-card" href="member.html?id=ishii">
               <div class="person-placeholder" aria-hidden="true"></div>
               <div class="member-card__body">

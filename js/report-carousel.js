@@ -1,13 +1,17 @@
 (() => {
-  const carousels = document.querySelectorAll("[data-report-carousel]");
+  const carouselStates = new WeakMap();
 
-  if (!carousels.length) {
-    return;
+  function initAll(scope = document) {
+    const carousels = scope.querySelectorAll("[data-report-carousel]");
+    carousels.forEach((root) => init(root));
   }
 
-  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  function init(root) {
+    const previousState = carouselStates.get(root);
+    if (previousState) {
+      previousState.destroy();
+    }
 
-  carousels.forEach((root) => {
     const viewport = root.querySelector(".report-carousel__viewport");
     const track = root.querySelector("[data-report-carousel-track]");
     const slides = track ? Array.from(track.children) : [];
@@ -16,6 +20,8 @@
       return;
     }
 
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const listeners = [];
     const interval = Number(root.dataset.interval) || 5000;
 
     let visibleCount = getVisibleCount();
@@ -29,6 +35,11 @@
     let dragDeltaX = 0;
     let dragMoved = false;
     let suppressClick = false;
+
+    function listen(target, type, handler, options) {
+      target.addEventListener(type, handler, options);
+      listeners.push(() => target.removeEventListener(type, handler, options));
+    }
 
     function getVisibleCount() {
       const width = window.innerWidth;
@@ -129,52 +140,6 @@
       }
     }
 
-    viewport.addEventListener("pointerdown", (event) => {
-      if (!isPeekMode()) return;
-      if (pageCount <= 1) return;
-      if (!event.isPrimary) return;
-      if (event.pointerType === "mouse") return;
-
-      isDragging = true;
-      dragPointerId = event.pointerId;
-      dragStartX = event.clientX;
-      dragStartY = event.clientY;
-      dragDeltaX = 0;
-      dragMoved = false;
-      stopTimer();
-      root.classList.add("is-dragging");
-      viewport.setPointerCapture(event.pointerId);
-    });
-
-    viewport.addEventListener("pointermove", (event) => {
-      if (!isDragging || event.pointerId !== dragPointerId) return;
-
-      const deltaX = event.clientX - dragStartX;
-      const deltaY = event.clientY - dragStartY;
-      const isHorizontal = Math.abs(deltaX) > Math.abs(deltaY) + 8;
-
-      if (!dragMoved && !isHorizontal) {
-        return;
-      }
-
-      dragMoved = true;
-      dragDeltaX = deltaX;
-      setTrackOffset(getOffset(), dragDeltaX);
-      event.preventDefault();
-    });
-
-    viewport.addEventListener("pointerup", (event) => {
-      if (!isDragging || event.pointerId !== dragPointerId) return;
-      finishDrag();
-    });
-
-    viewport.addEventListener("pointercancel", (event) => {
-      if (!isDragging || event.pointerId !== dragPointerId) return;
-      update();
-      resetDragState();
-      startTimer();
-    });
-
     function next() {
       goTo(currentIndex + 1);
     }
@@ -207,8 +172,54 @@
       update();
     }
 
+    listen(viewport, "pointerdown", (event) => {
+      if (!isPeekMode()) return;
+      if (pageCount <= 1) return;
+      if (!event.isPrimary) return;
+      if (event.pointerType === "mouse") return;
+
+      isDragging = true;
+      dragPointerId = event.pointerId;
+      dragStartX = event.clientX;
+      dragStartY = event.clientY;
+      dragDeltaX = 0;
+      dragMoved = false;
+      stopTimer();
+      root.classList.add("is-dragging");
+      viewport.setPointerCapture(event.pointerId);
+    });
+
+    listen(viewport, "pointermove", (event) => {
+      if (!isDragging || event.pointerId !== dragPointerId) return;
+
+      const deltaX = event.clientX - dragStartX;
+      const deltaY = event.clientY - dragStartY;
+      const isHorizontal = Math.abs(deltaX) > Math.abs(deltaY) + 8;
+
+      if (!dragMoved && !isHorizontal) {
+        return;
+      }
+
+      dragMoved = true;
+      dragDeltaX = deltaX;
+      setTrackOffset(getOffset(), dragDeltaX);
+      event.preventDefault();
+    });
+
+    listen(viewport, "pointerup", (event) => {
+      if (!isDragging || event.pointerId !== dragPointerId) return;
+      finishDrag();
+    });
+
+    listen(viewport, "pointercancel", (event) => {
+      if (!isDragging || event.pointerId !== dragPointerId) return;
+      update();
+      resetDragState();
+      startTimer();
+    });
+
     slides.forEach((slide, i) => {
-      slide.addEventListener("click", (event) => {
+      listen(slide, "click", (event) => {
         if (suppressClick) {
           event.preventDefault();
           return;
@@ -221,12 +232,12 @@
       });
     });
 
-    root.addEventListener("mouseenter", stopTimer);
-    root.addEventListener("mouseleave", startTimer);
-    root.addEventListener("focusin", stopTimer);
-    root.addEventListener("focusout", startTimer);
+    listen(root, "mouseenter", stopTimer);
+    listen(root, "mouseleave", startTimer);
+    listen(root, "focusin", stopTimer);
+    listen(root, "focusout", startTimer);
 
-    document.addEventListener("visibilitychange", () => {
+    listen(document, "visibilitychange", () => {
       if (document.hidden) {
         stopTimer();
       } else {
@@ -234,11 +245,8 @@
       }
     });
 
-    window.addEventListener("resize", () => {
-      rebuild();
-    });
-
-    reducedMotion.addEventListener("change", () => {
+    listen(window, "resize", rebuild);
+    listen(reducedMotion, "change", () => {
       if (reducedMotion.matches) {
         stopTimer();
       } else {
@@ -246,7 +254,27 @@
       }
     });
 
+    function destroy() {
+      stopTimer();
+      listeners.forEach((remove) => remove());
+      track.style.transform = "";
+      root.classList.remove("report-carousel--peek", "is-dragging");
+      slides.forEach((slide) => {
+        slide.classList.remove("is-active");
+        slide.removeAttribute("aria-hidden");
+      });
+      carouselStates.delete(root);
+    }
+
+    carouselStates.set(root, { destroy });
     update();
     startTimer();
-  });
+  }
+
+  window.MolkkynistReportCarousel = {
+    init,
+    initAll,
+  };
+
+  initAll();
 })();

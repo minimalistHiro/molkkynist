@@ -30,6 +30,10 @@
   - イベントの追加・編集
   - 公開 / 非公開の切り替え
   - 開催日、時間、場所、参加費、定員、持ち物、雨天時対応、状態の編集
+- `admin/news.html`
+  - お知らせ記事の追加・編集
+  - 公開 / 非公開の切り替え
+  - 配信日、本文、カードビジュアルURL、プレースホルダー色の編集
 - `admin/contact-submissions.html`
   - `contactSubmissions` の送信日時降順一覧
   - 送信内容の詳細表示
@@ -39,7 +43,6 @@
 
 - `admin/reports.html`
 - `admin/members.html`
-- `admin/news.html`
 - `admin/settings.html`
 - Storage を使った画像アップロード
 
@@ -139,8 +142,7 @@ admin/news.html
 
 備考:
 
-- 2026年5月24日時点では、トップページ `#news` カルーセルと共通テンプレート `news.html` のみ実装済み（ダミーデータ4件をクライアントJS `js/news-detail.js` で表示）。
-- Firestore `news` コレクションと管理画面 `admin/news.html` は未実装。`FIREBASE_ARCHITECTURE.md` の `news` コレクション案に従って後続フェーズで実装する。
+- 2026年6月5日に `admin/news.html` と Firestore `news` コレクション連携を実装済み。公開サイト側はトップページ `#news` カルーセルと共通テンプレート `news.html?id=xxx` で公開済み記事を表示し、Firestore未登録・取得失敗時は初期ダミーデータ4件をフォールバック表示する。
 
 ## 活動レポート管理要件
 
@@ -206,15 +208,16 @@ admin/contact-submissions.html
 - 送信日時の降順で並べる
 - 1件ずつ詳細（名前 / メール / 電話 / 用件区分 / 参加希望日程 / 本文）を確認できる
 - 各送信に対する自動返信メール（`mail` コレクション）の `delivery.state`（`SUCCESS` / `ERROR` / `PROCESSING` 等）と、エラー時のメッセージを表示する
-- 必要に応じて手動でステータス（対応中・対応済み）を管理画面側に持たせる（将来検討）
+- 手動で対応ステータス（未対応・対応中・対応済み）と対応メモを保存できる
 
 入力項目（管理側）:
 
-- 対応ステータス（未対応 / 対応中 / 対応済み）※将来追加
-- 対応メモ ※将来追加
+- 対応ステータス（未対応 / 対応中 / 対応済み）
+- 対応メモ
 
 備考:
 
+- 2026年6月6日に D-9 として、`admin/contact-submissions.html` の詳細欄へ対応ステータスと対応メモの保存フォームを追加。保存先は `contactSubmissions.responseStatus` / `responseMemo` / `responseUpdatedAt` / `responseUpdatedBy`。
 - 自動返信メールの文面（件名・本文・HTML）は管理画面では編集しない。コード `functions/index.js` の `renderTextBody()` / `renderHtmlBody()` で管理する。文面方針は `CONTENT_GUIDELINES.md`「自動返信メール文面」を参照。
 - DM 経由のお問い合わせはこの画面には記録されない（Instagram 側で完結）。受領通知の運用は R-8 で検討中。
 - セキュリティルール (`firestore.rules`) で `contactSubmissions` は管理者のみ read/update/delete 可。`mail` コレクションは管理画面からも参照不可（Cloud Functions の Admin SDK のみアクセス）。送信状況の表示はサーバーサイド経由（Cloud Functions の callable 関数等）で実装する想定。

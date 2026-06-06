@@ -13,10 +13,19 @@
 
 ---
 
+## 2026-06-06
+
+| ID | 区分 | 対象 | 内容 | 備考 |
+|----|------|------|------|------|
+| D-9 | 独自対応 | 管理画面 / Firestore | お問い合わせ管理に対応ステータスと対応メモを追加 | `js/admin-contact-submissions.js` を更新し、詳細欄から `contactSubmissions.responseStatus`（未対応 / 対応中 / 対応済み）と `responseMemo` を保存できるようにした。保存時は `responseUpdatedAt` と `responseUpdatedBy` も記録する。送信一覧には対応ステータスチップを表示し、選択中のお問い合わせをハイライトする。`css/styles.css` に管理メモフォームと選択状態のスタイルを追加し、`ADMIN_REQUIREMENTS.md` / `FIREBASE_ARCHITECTURE.md` / `ROADMAP.md` を同期。 |
+
+---
+
 ## 2026-06-05
 
 | ID | 区分 | 対象 | 内容 | 備考 |
 |----|------|------|------|------|
+| D-10 | 独自対応 | 管理画面 / Firestore | お知らせ管理と公開サイトのFirestore連携 | `admin/news.html` と `js/admin-news.js` を追加し、Firestore `news` コレクションでタイトル、本文、配信日、カードビジュアルURL、プレースホルダー色、公開状態を追加・編集できるようにした。`firestore.rules` に `news` の公開読み取り・管理者書き込みルール、`firestore.indexes.json` に公開済み記事を配信日降順で読む複合インデックスを追加。トップページ `#news` は `js/news-list.js` で公開済み `news` を取得し、`news.html?id=xxx` は `js/news-detail.js` でFirestore記事を表示する構成へ移行。Firestore未登録・取得失敗時は `js/news-data.js` の初期4件をフォールバック表示する。 |
 | D-8 | 独自対応 | Firebase / 管理画面 / 運用 | 既存管理画面の本番ログイン・操作確認 | あなたのアカウントで本番 `admin/events.html` と `admin/contact-submissions.html` にログインできることを確認。イベント管理では管理画面フォーム経由でテストイベント `D-8 UI確認 20260605` を作成し、編集ボタンからタイトル変更、公開ON、公開OFF戻しまで確認。Firestore 上でも `isPublished=true` / `false` の更新を確認し、確認後にテストイベント `VqrGp7KBbzNL6viPkklT` は削除済み。お問い合わせ管理では一覧・詳細閲覧を確認し、B-1後の新規テストお問い合わせ `d8-test-20260605160454` に対して `mail.delivery.state=SUCCESS` が記録され、管理画面でも「送信済み」と表示されることを確認。Callable Function `getMailDeliveryStates` は Cloud Run 側の未認証起動拒否が出ていたため、サービス `getmaildeliverystates` に `allUsers` の `roles/run.invoker` を付与し、関数内部のFirebase管理者判定で制御する構成に修正。 |
 | B-1 | 独自対応 | Firebase / 管理画面 | Cloud Functions 実行サービスアカウントへFirestore書き込み権限を付与 | `gcloud auth login` で `info@groumapapp.com` を再認証し、`sendAutoReplyOnContactCreate` の実行サービスアカウント `264727261204-compute@developer.gserviceaccount.com` を確認。`gcloud projects add-iam-policy-binding molkkynist-a0abd --member=serviceAccount:264727261204-compute@developer.gserviceaccount.com --role=roles/datastore.user` を実行し、`gcloud projects get-iam-policy` で `roles/datastore.user` 付与済みを確認。これにより `mail` コレクションへの送信状態記録に必要なFirestore読み書き権限を付与済み。 |
 | D-7 | 独自対応 | Firebase / 管理画面 | 管理者UIDを複数人対応に変更 | `js/firebase-config.js` の `adminConfig.adminUid` 単体管理を `adminConfig.adminUids` 配列へ変更し、あなたのUID `PvM8qIBG1ETC2Y7qM3PFj1i2ASk2` を先行登録。`js/admin-auth.js` のログイン後UID照合を配列チェックへ変更し、`firestore.rules` の `isAdmin()` もUID配列で判定する形へ更新。Cloud Functions は `ADMIN_UIDS`（カンマ区切り）と既存 `ADMIN_UID` の両方を読み、ハードコード済みUIDも含めて `getMailDeliveryStates` の管理者判定を複数UID対応にした。 |

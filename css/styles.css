@@ -723,6 +723,20 @@ p {
   gap: 18px;
 }
 
+.about-wide-illustration {
+  width: 100vw;
+  margin: 22px 0 -72px calc(50% - 50vw);
+  overflow: hidden;
+  background: var(--color-surface-field);
+}
+
+.about-wide-illustration img {
+  width: 100%;
+  min-height: clamp(180px, 34vw, 520px);
+  object-fit: cover;
+  object-position: center bottom;
+}
+
 .about-prose__row,
 .about-prose__text {
   display: grid;
@@ -1043,10 +1057,18 @@ dd {
 }
 
 .report-news-card__visual {
+  overflow: hidden;
   aspect-ratio: 1 / 1;
   border-radius: var(--radius-news-card) var(--radius-news-card) 0 0;
   background: var(--color-surface-field);
   box-shadow: inset 0 0 0 1px rgba(190, 202, 185, 0.34);
+}
+
+.report-news-card__visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .report-news-card__visual--soft {
@@ -2210,6 +2232,11 @@ dd {
   background: rgba(221, 237, 73, 0.16);
 }
 
+.admin-contact-button.is-active {
+  border-color: rgba(0, 110, 28, 0.48);
+  background: rgba(221, 237, 73, 0.22);
+}
+
 .admin-detail-heading {
   display: flex;
   align-items: flex-start;
@@ -2220,6 +2247,19 @@ dd {
 
 .admin-detail-heading h2 {
   margin-bottom: 0;
+}
+
+.admin-contact-management {
+  max-width: none;
+  margin-bottom: 22px;
+  padding: 18px;
+  border-color: rgba(0, 110, 28, 0.16);
+  background: rgba(250, 250, 245, 0.82);
+  box-shadow: none;
+}
+
+.admin-contact-management .form-row {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .admin-detail-list {
@@ -2780,6 +2820,7 @@ dd {
 }
 
 .news-detail__visual {
+  overflow: hidden;
   width: 100%;
   max-width: 800px;
   margin: 0 auto 32px;
@@ -2788,6 +2829,13 @@ dd {
   border-radius: var(--radius-lg);
   background: var(--color-surface-field);
   box-shadow: var(--shadow-card);
+}
+
+.news-detail__visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .news-detail__visual--soft {

@@ -73,6 +73,7 @@ privacy.html
 admin/login.html
 admin/index.html
 admin/events.html
+admin/news.html
 admin/contact-submissions.html
 admin/reports.html
 admin/members.html
@@ -141,7 +142,7 @@ updatedAt
 ### news
 
 トップページ「お知らせ」カルーセルおよびお知らせ詳細ページ `news.html` に表示する告知記事を保存します。
-2026年5月24日時点では、`js/news-detail.js` に4件のダミーデータをクライアント側で持たせている状態であり、Firestore コレクションは未作成。管理画面と公開サイトでのコレクション読み書きを実装するタイミングで作成する。
+2026年6月5日に、管理画面 `admin/news.html` からの追加・編集・公開切替と、公開サイト `index.html#news` / `news.html?id=xxx` のFirestore読み込みを実装済み。未登録時や取得失敗時は、初期ダミーデータ4件をフォールバック表示する。
 
 主なフィールド（案）:
 
@@ -150,6 +151,7 @@ title
 body            # 段落配列または改行区切りの長文
 publishDate     # 表示用の配信日
 imageUrl        # 詳細ページの上部ビジュアル（未指定時はCSSプレースホルダー）
+visualVariant   # プレースホルダー色（未指定 / soft / wood / lime）
 isPublished
 createdAt
 updatedAt
@@ -220,6 +222,10 @@ inquiryType   # 参加希望 / イベント問い合わせ / メディア取材 
 selectedEventIds   # 参加希望時のみ、events への参照を配列で保持
 message
 createdAt
+responseStatus     # 管理用: unhandled / in_progress / done
+responseMemo       # 管理用: 対応メモ
+responseUpdatedAt  # 管理用: 対応状況の最終更新日時
+responseUpdatedBy  # 管理用: 更新した管理者UID
 ```
 
 ## 公開データの考え方
@@ -242,6 +248,7 @@ Firebase を使用する画面では JavaScript が必要になります。
 - 管理画面でログイン状態を判定する
 - 管理画面でデータを追加・編集する
 - 管理画面でお問い合わせ送信内容を確認し、自動返信メールの送信状態を Cloud Functions 経由で取得する
+- 管理画面でお問い合わせの対応ステータスと対応メモを更新する
 - Storage に画像をアップロードする
 
 静的な本文やデザインは HTML / CSS を基本にします。

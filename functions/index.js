@@ -41,7 +41,7 @@ const SMTP_FROM = defineSecret("SMTP_FROM");
 const SMTP_SECURE = defineSecret("SMTP_SECURE");
 
 const REPLY_TO_EMAIL = process.env.REPLY_TO_EMAIL || "molkkynist@gmail.com";
-const INSTAGRAM_DM_URL = "https://www.instagram.com/molkkynist/";
+const INSTAGRAM_DM_URL = "https://www.instagram.com/molkkynist?igsh=MXYyZGVycGxtajh3aA==";
 const SITE_URL = "https://molkkynist-a0abd.web.app/";
 const DEFAULT_ADMIN_UIDS = ["PvM8qIBG1ETC2Y7qM3PFj1i2ASk2"];
 const ADMIN_UIDS = parseAdminUids(process.env.ADMIN_UIDS, process.env.ADMIN_UID, DEFAULT_ADMIN_UIDS);

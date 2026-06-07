@@ -139,7 +139,7 @@ reports.html
 
 - 一覧表示はトップページ `#members` セクションで行う（仕様は `DESIGN_GUIDELINES.md`「メンバーカード」を参照）。
 - 個別メンバー詳細は共通テンプレート `member.html?id=xxx` を `news.html` と同じパターンで使用する。公開データは Firestore `members` の公開済みメンバーから取得し、未登録・取得失敗時は初期ダミーデータをフォールバック表示する。
-- 全公開ページのフッター「メンバー」リンクと、`member.html` の「メンバー一覧へ戻る」ボタンは `index.html#members` を指す。
+- 全公開ページのフッター「メンバー」リンクは `index.html#members` を指す。`member.html` には「メンバー一覧へ戻る」ボタンを置かない。
 
 ### 7. 参加・お問い合わせ
 
@@ -383,7 +383,7 @@ Instagram DM 導線は必要なページに残しつつ、参加申し込みの�
   - メンバー一覧グリッドの列数は PC=3 / タブレット=2 / スマートフォン=**2**（従来の1列から変更）に統一。
 - メンバー紹介専用ページ `members.html` を廃止し、一覧表示をトップページ `#members` セクションに一本化。
   - `index.html` の `#members` セクション右上にあった「メンバー紹介へ」ボタンを撤去し、`section-heading--with-link` ラッパーを通常の `section-heading` に戻した。
-  - 全公開ページ（`about` / `contact` / `events` / `index` / `molkky` / `news` / `privacy` / `reports` / `member`）のフッター「メンバー」リンクと、`member.html` の「メンバー一覧へ戻る」ボタンの参照先を `index.html#members` に変更。
+  - 全公開ページ（`about` / `contact` / `events` / `index` / `molkky` / `news` / `privacy` / `reports` / `member`）のフッター「メンバー」リンクと、`member.html` の「メンバー一覧へ戻る」ボタンの参照先を `index.html#members` に変更。なお、2026-06-07 に `member.html` から同ボタン自体を撤去。
   - 個別メンバー詳細ページ `member.html?id=xxx` は存続（一覧から詳細への導線パターンを維持）。
 - `index.html` の `#about` セクションから3つのアクティビティカード（Activity 01〜03 = `pillar-grid` ブロック）を撤去。
   - 「定期イベントの開催」「初心者サポート」「地域とのつながり」の3カードはトップでの常設掲載をやめ、文章ベースの紹介に集約。

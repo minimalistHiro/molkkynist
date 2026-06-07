@@ -177,3 +177,41 @@
 
   headingLineTargets.forEach((heading) => observer.observe(heading));
 })();
+
+(() => {
+  const flowSteps = Array.from(document.querySelectorAll("#flow .step-card"));
+
+  if (!flowSteps.length) {
+    return;
+  }
+
+  document.documentElement.classList.add("has-flow-step-animation");
+  flowSteps.forEach((step, index) => {
+    step.style.setProperty("--flow-step-index", String(index));
+  });
+
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (prefersReducedMotion || !("IntersectionObserver" in window)) {
+    flowSteps.forEach((step) => step.classList.add("is-flow-step-visible"));
+    return;
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) {
+          return;
+        }
+
+        entry.target.classList.add("is-flow-step-visible");
+        observer.unobserve(entry.target);
+      });
+    },
+    {
+      rootMargin: "0px 0px -12% 0px",
+      threshold: 0.35,
+    },
+  );
+
+  flowSteps.forEach((step) => observer.observe(step));
+})();

@@ -355,8 +355,7 @@ p {
   filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.28));
 }
 
-.hero__lead,
-.hero__intro-text {
+.hero__lead {
   max-width: 560px;
   font-size: clamp(1rem, 2vw, 1.18rem);
   font-weight: 700;
@@ -364,26 +363,43 @@ p {
 
 .hero__lead p + p,
 .hero__intro-text p + p {
-  margin-top: 14px;
+  margin-top: 22px;
 }
 
 .hero__intro {
   display: grid;
-  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-  gap: clamp(24px, 5vw, 72px);
+  justify-items: center;
+  gap: 18px;
+  max-width: 760px;
   margin-top: clamp(36px, 6vw, 72px);
-  align-items: start;
+  margin-right: auto;
+  margin-left: auto;
+  text-align: center;
 }
 
-.hero__intro h2 {
+.hero__intro-heading {
+  margin-bottom: 0;
+}
+
+.hero__intro-heading h2 {
+  margin-bottom: 18px;
+}
+
+.hero__intro-heading h3 {
   margin: 0;
   color: var(--color-text);
   font-size: clamp(1.55rem, 3.2vw, 2.45rem);
+  font-weight: 700;
   line-height: 1.32;
 }
 
 .hero__intro-text {
+  max-width: 680px;
   color: var(--color-text-muted);
+  font-size: clamp(1rem, 2vw, 1.12rem);
+  font-weight: 500;
+  line-height: 2;
+  text-align: center;
 }
 
 .hero__intro-actions {
@@ -644,6 +660,10 @@ p {
 
 .section--muted {
   background: var(--color-surface-field);
+}
+
+#news {
+  background: #fffefb;
 }
 
 #partners {
@@ -1142,7 +1162,7 @@ dd {
   overflow: hidden;
   aspect-ratio: 1 / 1;
   border-radius: var(--radius-news-card) var(--radius-news-card) 0 0;
-  background: var(--color-surface-field);
+  background: rgba(255, 255, 255, 0.92);
   box-shadow: inset 0 0 0 1px rgba(190, 202, 185, 0.34);
 }
 
@@ -1154,15 +1174,15 @@ dd {
 }
 
 .report-news-card__visual--soft {
-  background: rgba(75, 174, 79, 0.12);
+  background: rgba(75, 174, 79, 0.06);
 }
 
 .report-news-card__visual--wood {
-  background: rgba(181, 147, 135, 0.16);
+  background: rgba(181, 147, 135, 0.08);
 }
 
 .report-news-card__visual--lime {
-  background: rgba(221, 237, 73, 0.24);
+  background: rgba(221, 237, 73, 0.1);
 }
 
 .report-news-card__body {
@@ -1547,22 +1567,24 @@ dd {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--color-outline);
-  border-radius: 999px;
-  background: var(--color-surface);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: var(--color-wood);
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  transition: color 0.2s ease;
 }
 
-.schedule-calendar__nav:hover,
-.schedule-calendar__nav:focus-visible {
-  background: var(--color-surface-container);
+.schedule-calendar__nav:hover {
   color: var(--color-grass);
-  border-color: var(--color-grass);
-  outline: none;
+}
+
+.schedule-calendar__nav:focus-visible {
+  color: var(--color-grass);
+  outline: 2px solid var(--color-grass);
+  outline-offset: 4px;
 }
 
 .schedule-calendar__weekdays {
@@ -2435,6 +2457,10 @@ dd {
   color: #ffffff;
 }
 
+.footer-reserve--site-end {
+  padding-bottom: clamp(96px, 14vw, 156px);
+}
+
 .footer-reserve::before {
   position: absolute;
   right: 0;
@@ -2737,7 +2763,7 @@ dd {
     margin-top: 32px;
   }
 
-  .hero__intro h2 {
+  .hero__intro-heading h3 {
     font-size: clamp(1.3rem, 6vw, 1.7rem);
   }
 
@@ -2943,6 +2969,12 @@ dd {
 
   .button {
     width: 100%;
+  }
+
+  .button.button--pill-large {
+    width: min(74vw, 288px);
+    padding-right: 24px;
+    padding-left: 24px;
   }
 
   .button--reserve {

@@ -7,6 +7,8 @@
     return;
   }
 
+  let closeTimer;
+
   const setupMobileMenuContent = () => {
     if (nav.querySelector(".site-nav__panel")) {
       return;
@@ -28,14 +30,14 @@
     actions.className = "site-nav__actions";
 
     const cta = document.createElement("a");
-    cta.className = "button button--pill-large button--green site-nav__cta";
+    cta.className = "button button--pill-large button--reserve site-nav__cta";
     cta.href = location.pathname.endsWith("/") || location.pathname.endsWith("index.html")
       ? "#schedule"
       : "index.html#schedule";
     cta.textContent = "イベントに参加する";
 
-    const social = document.createElement("div");
-    social.className = "site-nav__social";
+    const social = document.createElement("nav");
+    social.className = "footer-social site-nav__social";
     social.setAttribute("aria-label", "SNSリンク");
 
     [
@@ -69,9 +71,29 @@
   };
 
   const setOpen = (isOpen) => {
+    const wasOpen = nav.classList.contains("is-open");
+    const wasClosing = nav.classList.contains("is-closing");
+
+    window.clearTimeout(closeTimer);
     toggle.setAttribute("aria-expanded", String(isOpen));
-    nav.classList.toggle("is-open", isOpen);
     document.body.classList.toggle("nav-open", isOpen);
+
+    if (isOpen) {
+      nav.classList.remove("is-closing");
+      nav.classList.add("is-open");
+    } else {
+      nav.classList.remove("is-open");
+      if (wasOpen) {
+        nav.classList.add("is-closing");
+      }
+      if (wasOpen || wasClosing) {
+        closeTimer = window.setTimeout(() => {
+          nav.classList.remove("is-closing");
+        }, 340);
+      } else {
+        nav.classList.remove("is-closing");
+      }
+    }
 
     if (toggleLabel) {
       toggleLabel.textContent = isOpen ? "メニューを閉じる" : "メニューを開く";
@@ -123,4 +145,35 @@
       setOpen(false);
     }
   });
+})();
+
+(() => {
+  const headingLineTargets = document.querySelectorAll(
+    ".section-heading h2, .split-layout > div:first-child > h2, .page-hero h1, .cta-band h2",
+  );
+
+  if (!headingLineTargets.length) {
+    return;
+  }
+
+  document.documentElement.classList.add("has-heading-line-animation");
+
+  if (!("IntersectionObserver" in window)) {
+    headingLineTargets.forEach((heading) => heading.classList.add("is-line-visible"));
+    return;
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        entry.target.classList.toggle("is-line-visible", entry.isIntersecting);
+      });
+    },
+    {
+      rootMargin: "0px 0px -18% 0px",
+      threshold: 0.55,
+    },
+  );
+
+  headingLineTargets.forEach((heading) => observer.observe(heading));
 })();

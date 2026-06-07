@@ -22,9 +22,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&amp;family=Noto+Sans+JP:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
-    <script src="js/site-nav.js?v=20260607-mobile-menu2" defer></script>
+    <script src="js/site-nav.js?v=20260607-mobile-menu4" defer></script>
   </head>
-  <body>
+  <body class="site-end-page">
     <a class="skip-link" href="#main">本文へ移動</a>
     <header class="site-header">
       <div class="site-header__inner">
@@ -149,22 +149,26 @@
       </section>
     </main>
 
-    <footer class="site-footer">
-      <div class="site-footer__inner">
-        <a class="footer-brand" href="index.html">
-          <img src="assets/images/logos/molkkynist-logo-mark.png" alt="" width="40" height="40">
-          <span>Molkkynist</span>
-        </a>
-        <p>モルックを通じて、人が自然に集まる場所をつくるコミュニティ。</p>
-        <nav class="footer-nav" aria-label="フッターナビゲーション">
-          <a href="events.html">イベント</a>
-          <a href="reports.html">活動レポート</a>
-          <a href="index.html#members">メンバー</a>
-          <a href="contact.html#instagram-dm">Instagram DM</a>
-          <a href="privacy.html">プライバシーポリシー</a>
+    <section class="footer-reserve footer-reserve--site-end" aria-labelledby="footer-reserve-title">
+      <div class="footer-reserve__inner">
+        <div class="footer-reserve__content">
+          <p class="footer-reserve__label">Contact Form</p>
+          <h2 id="footer-reserve-title">モルキニストに入ってモルックを楽しみませんか</h2>
+          <p>参加希望、見学希望、協力のご相談はお問い合わせフォームからお気軽にご連絡ください。まずはふらっと、遊びに来ませんか。</p>
+        </div>
+        <a class="button button--pill-large button--reserve" href="contact.html#contact-form">フォームから申し込む</a>
+        <nav class="footer-social" aria-label="SNSリンク">
+          <a class="social-link" href="#" aria-label="X（仮リンク）">
+            <img class="social-link__icon" src="assets/images/social/x.svg" alt="" width="22" height="22">
+          </a>
+          <a class="social-link" href="https://www.instagram.com/molkkynist?igsh=MXYyZGVycGxtajh3aA==" target="_blank" rel="noopener" aria-label="Instagram">
+            <img class="social-link__icon" src="assets/images/social/instagram.svg" alt="" width="22" height="22">
+          </a>
+          <a class="social-link" href="#" aria-label="LINE（仮リンク）">
+            <img class="social-link__icon" src="assets/images/social/line.svg" alt="" width="22" height="22">
+          </a>
         </nav>
-        <small>&copy; 2026 Molkkynist</small>
       </div>
-    </footer>
+    </section>
   </body>
 </html>

@@ -22,10 +22,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&amp;family=Noto+Sans+JP:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
-    <script src="js/site-nav.js?v=20260607-mobile-menu2" defer></script>
+    <script src="js/site-nav.js?v=20260607-mobile-menu4" defer></script>
     <script type="module" src="js/member-detail.js"></script>
   </head>
-  <body class="member-detail-page">
+  <body class="member-detail-page site-end-page">
     <a class="skip-link" href="#main">本文へ移動</a>
     <header class="site-header">
       <div class="site-header__inner">
@@ -77,9 +77,14 @@
       </article>
     </main>
 
-    <section class="footer-reserve footer-reserve--site-end" aria-label="予約とSNSリンク">
+    <section class="footer-reserve footer-reserve--site-end" aria-labelledby="footer-reserve-title">
       <div class="footer-reserve__inner">
-        <a class="button button--pill-large button--reserve" href="contact.html#contact-form">ご予約はこちら</a>
+        <div class="footer-reserve__content">
+          <p class="footer-reserve__label">Contact Form</p>
+          <h2 id="footer-reserve-title">モルキニストに入ってモルックを楽しみませんか</h2>
+          <p>参加希望、見学希望、協力のご相談はお問い合わせフォームからお気軽にご連絡ください。まずはふらっと、遊びに来ませんか。</p>
+        </div>
+        <a class="button button--pill-large button--reserve" href="contact.html#contact-form">フォームから申し込む</a>
         <nav class="footer-social" aria-label="SNSリンク">
           <a class="social-link" href="#" aria-label="X（仮リンク）">
             <img class="social-link__icon" src="assets/images/social/x.svg" alt="" width="22" height="22">

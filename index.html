@@ -20,13 +20,13 @@
     <title>Molkkynist | モルックを、もっと身近な遊びに。</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&amp;family=Noto+Sans+JP:wght@400;500;600;700;800;900&amp;family=Pacifico&amp;display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css?v=20260607-green-unify">
-    <script src="js/site-nav.js?v=20260607-flow-cards" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&amp;family=M+PLUS+Rounded+1c:wght@800;900&amp;family=Noto+Sans+JP:wght@400;500;600;700;800;900&amp;family=Lobster&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css?v=20260607-schedule-card-fade">
+    <script src="js/site-nav.js?v=20260607-schedule-card-fade" defer></script>
     <script type="module" src="js/news-list.js"></script>
     <script type="module" src="js/member-list.js?v=20260607-member-visuals"></script>
     <script src="js/report-carousel.js" defer></script>
-    <script type="module" src="js/schedule-events.js"></script>
+    <script type="module" src="js/schedule-events.js?v=20260607-schedule-card-fade"></script>
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -145,23 +145,44 @@
             <h2 id="about-title">モルックとは</h2>
           </div>
           <div class="prose about-prose">
-            <div class="about-prose__text">
-              <p>
-                モルックは、木の棒を投げて数字の書かれたピンを倒し、合計50点ぴったりを目指すフィンランド生まれのスポーツです。
-              </p>
-              <p>
-                力の強さよりも、狙い方や会話を楽しめるのがモルックの魅力です。運動が得意でなくても参加しやすく、仲間と相談しながら自然に盛り上がれます。
-              </p>
-              <p>
-                Molkkynistでは、初めての方にもその場でルールを説明しながら進めています。詳しい点数の数え方は、モルック紹介ページで確認できます。
-              </p>
-              <div class="about-rule-action">
-                <a class="button button--pill-large button--green button--rule-capsule" href="molkky.html">モルックのルールはこちら</a>
+            <div class="about-story">
+              <div class="about-prose__text">
+                <p>
+                  モルックは、木の棒を投げて数字の書かれたピンを倒し、合計50点ぴったりを目指すフィンランド生まれのスポーツです。
+                </p>
+              </div>
+              <div class="about-photo-collage" aria-hidden="true">
+                <span class="about-photo-collage__item about-photo-collage__item--large"></span>
+                <span class="about-photo-collage__item"></span>
+                <span class="about-photo-collage__item"></span>
               </div>
             </div>
-            <figure class="about-wide-illustration" aria-label="モルックを楽しむキャラクターのイラスト">
-              <img src="assets/images/generated/molkkynist-molkky-wide-banner-transparent.png" alt="芝生の上でモルックを楽しむMolkkynistのキャラクター" width="1915" height="821" loading="lazy" decoding="async">
-            </figure>
+
+            <div class="about-story">
+              <div class="about-prose__text">
+                <p>
+                  力の強さよりも、狙い方や会話を楽しめるのがモルックの魅力です。運動が得意でなくても参加しやすく、仲間と相談しながら自然に盛り上がれます。
+                </p>
+              </div>
+              <div class="about-photo-collage about-photo-collage--reverse" aria-hidden="true">
+                <span class="about-photo-collage__item about-photo-collage__item--large"></span>
+                <span class="about-photo-collage__item"></span>
+                <span class="about-photo-collage__item"></span>
+              </div>
+            </div>
+
+            <div class="about-story">
+              <div class="about-prose__text">
+                <p>
+                  Molkkynistでは、初めての方にもその場でルールを説明しながら進めています。詳しい点数の数え方は、モルック紹介ページで確認できます。
+                </p>
+              </div>
+              <div class="about-photo-collage" aria-hidden="true">
+                <span class="about-photo-collage__item about-photo-collage__item--large"></span>
+                <span class="about-photo-collage__item"></span>
+                <span class="about-photo-collage__item"></span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -175,7 +196,7 @@
           <div
             class="report-carousel"
             data-report-carousel
-            data-interval="5000"
+            data-interval="3000"
             aria-roledescription="カルーセル"
             aria-label="最新のお知らせ"
           >
@@ -244,7 +265,6 @@
           <div class="section-heading">
             <p class="section__label">How to Join</p>
             <h2 id="flow-title">参加の流れ</h2>
-            <p class="section-lead">参加したいイベントを選んで、フォームからお申し込みください。初めての方も見学のみの方も歓迎しています。</p>
           </div>
           <div class="step-grid">
             <article class="step-card">
@@ -378,6 +398,7 @@
           <div class="section-heading">
             <p class="section__label">Members</p>
             <h2 id="members-title">運営メンバー</h2>
+            <p class="section-lead">Molkkynistは、個性豊かなメンバーで楽しく運営しています。</p>
           </div>
           <div class="member-grid" data-member-list>
             <a class="member-card" href="member.html?id=ishii">
@@ -551,7 +572,7 @@
     <section class="footer-reserve footer-reserve--site-end" aria-labelledby="footer-reserve-label">
       <div class="footer-reserve__inner">
         <div class="footer-reserve__content">
-          <p id="footer-reserve-label" class="footer-reserve__label">Follow Us</p>
+          <p id="footer-reserve-label" class="footer-reserve__label">follow us</p>
         </div>
         <a class="button button--pill-large button--reserve" href="contact.html#contact-form">フォームから申し込む</a>
         <nav class="footer-social" aria-label="SNSリンク">

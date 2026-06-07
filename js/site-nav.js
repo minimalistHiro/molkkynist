@@ -179,20 +179,20 @@
 })();
 
 (() => {
-  const flowSteps = Array.from(document.querySelectorAll("#flow .step-card"));
+  const flowTargets = Array.from(document.querySelectorAll("#flow .step-card, #flow .flow-notes"));
 
-  if (!flowSteps.length) {
+  if (!flowTargets.length) {
     return;
   }
 
   document.documentElement.classList.add("has-flow-step-animation");
-  flowSteps.forEach((step, index) => {
-    step.style.setProperty("--flow-step-index", String(index));
+  flowTargets.forEach((target, index) => {
+    target.style.setProperty("--flow-step-index", String(index));
   });
 
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (prefersReducedMotion || !("IntersectionObserver" in window)) {
-    flowSteps.forEach((step) => step.classList.add("is-flow-step-visible"));
+    flowTargets.forEach((target) => target.classList.add("is-flow-step-visible"));
     return;
   }
 
@@ -213,5 +213,61 @@
     },
   );
 
-  flowSteps.forEach((step) => observer.observe(step));
+  flowTargets.forEach((target) => observer.observe(target));
+})();
+
+(() => {
+  const scheduleList = document.querySelector("[data-schedule-events-list]");
+
+  if (!scheduleList) {
+    return;
+  }
+
+  document.documentElement.classList.add("has-schedule-card-animation");
+
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let observer = null;
+
+  const revealCards = (cards) => {
+    cards.forEach((card, index) => {
+      card.style.setProperty("--schedule-card-index", String(index));
+
+      if (prefersReducedMotion || !observer) {
+        card.classList.add("is-schedule-card-visible");
+        return;
+      }
+
+      observer.observe(card);
+    });
+  };
+
+  if (!prefersReducedMotion && "IntersectionObserver" in window) {
+    observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) {
+            return;
+          }
+
+          entry.target.classList.add("is-schedule-card-visible");
+          observer.unobserve(entry.target);
+        });
+      },
+      {
+        rootMargin: "0px 0px -12% 0px",
+        threshold: 0.22,
+      },
+    );
+  }
+
+  document.addEventListener("molkkynist:schedule-events-rendered", (event) => {
+    const cards =
+      event.detail?.cards?.length > 0
+        ? event.detail.cards
+        : Array.from(scheduleList.querySelectorAll(".schedule-event-card"));
+
+    revealCards(cards);
+  });
+
+  revealCards(Array.from(scheduleList.querySelectorAll(".schedule-event-card")));
 })();

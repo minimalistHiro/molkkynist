@@ -31,6 +31,8 @@
   --max-width: 1200px;
   --font-base: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-cta: "BIZ UDPGothic", "Noto Sans JP", "Hiragino Sans", "Yu Gothic", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-rounded: "M PLUS Rounded 1c", "Noto Sans JP", "Hiragino Sans", "Yu Gothic", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-script: "Lobster", cursive;
 }
 
 * {
@@ -470,8 +472,9 @@ p {
 .hero__intro-heading h3 {
   margin: 0;
   color: var(--color-text);
+  font-family: var(--font-rounded);
   font-size: clamp(1.35rem, 2.6vw, 2rem);
-  font-weight: 700;
+  font-weight: 900;
   line-height: 1.35;
 }
 
@@ -679,22 +682,6 @@ p {
   background: var(--color-grass);
   color: #ffffff;
   box-shadow: var(--shadow-touch);
-}
-
-.button--rule-capsule {
-  position: relative;
-  border: 2px solid rgba(255, 255, 255, 0.86);
-  box-shadow:
-    0 12px 26px rgba(var(--color-grass-rgb), 0.14),
-    inset 0 0 0 1px rgba(221, 237, 73, 0.34);
-}
-
-.button--rule-capsule::after {
-  display: inline-block;
-  margin-left: 10px;
-  font-family: var(--font-base);
-  font-weight: 800;
-  content: "→";
 }
 
 .button--outline-black {
@@ -1072,36 +1059,64 @@ p {
 }
 
 .about-prose {
-  max-width: 760px;
+  max-width: 1060px;
   margin-right: auto;
   margin-left: auto;
-  gap: 18px;
+  gap: clamp(44px, 7vw, 78px);
   text-align: center;
 }
 
-.about-wide-illustration {
-  width: 100vw;
-  margin: 22px 0 -72px calc(50% - 50vw);
-  overflow: hidden;
-  background: var(--color-about-sky);
-}
-
-.about-wide-illustration img {
-  width: 100%;
-  min-height: clamp(180px, 34vw, 520px);
-  object-fit: cover;
-  object-position: center bottom;
+.about-story {
+  display: grid;
+  gap: clamp(22px, 4vw, 34px);
 }
 
 .about-prose__text {
   display: grid;
+  max-width: 760px;
+  margin-right: auto;
+  margin-left: auto;
   gap: 18px;
 }
 
-.about-rule-action {
-  display: flex;
-  justify-content: center;
-  margin-top: 8px;
+.about-photo-collage {
+  display: grid;
+  grid-template-columns: minmax(0, 2.25fr) minmax(180px, 0.95fr);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: clamp(12px, 2vw, 24px);
+  min-height: clamp(280px, 44vw, 560px);
+}
+
+.about-photo-collage--reverse {
+  grid-template-columns: minmax(180px, 0.95fr) minmax(0, 2.25fr);
+}
+
+.about-photo-collage__item {
+  display: block;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid rgba(117, 88, 77, 0.12);
+  border-radius: clamp(18px, 3vw, 30px);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.76), rgba(221, 237, 73, 0.18)),
+    rgba(255, 255, 255, 0.48);
+  box-shadow: var(--shadow-soft);
+}
+
+.about-photo-collage__item--large {
+  grid-row: 1 / span 2;
+}
+
+.about-photo-collage--reverse .about-photo-collage__item--large {
+  grid-column: 2;
+}
+
+.about-photo-collage:not(.about-photo-collage--reverse) .about-photo-collage__item:not(.about-photo-collage__item--large) {
+  grid-column: 2;
+}
+
+.about-photo-collage--reverse .about-photo-collage__item:not(.about-photo-collage__item--large) {
+  grid-column: 1;
 }
 
 .card-grid,
@@ -1375,7 +1390,8 @@ dd {
   box-shadow: 0 16px 30px rgba(117, 88, 77, 0.06);
 }
 
-.has-flow-step-animation #flow .step-card {
+.has-flow-step-animation #flow .step-card,
+.has-flow-step-animation #flow .flow-notes {
   opacity: 0;
   transform: translate3d(0, 26px, 0);
   transition:
@@ -1384,13 +1400,35 @@ dd {
   transition-delay: calc(var(--flow-step-index, 0) * 90ms);
 }
 
-.has-flow-step-animation #flow .step-card.is-flow-step-visible {
+.has-flow-step-animation #flow .step-card.is-flow-step-visible,
+.has-flow-step-animation #flow .flow-notes.is-flow-step-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.has-schedule-card-animation #schedule .schedule-event-card {
+  opacity: 0;
+  transform: translate3d(0, 26px, 0);
+  transition:
+    opacity 0.58s ease,
+    transform 0.72s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--schedule-card-index, 0) * 90ms);
+}
+
+.has-schedule-card-animation #schedule .schedule-event-card.is-schedule-card-visible {
   opacity: 1;
   transform: translate3d(0, 0, 0);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .has-flow-step-animation #flow .step-card {
+  .has-flow-step-animation #flow .step-card,
+  .has-flow-step-animation #flow .flow-notes {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .has-schedule-card-animation #schedule .schedule-event-card {
     opacity: 1;
     transform: none;
     transition: none;
@@ -1446,6 +1484,9 @@ dd {
 
 #flow .step-card p {
   margin-bottom: 0;
+  color: var(--color-text-muted);
+  font-size: 0.84rem;
+  line-height: 1.75;
 }
 
 .report-card__visual {
@@ -2798,7 +2839,7 @@ dd {
 .footer-reserve__label {
   margin-bottom: 0;
   color: rgba(255, 255, 255, 0.78);
-  font-family: "Pacifico", cursive;
+  font-family: var(--font-script);
   font-size: clamp(1.28rem, 2.6vw, 1.72rem);
   font-style: normal;
   font-weight: 400;
@@ -3096,6 +3137,12 @@ dd {
     gap: 18px;
   }
 
+  .about-photo-collage,
+  .about-photo-collage--reverse {
+    grid-template-columns: minmax(0, 1.65fr) minmax(132px, 0.95fr);
+    min-height: clamp(240px, 50vw, 440px);
+  }
+
   .card-grid--three,
   .step-grid,
   .member-grid {
@@ -3258,6 +3305,41 @@ dd {
   .hero__actions {
     margin-top: auto;
     padding-top: 32px;
+  }
+
+  .about-prose {
+    gap: 44px;
+  }
+
+  .about-story {
+    gap: 20px;
+  }
+
+  .about-photo-collage,
+  .about-photo-collage--reverse {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: auto;
+    gap: 10px;
+    min-height: 0;
+  }
+
+  .about-photo-collage__item,
+  .about-photo-collage--reverse .about-photo-collage__item,
+  .about-photo-collage:not(.about-photo-collage--reverse) .about-photo-collage__item:not(.about-photo-collage__item--large),
+  .about-photo-collage--reverse .about-photo-collage__item:not(.about-photo-collage__item--large) {
+    grid-column: auto;
+  }
+
+  .about-photo-collage__item {
+    aspect-ratio: 1 / 1;
+    border-radius: 18px;
+  }
+
+  .about-photo-collage__item--large,
+  .about-photo-collage--reverse .about-photo-collage__item--large {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    aspect-ratio: 4 / 3;
   }
 
   .hero__button {

@@ -126,9 +126,11 @@ function renderEvents(listEl, events, venuesById) {
     return;
   }
 
-  visibleEvents.forEach((eventItem) => {
-    listEl.appendChild(createEventCard(eventItem, venuesById.get(eventItem.venueId)));
+  const cards = visibleEvents.map((eventItem) => createEventCard(eventItem, venuesById.get(eventItem.venueId)));
+  cards.forEach((card) => {
+    listEl.appendChild(card);
   });
+  notifyScheduleCardsRendered(cards);
 }
 
 function createEventCard(eventItem, venue) {
@@ -231,6 +233,14 @@ function renderEmpty(listEl, message) {
   listEl.appendChild(li);
 }
 
+function notifyScheduleCardsRendered(cards) {
+  document.dispatchEvent(
+    new CustomEvent("molkkynist:schedule-events-rendered", {
+      detail: { cards },
+    }),
+  );
+}
+
 function setStatus(container, message) {
   const statusEl = container.querySelector("[data-schedule-events-status]");
   if (!statusEl) return;
@@ -264,7 +274,7 @@ function formatTimeRange(startTime, endTime) {
 function buildDateTimeLabel(eventItem) {
   const timeLabel = formatTimeRange(eventItem.startTime, eventItem.endTime);
   if (!timeLabel) return formatDate(eventItem.date);
-  return `${formatDate(eventItem.date)} ${timeLabel}`;
+  return `${formatDate(eventItem.date)}\n${timeLabel}`;
 }
 
 function venueTypeLabel(value) {

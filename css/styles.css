@@ -4,6 +4,7 @@
   --color-surface-card: #ffffff;
   --color-surface-container: #eeeee9;
   --color-surface-field: #f3f7ee;
+  --color-flow-beige: #f4e3c5;
   --color-about-sky: #e5f4ed;
   --color-text: #1a1c19;
   --color-text-muted: #3f4a3c;
@@ -45,6 +46,10 @@ body {
   font-family: var(--font-base);
   font-weight: 500;
   line-height: 1.7;
+}
+
+body.home-page {
+  background: var(--color-grass);
 }
 
 body::before {
@@ -378,7 +383,9 @@ p {
 }
 
 .hero__intro-heading {
+  width: 100%;
   margin-bottom: 0;
+  text-align: left;
 }
 
 .hero__intro-heading h2 {
@@ -666,6 +673,10 @@ p {
   background: #fffefb;
 }
 
+#flow {
+  background: var(--color-flow-beige);
+}
+
 #partners {
   padding-bottom: calc(72px + clamp(32px, 7vw, 88px));
 }
@@ -762,6 +773,15 @@ p {
     margin-right: auto;
     margin-left: auto;
   }
+}
+
+.hero__intro .hero__intro-heading {
+  text-align: left;
+}
+
+.hero__intro .hero__intro-heading h2::after {
+  margin-right: 0;
+  margin-left: 0;
 }
 
 .split-layout {
@@ -2458,7 +2478,7 @@ dd {
 }
 
 .footer-reserve--site-end {
-  padding-bottom: clamp(96px, 14vw, 156px);
+  padding-bottom: calc(clamp(140px, 22vw, 220px) + env(safe-area-inset-bottom));
 }
 
 .footer-reserve::before {

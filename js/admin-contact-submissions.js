@@ -4,10 +4,12 @@
 import {
   FIREBASE_SDK_VERSION,
   FIRESTORE_MODULE_URL,
+  clearAdminButtonLoading,
   clearAdminStatus,
   getAdminApp,
   initLogoutButtons,
   requireAdmin,
+  setAdminButtonLoading,
   showAdminStatus,
 } from "./admin-auth.js";
 
@@ -41,6 +43,7 @@ async function initContactSubmissionsPage() {
     onSnapshot,
     limit,
     updateDoc,
+    deleteDoc,
     serverTimestamp,
   } = firestore;
   const { getFunctions, httpsCallable } = functionsModule;
@@ -90,7 +93,29 @@ async function initContactSubmissionsPage() {
     }
   );
 
-  listEl.addEventListener("click", (event) => {
+  async function deleteSubmission(submission) {
+    if (!submission) return;
+    if (!confirmDelete("お問い合わせ", submission.name || "名前未入力")) return;
+    try {
+      await deleteDoc(doc(db, "contactSubmissions", submission.id));
+      if (selectedId === submission.id) {
+        selectedId = null;
+      }
+      showAdminStatus(statusEl, "お問い合わせを削除しました。", "success");
+    } catch (error) {
+      console.error("[admin-contact] 削除に失敗しました", error);
+      showAdminStatus(statusEl, "お問い合わせの削除に失敗しました。", "error");
+    }
+  }
+
+  listEl.addEventListener("click", async (event) => {
+    const deleteButton = event.target.closest("[data-contact-delete]");
+    if (deleteButton) {
+      const item = submissions.find((submission) => submission.id === deleteButton.dataset.contactDelete);
+      await deleteSubmission(item);
+      return;
+    }
+
     const button = event.target.closest("[data-contact-id]");
     if (!button) return;
     const item = submissions.find((submission) => submission.id === button.dataset.contactId);
@@ -108,7 +133,8 @@ async function initContactSubmissionsPage() {
     if (!contactId) return;
 
     const submitButton = form.querySelector('button[type="submit"]');
-    submitButton.disabled = true;
+    const submitLabel = submitButton.textContent.trim() || "対応状況を保存";
+    setAdminButtonLoading(submitButton, "保存中…");
     showAdminStatus(statusEl, "対応状況を保存しています…", "loading");
 
     try {
@@ -125,8 +151,15 @@ async function initContactSubmissionsPage() {
       console.error("[admin-contact] 対応状況の保存に失敗しました", error);
       showAdminStatus(statusEl, "対応状況の保存に失敗しました。", "error");
     } finally {
-      submitButton.disabled = false;
+      clearAdminButtonLoading(submitButton, submitLabel);
     }
+  });
+
+  detailEl.addEventListener("click", async (event) => {
+    const deleteButton = event.target.closest("[data-contact-detail-delete]");
+    if (!deleteButton) return;
+    const item = submissions.find((submission) => submission.id === deleteButton.dataset.contactDetailDelete);
+    await deleteSubmission(item);
   });
 }
 
@@ -138,6 +171,9 @@ function renderList(submissions, states, selectedId) {
   }
 
   submissions.forEach((submission) => {
+    const article = document.createElement("article");
+    article.className = "admin-contact-item";
+
     const button = document.createElement("button");
     button.className = `admin-contact-button${submission.id === selectedId ? " is-active" : ""}`;
     button.type = "button";
@@ -153,7 +189,15 @@ function renderList(submissions, states, selectedId) {
         <span class="status-chip">${escapeHtml(mailStateLabel(states[submission.id]?.state))}</span>
       </span>
     `;
-    listEl.appendChild(button);
+
+    const actions = document.createElement("div");
+    actions.className = "admin-item-actions";
+    actions.innerHTML = `
+      <button class="button button--danger" type="button" data-contact-delete="${escapeHtml(submission.id)}">削除</button>
+    `;
+
+    article.append(button, actions);
+    listEl.appendChild(article);
   });
 }
 
@@ -170,6 +214,11 @@ function renderDetail(submission, deliveryState) {
         <h2>${escapeHtml(submission.name || "名前未入力")}</h2>
       </div>
       <span class="status-chip">${escapeHtml(mailStateLabel(deliveryState?.state))}</span>
+    </div>
+    <div class="admin-item-actions">
+      <button class="button button--danger" type="button" data-contact-detail-delete="${escapeHtml(
+        submission.id
+      )}">このお問い合わせを削除</button>
     </div>
     <form class="contact-form admin-contact-management" data-admin-contact-management-form data-contact-id="${escapeHtml(
       submission.id
@@ -283,6 +332,10 @@ function formatDeliveryError(deliveryState) {
 function formatSelectedEvents(ids) {
   if (!Array.isArray(ids) || ids.length === 0) return "選択なし";
   return ids.join(" / ");
+}
+
+function confirmDelete(itemType, itemName) {
+  return window.confirm(`${itemType}「${itemName}」を削除します。\nこの操作は取り消せません。`);
 }
 
 function formatDate(value) {

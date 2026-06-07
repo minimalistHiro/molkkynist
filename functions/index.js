@@ -383,7 +383,7 @@ function renderHtmlBody({ name, inquiryLabel, scheduleLines, message }) {
   const scheduleBlock =
     scheduleLines.length > 0
       ? `
-        <h3 style="margin:24px 0 8px;border-left:4px solid #2f7a4c;padding-left:10px;font-size:15px;">ご希望日程</h3>
+        <h3 style="margin:24px 0 8px;border-left:4px solid #3f9d52;padding-left:10px;font-size:15px;">ご希望日程</h3>
         <ul style="padding-left:20px;margin:0;line-height:1.7;">
           ${scheduleLines.map((line) => `<li>${escapeHtml(line)}</li>`).join("")}
         </ul>`
@@ -404,10 +404,10 @@ function renderHtmlBody({ name, inquiryLabel, scheduleLines, message }) {
       以下の内容でお問い合わせを受け付けました。<br>
       担当者（石井）より、3営業日以内を目安にご返信いたします。
     </p>
-    <h3 style="margin:24px 0 8px;border-left:4px solid #2f7a4c;padding-left:10px;font-size:15px;">お問い合わせ区分</h3>
+    <h3 style="margin:24px 0 8px;border-left:4px solid #3f9d52;padding-left:10px;font-size:15px;">お問い合わせ区分</h3>
     <p style="margin:0;">${escapeHtml(inquiryLabel)}</p>
     ${scheduleBlock}
-    <h3 style="margin:24px 0 8px;border-left:4px solid #2f7a4c;padding-left:10px;font-size:15px;">お問い合わせ内容</h3>
+    <h3 style="margin:24px 0 8px;border-left:4px solid #3f9d52;padding-left:10px;font-size:15px;">お問い合わせ内容</h3>
     ${messageHtml}
     <hr style="border:none;border-top:1px solid #e2e2e2;margin:32px 0 16px;">
     <p style="font-size:12.5px;color:#666;line-height:1.7;">

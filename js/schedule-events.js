@@ -154,19 +154,23 @@ function createEventCard(eventItem, venue) {
   const body = document.createElement("div");
   body.className = "venue-card__body";
 
+  const dateTime = document.createElement("div");
+  dateTime.className = "schedule-event-card__datetime";
+  dateTime.textContent = buildDateTimeLabel(eventItem);
+
   const meta = document.createElement("div");
   meta.className = "venue-card__meta";
   appendChip(meta, venueTypeLabel(venue?.venueType));
   appendChip(meta, venue?.area);
-  appendChip(meta, formatDate(eventItem.date));
 
   const title = document.createElement("h3");
   title.textContent = venue?.name || eventItem.locationName || "開催場所未定";
 
   const details = document.createElement("address");
-  details.textContent = buildEventDetail(eventItem, venue);
+  details.className = "schedule-event-card__details";
+  appendEventDetail(details, eventItem, venue);
 
-  body.append(meta, title, details);
+  body.append(dateTime, meta, title, details);
 
   const button = document.createElement("a");
   button.className = "button button--green venue-card__join-button";
@@ -186,15 +190,28 @@ function appendChip(parent, label) {
   parent.appendChild(chip);
 }
 
-function buildEventDetail(eventItem, venue) {
-  const parts = [];
-  const timeLabel = formatTimeRange(eventItem.startTime, eventItem.endTime);
-  if (timeLabel) parts.push(timeLabel);
-  if (venue?.address) parts.push(venue.address);
-  if (!venue && eventItem.locationAddress) parts.push(eventItem.locationAddress);
-  if (venue?.accessNote) parts.push(venue.accessNote);
-  if (!parts.length) return "会場情報は確定次第掲載します。";
-  return parts.join(" / ");
+function appendEventDetail(parent, eventItem, venue) {
+  const address = venue?.address || (!venue ? eventItem.locationAddress : "");
+  const note = venue?.accessNote || "";
+
+  if (!address && !note) {
+    parent.textContent = "会場情報は確定次第掲載します。";
+    return;
+  }
+
+  if (address) {
+    const addressLine = document.createElement("span");
+    addressLine.className = "schedule-event-card__address";
+    addressLine.textContent = address;
+    parent.appendChild(addressLine);
+  }
+
+  if (note) {
+    const noteLine = document.createElement("span");
+    noteLine.className = "schedule-event-card__note";
+    noteLine.textContent = note;
+    parent.appendChild(noteLine);
+  }
 }
 
 function buildContactUrl(eventItem) {
@@ -242,6 +259,12 @@ function formatTimeRange(startTime, endTime) {
   if (startTime) return `${startTime}開始`;
   if (endTime) return `${endTime}終了`;
   return "";
+}
+
+function buildDateTimeLabel(eventItem) {
+  const timeLabel = formatTimeRange(eventItem.startTime, eventItem.endTime);
+  if (!timeLabel) return formatDate(eventItem.date);
+  return `${formatDate(eventItem.date)} ${timeLabel}`;
 }
 
 function venueTypeLabel(value) {

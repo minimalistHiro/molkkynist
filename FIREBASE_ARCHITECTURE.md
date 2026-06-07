@@ -45,12 +45,11 @@ Molkkynist のサイトでは、静的Webサイトを基本にしつつ、イベ
 
 - イベント画像の保存
 - 活動レポート画像の保存
-- メンバー画像の保存
 - サイト用画像素材の保存
 
-ただし、固定のデザイン素材や生成画像は、初期段階では `assets/` に配置する方針です。
+ただし、固定のデザイン素材、生成画像、メンバー画像は `assets/` に配置する方針です。
 
-2026年6月7日に、管理画面 `admin/members.html` からメンバー画像をアップロードする初期実装を追加しました。保存先は Firebase Storage `members/{memberId}/profile-{timestamp}.{ext}`、Firestore 側には取得したダウンロードURLを `members.imageUrl` として保存します。対応形式は JPEG / PNG / WebP、上限は5MBです。
+2026年6月7日に、管理画面で扱う画像は Cloud Storage for Firebase へアップロードする方針に統一しました。管理画面に画像URLの手入力欄は設けず、Storageアップロード後に取得したダウンロードURLを Firestore の `imageUrl` / `imageUrls` に保存します。対応形式は JPEG / PNG / WebP、上限は5MBです。
 
 ## 公開サイトと管理画面の関係
 
@@ -80,7 +79,6 @@ admin/venues.html
 admin/news.html
 admin/contact-submissions.html
 admin/reports.html
-admin/members.html
 ```
 
 管理画面の URL は一般ユーザー向けナビゲーションには表示しません。
@@ -165,6 +163,7 @@ updatedAt
 ```
 
 2026年6月7日に、管理画面 `admin/venues.html` からの追加・編集と、イベント管理画面 `admin/events.html` での選択式利用を実装した。会場タイプは「屋外会場」「屋内会場」の二択とする。
+2026年6月7日に、会場画像は `admin/venues.html` から Storage `venues/{venueId}/` 配下へアップロードする方式へ統一。画像URLの手入力は廃止し、取得したURLを `venues.imageUrl` に保存する。
 
 公開サイトとイベント管理画面では `isActive == true` かつ `displayOrder` 昇順で取得するため、`firestore.indexes.json` に `venues` 用複合インデックスを定義する。
 
@@ -204,18 +203,21 @@ createdAt
 updatedAt
 ```
 
-### members
+### members（廃止）
 
-メンバー情報を保存します。
-2026年6月6日に、管理画面 `admin/members.html` からの追加・編集・公開切替・表示順管理と、公開サイト `index.html#members` / `member.html?id=xxx` のFirestore読み込みを実装済み。未登録時や取得失敗時は、初期ダミーデータ3名をフォールバック表示する。
-2026年6月7日に、同じ管理画面へ Firebase Storage 画像アップロードを追加。スマホで選択したメンバー写真を Storage に保存し、`members.imageUrl` へURLを反映する。既存のURL手入力方式も継続する。
+メンバー情報は Firestore ではなく、ローカルデータで管理します。
+2026年6月7日に、Firestore `members` コレクション、管理画面 `admin/members.html`、Storage `members/` 画像管理を廃止する方針へ変更しました。
+同日に `firebase firestore:delete members --recursive --force --project molkkynist-a0abd` を実行し、Firestore `members` コレクションは削除済みです。Firestore 本番に残っていた `members(isPublished, displayOrder)` 複合インデックスも名前指定で削除済みです。Firebase Storage は未セットアップでバケット自体が存在しないため、`members/` 配下の削除対象はありません。
+
+公開サイト `index.html#members` / `member.html?id=xxx` は、`js/member-data.js` のローカルデータを正本として表示します。メンバー画像は Firebase Storage ではなく `assets/` 配下のローカル画像を参照します。
 
 主なフィールド:
 
 ```text
+id
 name
 role
-imageUrl
+image
 visualVariant
 startedReason
 favoriteThings
@@ -223,11 +225,9 @@ firstTimerMessage
 comment
 displayOrder
 isPublished
-createdAt
-updatedAt
 ```
 
-公開サイトでは `isPublished == true` かつ `displayOrder` 昇順で取得するため、`firestore.indexes.json` に `members` 用複合インデックスを定義する。
+`createdAt` / `updatedAt` は Firestore 用の管理項目のため、ローカルメンバーデータには原則含めません。
 
 ### siteSettings
 
@@ -266,7 +266,7 @@ responseUpdatedBy  # 管理用: 更新した管理者UID
 
 ## 公開データの考え方
 
-公開サイトでは、公開対象のデータだけを表示します。イベントは `status == "scheduled"`、開催場所は `isActive == true`、お知らせ・メンバー・活動レポートは `isPublished == true` を基準にします。
+公開サイトでは、公開対象のデータだけを表示します。イベントは `status == "scheduled"`、開催場所は `isActive == true`、お知らせ・活動レポートは `isPublished == true` を基準にします。メンバーはローカルデータの `isPublished` を基準にします。
 
 下書きや非公開データは管理画面でのみ扱います。
 
@@ -382,7 +382,7 @@ Functions Secret として下記を設定します。
 - `firestore.rules` … 公開コレクション読み取り公開、`contactSubmissions` は create 限定（型・件数バリデーション付き）、`mail` は一般ユーザー全面禁止
 - `firestore.indexes.json` … `events` (`status` + `eventDate` asc)、`venues` (`isActive` + `displayOrder` asc)、`reports` (`isPublished` + `eventDate` desc) などの複合インデックス
 
-2026年6月7日に `storage.rules` を追加し、`firebase.json` に Storage Rules 参照を追加しました。`members/` 配下の画像は公開読み取り、作成・更新・削除は管理者UIDのみ許可します。
+2026年6月7日に `storage.rules` を追加し、`firebase.json` に Storage Rules 参照を追加しました。`news/` / `venues/` / `reports/` 配下の画像は公開読み取り、作成・更新・削除は管理者UIDのみ許可します。メンバー画像はローカルアセット管理へ移行したため、Storage Rules の対象外です。
 
 セキュリティルールの管理者UID配列には、あなたのUID `PvM8qIBG1ETC2Y7qM3PFj1i2ASk2` を先行登録済みです。石井さんの Firebase Authentication UID が確定したタイミングで配列へ追加してください。
 
@@ -399,7 +399,7 @@ Functions Secret として下記を設定します。
 - Firebase Authentication: あなたのUIDは管理者として先行反映済み。2026-06-05 D-8 で本番管理画面ログイン、イベント管理、お問い合わせ管理の先行確認済み。石井さん用ユーザー作成と石井さんUIDの追加が未完了
 - 自動返信メール: 2026-05-22 に Gmail SMTP 直送方式へ変更済み。2026-06-05 に送信用メールを `molkkynist@gmail.com` に確定し、`SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM` / `SMTP_SECURE` を設定済み。テスト送信も成功確認済み。`mail` コレクションへの送信状態記録に必要なFirestore権限は B-1 で対応済み。D-8 の新規テストお問い合わせ `d8-test-20260605160454` では `mail.delivery.state=SUCCESS` と管理画面の「送信済み」表示を確認済み。
 - Cloud Run Invoker: 2026-06-05 D-8 で、Callable Function `getMailDeliveryStates` の Cloud Run サービス `getmaildeliverystates` へ `allUsers` の `roles/run.invoker` を付与済み。関数内部でFirebase管理者UID判定を行う。
-- Firebase Storage: 2026-06-07 にメンバー画像アップロード用のクライアント実装と `storage.rules` を追加。デプロイ後、管理者UIDでのアップロード確認が必要。
+- Firebase Storage: 2026-06-07 にお知らせ / 開催場所画像アップロード用のクライアント実装と `storage.rules` を追加。ただし Firebase Storage はプロジェクトで未セットアップのため、Storage Rules のデプロイは未実施。活動レポート画像は `admin/reports.html` 実装時に同じ共通ルールで対応する。メンバー画像はローカルアセット管理へ移行済み。
 
 ## 初期段階での注意点
 
@@ -414,5 +414,5 @@ Functions Secret として下記を設定します。
 - 石井さんの管理者UID（決定次第 `js/firebase-config.js` / `firestore.rules` / Functions 環境変数 `ADMIN_UIDS` に追加）
 - Cloud Functions 環境変数 `ADMIN_UIDS` への石井さんUID追加（`getMailDeliveryStates` の管理者判定用。カンマ区切りで複数UIDを指定）
 - Firestore の正式なデータ構造
-- 画像アップロードのサイズ制限（メンバー画像は初期値5MB。活動レポート等は別途検討）
+- 画像アップロードのサイズ制限（初期値5MB。活動レポート等も同じ基準で開始し、必要に応じて調整）
 - DM 経由の申込時にユーザーへ受付メールを送る運用フロー（管理画面から手動送信するか）

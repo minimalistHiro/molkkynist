@@ -17,7 +17,8 @@
 
 | ID | 区分 | 対象 | 内容 | 備考 |
 |----|------|------|------|------|
-| D-13 | 独自対応 | 管理画面 / Firebase Storage | メンバー管理画面からの画像アップロード | `admin/members.html` にスマホ対応の写真アップロード欄とプレビューを追加し、`js/admin-members.js` で JPEG / PNG / WebP、5MB以下の画像を Firebase Storage `members/{memberId}/` 配下へアップロードできるようにした。アップロード後は取得したURLを Firestore `members.imageUrl` に保存するため、公開サイト側の `js/member-list.js` / `js/member-detail.js` は既存の画像表示ロジックを継続利用する。`storage.rules` を追加し、`firebase.json` に Storage Rules 参照を追加。Storage Rules の本番デプロイと管理者UIDでのアップロード確認は別途実施が必要。 |
+| D-14 | 独自対応 | メンバー / ローカル管理 | メンバー情報をDB管理からローカル管理へ移行 | Firestore `members` と Firebase Storage `members/` を使う運用を廃止し、`js/member-data.js` をメンバー情報の正本に変更。`js/member-list.js` / `js/member-detail.js` から Firestore 読み込みを削除し、トップページ `#members` と `member.html?id=xxx` はローカルデータのみで表示する構成へ移行した。管理画面から「メンバー管理」導線を削除し、`admin/members.html` / `js/admin-members.js` を削除。`firestore.rules` / `firestore.indexes.json` / `storage.rules` から `members` 関連を削除し、新規メンバー作成時に必要項目を聞き切る `local-member-create` スキルを `.claude/skills/` と `.agents/skills/` に追加した。Hosting / Firestore は本番デプロイ済み。Firestore本番の `members` コレクションと `members` 用複合インデックスは削除済み。Firebase Storage は未セットアップでバケット自体が存在しないため、`members/` 配下の削除対象はない。 |
+| D-13 | 独自対応 | 管理画面 / Firebase Storage | 管理画面の画像登録をStorageアップロードへ統一 | `admin/members.html` / `admin/news.html` / `admin/venues.html` の画像URL手入力欄を廃止し、スマホ対応の画像アップロード欄とプレビューへ置き換えた。`js/admin-storage-upload.js` を追加し、JPEG / PNG / WebP、5MB以下の検証、Storageアップロード、ダウンロードURL取得、旧Storage画像削除を共通化。アップロード後は取得したURLを Firestore `imageUrl` に保存するため、公開サイト側は既存の画像表示ロジックを継続利用する。なおメンバー分は後続 D-14 でローカル管理へ移行し、現行の `storage.rules` 対象は `news` / `venues` / `reports` に整理済み。Storage Rules の本番デプロイと管理者UIDでのアップロード確認は別途実施が必要。 |
 
 ---
 

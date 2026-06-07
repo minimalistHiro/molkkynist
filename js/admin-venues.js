@@ -3,16 +3,27 @@
 
 import {
   FIRESTORE_MODULE_URL,
+  clearAdminButtonLoading,
   clearAdminStatus,
   getAdminApp,
   initLogoutButtons,
   requireAdmin,
+  setAdminButtonLoading,
   showAdminStatus,
 } from "./admin-auth.js";
+import {
+  deleteAdminImageByUrl,
+  setupAdminImageUpload,
+  uploadAdminImage,
+} from "./admin-storage-upload.js";
 
 const form = document.querySelector("[data-admin-venue-form]");
 const listEl = document.querySelector("[data-admin-venues-list]");
 const statusEl = document.querySelector("[data-admin-status]");
+const imageFileInput = document.querySelector("[data-admin-image-file]");
+const imagePreview = document.querySelector("[data-admin-image-preview]");
+const imagePreviewImg = document.querySelector("[data-admin-image-preview-img]");
+const imageClearButton = document.querySelector("[data-admin-image-clear]");
 
 if (form && listEl) {
   initVenuesPage().catch((error) => {
@@ -35,16 +46,27 @@ async function initVenuesPage() {
     query,
     orderBy,
     onSnapshot,
-    addDoc,
+    setDoc,
     updateDoc,
+    deleteDoc,
     serverTimestamp,
   } = firestore;
   const db = getFirestore(app);
   const venuesRef = collection(db, "venues");
 
   let editingId = null;
+  let editingImageUrl = "";
   const cancelButton = form.querySelector("[data-admin-cancel-edit]");
   const submitButton = form.querySelector('button[type="submit"]');
+  const imageUpload = setupAdminImageUpload({
+    fileInput: imageFileInput,
+    preview: imagePreview,
+    previewImg: imagePreviewImg,
+    clearButton: imageClearButton,
+    statusEl,
+    showStatus: showAdminStatus,
+    clearStatus: clearAdminStatus,
+  });
 
   onSnapshot(
     query(venuesRef, orderBy("displayOrder", "asc")),
@@ -56,9 +78,30 @@ async function initVenuesPage() {
       renderVenues(venues, (venueItem) => {
         fillForm(venueItem);
         editingId = venueItem.id;
+        editingImageUrl = venueItem.imageUrl || "";
         cancelButton.hidden = false;
         submitButton.textContent = "開催場所を更新";
         window.scrollTo({ top: 0, behavior: "smooth" });
+      }, async (venueItem) => {
+        if (!confirmDelete("開催場所", venueItem.name || "無題の開催場所")) return;
+        try {
+          await deleteDoc(doc(db, "venues", venueItem.id));
+          await deleteAdminImageByUrl(app, venueItem.imageUrl);
+          if (editingId === venueItem.id) {
+            editingId = null;
+            editingImageUrl = "";
+            form.reset();
+            imageUpload.clear();
+            form.elements.displayOrder.value = "100";
+            form.elements.isActive.checked = true;
+            cancelButton.hidden = true;
+            submitButton.textContent = "開催場所を保存";
+          }
+          showAdminStatus(statusEl, "開催場所を削除しました。", "success");
+        } catch (error) {
+          console.error("[admin-venues] 削除に失敗しました", error);
+          showAdminStatus(statusEl, "開催場所の削除に失敗しました。", "error");
+        }
       });
     },
     (error) => {
@@ -69,7 +112,9 @@ async function initVenuesPage() {
 
   cancelButton.addEventListener("click", () => {
     editingId = null;
+    editingImageUrl = "";
     form.reset();
+    imageUpload.clear();
     form.elements.displayOrder.value = "100";
     form.elements.isActive.checked = true;
     cancelButton.hidden = true;
@@ -81,18 +126,35 @@ async function initVenuesPage() {
     event.preventDefault();
     if (!form.reportValidity()) return;
 
-    submitButton.disabled = true;
+    let submitLabel = submitButton.textContent.trim() || "開催場所を保存";
+    setAdminButtonLoading(submitButton, "保存中…");
     showAdminStatus(statusEl, "保存しています…", "loading");
 
     try {
+      const selectedImage = imageUpload.getSelectedFile();
       const payload = buildVenuePayload(new FormData(form));
+      const venueRef = editingId ? doc(db, "venues", editingId) : doc(venuesRef);
+      payload.imageUrl = editingImageUrl;
+
+      if (selectedImage) {
+        setAdminButtonLoading(submitButton, "画像アップロード中…");
+        showAdminStatus(statusEl, "画像をアップロードしています…", "loading");
+        payload.imageUrl = await uploadAdminImage(app, {
+          collectionName: "venues",
+          documentId: venueRef.id,
+          file: selectedImage,
+          prefix: "venue",
+        });
+        await deleteAdminImageByUrl(app, editingImageUrl);
+      }
+
       if (editingId) {
-        await updateDoc(doc(db, "venues", editingId), {
+        await updateDoc(venueRef, {
           ...payload,
           updatedAt: serverTimestamp(),
         });
       } else {
-        await addDoc(venuesRef, {
+        await setDoc(venueRef, {
           ...payload,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
@@ -100,17 +162,21 @@ async function initVenuesPage() {
       }
 
       form.reset();
+      imageUpload.clear();
       form.elements.displayOrder.value = "100";
       form.elements.isActive.checked = true;
       editingId = null;
+      editingImageUrl = "";
       cancelButton.hidden = true;
-      submitButton.textContent = "開催場所を保存";
+      submitLabel = "開催場所を保存";
       showAdminStatus(statusEl, "開催場所を保存しました。", "success");
     } catch (error) {
       console.error("[admin-venues] 保存に失敗しました", error);
-      showAdminStatus(statusEl, "開催場所の保存に失敗しました。", "error");
+      const message =
+        error instanceof Error && error.message ? error.message : "開催場所の保存に失敗しました。";
+      showAdminStatus(statusEl, message, "error");
     } finally {
-      submitButton.disabled = false;
+      clearAdminButtonLoading(submitButton, submitLabel);
     }
   });
 }
@@ -122,7 +188,7 @@ function buildVenuePayload(formData) {
     address: formData.get("address")?.toString().trim() ?? "",
     area: formData.get("area")?.toString().trim() ?? "",
     venueType: formData.get("venueType")?.toString() === "indoor" ? "indoor" : "outdoor",
-    imageUrl: formData.get("imageUrl")?.toString().trim() ?? "",
+    imageUrl: "",
     mapUrl: formData.get("mapUrl")?.toString().trim() ?? "",
     accessNote: formData.get("accessNote")?.toString().trim() ?? "",
     note: formData.get("note")?.toString().trim() ?? "",
@@ -131,7 +197,7 @@ function buildVenuePayload(formData) {
   };
 }
 
-function renderVenues(venues, onEdit) {
+function renderVenues(venues, onEdit, onDelete) {
   listEl.innerHTML = "";
   if (!venues.length) {
     listEl.innerHTML = '<p class="admin-empty">登録済みの開催場所はありません。</p>';
@@ -154,19 +220,26 @@ function renderVenues(venues, onEdit) {
           <span class="status-chip">${venueItem.imageUrl ? "画像あり" : "画像なし"}</span>
         </div>
       </div>
-      <button class="button button--secondary" type="button">編集</button>
+      <div class="admin-item-actions">
+        <button class="button button--secondary" type="button" data-admin-edit>編集</button>
+        <button class="button button--danger" type="button" data-admin-delete>削除</button>
+      </div>
     `;
-    article.querySelector("button").addEventListener("click", () => onEdit(venueItem));
+    article.querySelector("[data-admin-edit]").addEventListener("click", () => onEdit(venueItem));
+    article.querySelector("[data-admin-delete]").addEventListener("click", () => onDelete(venueItem));
     listEl.appendChild(article);
   });
 }
 
 function fillForm(venueItem) {
+  if (imageFileInput) imageFileInput.value = "";
+  if (imagePreviewImg) imagePreviewImg.src = venueItem.imageUrl || "";
+  if (imagePreview) imagePreview.hidden = !venueItem.imageUrl;
+  if (imageClearButton) imageClearButton.hidden = true;
   form.elements.name.value = venueItem.name || "";
   form.elements.address.value = venueItem.address || "";
   form.elements.area.value = venueItem.area || "";
   form.elements.venueType.value = venueItem.venueType === "indoor" ? "indoor" : "outdoor";
-  form.elements.imageUrl.value = venueItem.imageUrl || "";
   form.elements.mapUrl.value = venueItem.mapUrl || "";
   form.elements.accessNote.value = venueItem.accessNote || "";
   form.elements.note.value = venueItem.note || "";
@@ -176,6 +249,12 @@ function fillForm(venueItem) {
 
 function venueTypeLabel(value) {
   return value === "indoor" ? "屋内会場" : "屋外会場";
+}
+
+function confirmDelete(itemType, itemName) {
+  return window.confirm(
+    `${itemType}「${itemName}」を削除します。\nこの操作は取り消せません。関連するイベントで選択中の場合は表示に影響する可能性があります。`,
+  );
 }
 
 function escapeHtml(value) {

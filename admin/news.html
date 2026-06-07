@@ -21,7 +21,6 @@
         <a href="index.html">ダッシュボード</a>
         <a href="events.html">イベント管理</a>
         <a href="venues.html">開催場所</a>
-        <a href="members.html">メンバー管理</a>
         <a href="contact-submissions.html">お問い合わせ管理</a>
         <button class="button button--secondary" type="button" data-admin-logout>ログアウト</button>
       </nav>
@@ -50,10 +49,17 @@
             <span class="form-label">本文 <span class="form-required">必須</span></span>
             <textarea id="news-body" name="body" rows="9" required placeholder="段落を分ける場合は、空行を入れて入力してください。"></textarea>
           </label>
-          <label for="news-image-url">
-            <span class="form-label">カードビジュアルURL</span>
-            <input id="news-image-url" name="imageUrl" type="text" placeholder="例: assets/images/news/news-01.jpg">
-          </label>
+          <div class="admin-upload-field">
+            <label for="news-image-file">
+              <span class="form-label">カード画像をアップロード</span>
+              <input id="news-image-file" name="imageFile" type="file" accept="image/jpeg,image/png,image/webp" data-admin-image-file>
+            </label>
+            <p class="form-help">JPEG / PNG / WebP、5MBまで。選択した画像は保存時に Cloud Storage for Firebase へアップロードします。</p>
+            <div class="admin-image-preview" data-admin-image-preview hidden>
+              <img src="" alt="選択中のお知らせ画像プレビュー" data-admin-image-preview-img>
+              <button class="button button--secondary" type="button" data-admin-image-clear hidden>選択を解除</button>
+            </div>
+          </div>
           <div class="form-row">
             <label for="news-visual-variant">
               <span class="form-label">プレースホルダー色</span>

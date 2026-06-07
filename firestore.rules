@@ -3,7 +3,7 @@ rules_version = '2';
 // Molkkynist Firestore セキュリティルール
 //
 // 方針:
-// - 公開コレクション (events / venues / news / reports / members / siteSettings) は読み取りのみ公開
+// - 公開コレクション (events / venues / news / reports / siteSettings) は読み取りのみ公開
 // - 書き込み (作成・更新・削除) は管理者 UID のみ
 // - contactSubmissions は一般ユーザーから create のみ可。読み・更新・削除は管理者のみ
 // - mail コレクション (Cloud Functions が送信状態を記録) は一般ユーザー読み書き禁止。
@@ -54,11 +54,6 @@ service cloud.firestore {
     }
 
     match /reports/{id} {
-      allow read: if isPublishedDoc() || isAdmin();
-      allow create, update, delete: if isAdmin();
-    }
-
-    match /members/{id} {
       allow read: if isPublishedDoc() || isAdmin();
       allow create, update, delete: if isAdmin();
     }

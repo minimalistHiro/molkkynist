@@ -103,3 +103,19 @@ export function clearAdminStatus(statusEl) {
   statusEl.textContent = "";
   statusEl.hidden = true;
 }
+
+export function setAdminButtonLoading(button, message = "保存中…") {
+  if (!button) return;
+  button.disabled = true;
+  button.classList.add("is-loading");
+  button.setAttribute("aria-busy", "true");
+  button.textContent = message;
+}
+
+export function clearAdminButtonLoading(button, label) {
+  if (!button) return;
+  button.classList.remove("is-loading");
+  button.removeAttribute("aria-busy");
+  if (label) button.textContent = label;
+  button.disabled = false;
+}

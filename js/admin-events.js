@@ -3,10 +3,12 @@
 
 import {
   FIRESTORE_MODULE_URL,
+  clearAdminButtonLoading,
   clearAdminStatus,
   getAdminApp,
   initLogoutButtons,
   requireAdmin,
+  setAdminButtonLoading,
   showAdminStatus,
 } from "./admin-auth.js";
 
@@ -39,6 +41,7 @@ async function initEventsPage() {
     addDoc,
     updateDoc,
     deleteField,
+    deleteDoc,
     serverTimestamp,
     Timestamp,
   } = firestore;
@@ -59,6 +62,21 @@ async function initEventsPage() {
       cancelButton.hidden = false;
       submitButton.textContent = "イベントを更新";
       window.scrollTo({ top: 0, behavior: "smooth" });
+    }, async (eventItem) => {
+      if (!confirmDelete("イベント", formatEventHeading(eventItem, venueMapFrom(venuesCache).get(eventItem.venueId)))) return;
+      try {
+        await deleteDoc(doc(db, "events", eventItem.id));
+        if (editingId === eventItem.id) {
+          editingId = null;
+          form.reset();
+          cancelButton.hidden = true;
+          submitButton.textContent = "イベントを保存";
+        }
+        showAdminStatus(statusEl, "イベントを削除しました。", "success");
+      } catch (error) {
+        console.error("[admin-events] 削除に失敗しました", error);
+        showAdminStatus(statusEl, "イベントの削除に失敗しました。", "error");
+      }
     });
   }
 
@@ -105,7 +123,8 @@ async function initEventsPage() {
     event.preventDefault();
     if (!form.reportValidity()) return;
 
-    submitButton.disabled = true;
+    let submitLabel = submitButton.textContent.trim() || "イベントを保存";
+    setAdminButtonLoading(submitButton, "保存中…");
     showAdminStatus(statusEl, "保存しています…", "loading");
 
     try {
@@ -132,13 +151,13 @@ async function initEventsPage() {
       form.reset();
       editingId = null;
       cancelButton.hidden = true;
-      submitButton.textContent = "イベントを保存";
+      submitLabel = "イベントを保存";
       showAdminStatus(statusEl, "イベントを保存しました。", "success");
     } catch (error) {
       console.error("[admin-events] 保存に失敗しました", error);
       showAdminStatus(statusEl, "イベントの保存に失敗しました。", "error");
     } finally {
-      submitButton.disabled = false;
+      clearAdminButtonLoading(submitButton, submitLabel);
     }
   });
 }
@@ -182,7 +201,7 @@ function renderVenueOptions(venues) {
   }
 }
 
-function renderEvents(events, venuesById, onEdit) {
+function renderEvents(events, venuesById, onEdit, onDelete) {
   listEl.innerHTML = "";
   if (!events.length) {
     listEl.innerHTML = '<p class="admin-empty">登録済みのイベントはありません。</p>';
@@ -206,9 +225,13 @@ function renderEvents(events, venuesById, onEdit) {
           <span class="status-chip">${venue ? "開催場所連携済み" : "開催場所未選択"}</span>
         </div>
       </div>
-      <button class="button button--secondary" type="button">編集</button>
+      <div class="admin-item-actions">
+        <button class="button button--secondary" type="button" data-admin-edit>編集</button>
+        <button class="button button--danger" type="button" data-admin-delete>削除</button>
+      </div>
     `;
-    article.querySelector("button").addEventListener("click", () => onEdit(eventItem));
+    article.querySelector("[data-admin-edit]").addEventListener("click", () => onEdit(eventItem));
+    article.querySelector("[data-admin-delete]").addEventListener("click", () => onDelete(eventItem));
     listEl.appendChild(article);
   });
 }
@@ -297,6 +320,10 @@ function statusLabel(status) {
     canceled: "中止",
   };
   return labels[status] || "未設定";
+}
+
+function confirmDelete(itemType, itemName) {
+  return window.confirm(`${itemType}「${itemName}」を削除します。\nこの操作は取り消せません。`);
 }
 
 function escapeHtml(value) {

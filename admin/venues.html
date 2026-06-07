@@ -21,7 +21,6 @@
         <a href="index.html">ダッシュボード</a>
         <a href="events.html">イベント管理</a>
         <a href="news.html">お知らせ管理</a>
-        <a href="members.html">メンバー管理</a>
         <a href="contact-submissions.html">お問い合わせ管理</a>
         <button class="button button--secondary" type="button" data-admin-logout>ログアウト</button>
       </nav>
@@ -63,10 +62,17 @@
               <input id="venue-display-order" name="displayOrder" type="number" min="0" inputmode="numeric" value="100">
             </label>
           </div>
-          <label for="venue-image-url">
-            <span class="form-label">会場画像URL</span>
-            <input id="venue-image-url" name="imageUrl" type="text" placeholder="例: assets/images/venues/venue-01.jpg">
-          </label>
+          <div class="admin-upload-field">
+            <label for="venue-image-file">
+              <span class="form-label">会場画像をアップロード</span>
+              <input id="venue-image-file" name="imageFile" type="file" accept="image/jpeg,image/png,image/webp" data-admin-image-file>
+            </label>
+            <p class="form-help">JPEG / PNG / WebP、5MBまで。選択した画像は保存時に Cloud Storage for Firebase へアップロードします。</p>
+            <div class="admin-image-preview" data-admin-image-preview hidden>
+              <img src="" alt="選択中の会場画像プレビュー" data-admin-image-preview-img>
+              <button class="button button--secondary" type="button" data-admin-image-clear hidden>選択を解除</button>
+            </div>
+          </div>
           <label for="venue-map-url">
             <span class="form-label">GoogleマップURL</span>
             <input id="venue-map-url" name="mapUrl" type="url" placeholder="https://maps.google.com/...">

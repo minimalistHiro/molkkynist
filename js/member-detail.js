@@ -1,18 +1,10 @@
 // メンバー詳細ページ。
-// Firestore members の公開メンバーを優先し、未登録時は初期ダミーデータで表示する。
+// メンバー情報はFirestoreではなく、ローカルデータから表示する。
 
 import {
-  firebaseConfig,
-  isFirebaseConfigured,
-} from "./firebase-config.js";
-import {
-  FALLBACK_MEMBER_ITEMS,
+  MEMBER_ITEMS,
   normalizeMemberItem,
 } from "./member-data.js";
-
-const FIREBASE_SDK_VERSION = "10.12.2";
-const APP_MODULE_URL = `https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}/firebase-app.js`;
-const FIRESTORE_MODULE_URL = `https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}/firebase-firestore.js`;
 
 const MEMBER_DETAIL_FIELDS = [
   ["モルックを始めたきっかけ", "startedReason"],
@@ -32,50 +24,19 @@ async function initMemberDetail() {
     return;
   }
 
-  const fallbackItem = FALLBACK_MEMBER_ITEMS[id] || null;
-  if (fallbackItem) {
-    render(fallbackItem);
-  }
-
-  if (!isFirebaseConfigured(firebaseConfig)) {
-    if (!fallbackItem) renderNotFound();
+  const item = normalizeMemberItem(id, MEMBER_ITEMS[id]);
+  if (!item || !item.isPublished) {
+    renderNotFound();
     return;
   }
 
-  try {
-    const firestoreItem = await fetchMemberItem(id);
-    if (firestoreItem) {
-      render(firestoreItem);
-      return;
-    }
-  } catch (error) {
-    console.error("[member-detail] members取得に失敗しました", error);
-  }
-
-  if (!fallbackItem) {
-    renderNotFound();
-  }
+  render(item);
 }
 
 function getId() {
   const params = new URLSearchParams(window.location.search);
   const id = params.get("id");
   return id ? id.trim() : "";
-}
-
-async function fetchMemberItem(id) {
-  const [{ initializeApp, getApps, getApp }, firestore] = await Promise.all([
-    import(APP_MODULE_URL),
-    import(FIRESTORE_MODULE_URL),
-  ]);
-  const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-  const { getFirestore, doc, getDoc } = firestore;
-  const db = getFirestore(app);
-  const snapshot = await getDoc(doc(db, "members", id));
-  if (!snapshot.exists()) return null;
-  const data = snapshot.data() ?? {};
-  if (data.isPublished !== true) return null;
-  return normalizeMemberItem(snapshot.id, data);
 }
 
 function render(item) {
@@ -121,10 +82,10 @@ function renderVisual(visualEl, item) {
   if (item.visualVariant) {
     visualEl.classList.add(`member-detail__visual--${item.visualVariant}`);
   }
-  if (item.imageUrl) {
+  if (item.image) {
     visualEl.classList.add("member-detail__visual--image");
     const image = document.createElement("img");
-    image.src = item.imageUrl;
+    image.src = item.image;
     image.alt = "";
     image.loading = "lazy";
     image.decoding = "async";

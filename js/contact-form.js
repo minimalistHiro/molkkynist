@@ -23,6 +23,7 @@ async function initContactForm(formEl) {
   const eventsList = formEl.querySelector('[data-role="event-list"]');
   const eventsEmpty = formEl.querySelector('[data-role="event-empty"]');
   const submitButton = formEl.querySelector('button[type="submit"]');
+  const prefill = readContactPrefill();
 
   if (!isFirebaseConfigured(firebaseConfig)) {
     formEl.dataset.state = "not-configured";
@@ -52,16 +53,28 @@ async function initContactForm(formEl) {
   const db = getFirestore(app);
 
   let cachedEvents = null;
+  let preselectedEventId = prefill.eventId;
 
   inquiryRadios.forEach((radio) => {
     radio.addEventListener("change", async () => {
       const isJoin = radio.checked && radio.value === "participate";
       eventsField.hidden = !isJoin;
       if (isJoin) {
-        await loadEvents();
+        await loadEvents(preselectedEventId);
+      } else {
+        preselectedEventId = "";
       }
     });
   });
+
+  if (prefill.type === "participate" || prefill.eventId) {
+    const participateRadio = formEl.querySelector('input[name="inquiryType"][value="participate"]');
+    if (participateRadio) {
+      participateRadio.checked = true;
+      eventsField.hidden = false;
+      await loadEvents(preselectedEventId);
+    }
+  }
 
   formEl.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -119,9 +132,9 @@ async function initContactForm(formEl) {
     }
   });
 
-  async function loadEvents() {
+  async function loadEvents(selectedEventId = "") {
     if (cachedEvents) {
-      renderEvents(cachedEvents);
+      renderEvents(cachedEvents, selectedEventId);
       return;
     }
     eventsList.innerHTML = '<p class="form-events__loading">日程を読み込んでいます…</p>';
@@ -141,7 +154,7 @@ async function initContactForm(formEl) {
         id: doc.id,
         ...doc.data(),
       }));
-      renderEvents(cachedEvents);
+      renderEvents(cachedEvents, selectedEventId);
     } catch (error) {
       console.error("[contact-form] events取得エラー", error);
       eventsList.innerHTML = "";
@@ -151,7 +164,7 @@ async function initContactForm(formEl) {
     }
   }
 
-  function renderEvents(events) {
+  function renderEvents(events, selectedEventId = "") {
     eventsList.innerHTML = "";
     if (!events.length) {
       eventsEmpty.hidden = false;
@@ -167,6 +180,7 @@ async function initContactForm(formEl) {
       checkbox.type = "checkbox";
       checkbox.name = "selectedEventIds";
       checkbox.value = evt.id;
+      checkbox.checked = evt.id === selectedEventId;
       const text = document.createElement("span");
       text.textContent = formatEventLabel(evt);
       label.append(checkbox, text);
@@ -180,6 +194,14 @@ function formatEventLabel(evt) {
   const parts = [dateStr, evt.title].filter(Boolean);
   if (evt.locationName) parts.push(evt.locationName);
   return parts.join(" / ");
+}
+
+function readContactPrefill() {
+  const params = new URLSearchParams(window.location.search);
+  return {
+    type: params.get("type") || "",
+    eventId: params.get("eventId") || "",
+  };
 }
 
 function formatDate(value) {

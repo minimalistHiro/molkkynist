@@ -21,13 +21,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&amp;family=Noto+Sans+JP:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/styles.css?v=20260607-scroll-overlap">
     <script src="js/site-nav.js?v=20260607-mobile-menu4" defer></script>
     <script type="module" src="js/news-list.js"></script>
-    <script type="module" src="js/member-list.js"></script>
+    <script type="module" src="js/member-list.js?v=20260607-member-visuals"></script>
     <script src="js/report-carousel.js" defer></script>
-    <script src="js/schedule-calendar-fallback.js" defer></script>
-    <script type="module" src="js/schedule-calendar.js"></script>
+    <script type="module" src="js/schedule-events.js"></script>
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -160,6 +159,9 @@
                 <a class="button button--pill-large button--green button--rule-capsule" href="molkky.html">モルックのルールはこちら</a>
               </div>
             </div>
+            <figure class="about-wide-illustration" aria-label="モルックを楽しむキャラクターのイラスト">
+              <img src="assets/images/generated/molkkynist-molkky-wide-banner-transparent.png" alt="芝生の上でモルックを楽しむMolkkynistのキャラクター" width="1915" height="821" loading="lazy" decoding="async">
+            </figure>
           </div>
         </div>
       </section>
@@ -230,49 +232,9 @@
             </div>
           </div>
 
-          <div
-            class="schedule-calendar"
-            data-schedule-calendar
-            aria-label="開催スケジュールカレンダー"
-          >
-            <div class="schedule-calendar__header">
-              <button
-                type="button"
-                class="schedule-calendar__nav"
-                data-calendar-prev
-                aria-label="前の月"
-              >
-                ←
-              </button>
-              <p class="schedule-calendar__title" data-calendar-title aria-live="polite">
-                読み込み中…
-              </p>
-              <button
-                type="button"
-                class="schedule-calendar__nav"
-                data-calendar-next
-                aria-label="次の月"
-              >
-                →
-              </button>
-            </div>
-            <div class="schedule-calendar__weekdays" aria-hidden="true">
-              <span class="schedule-calendar__weekday schedule-calendar__weekday--sun">日</span>
-              <span class="schedule-calendar__weekday">月</span>
-              <span class="schedule-calendar__weekday">火</span>
-              <span class="schedule-calendar__weekday">水</span>
-              <span class="schedule-calendar__weekday">木</span>
-              <span class="schedule-calendar__weekday">金</span>
-              <span class="schedule-calendar__weekday schedule-calendar__weekday--sat">土</span>
-            </div>
-            <div
-              class="schedule-calendar__grid"
-              data-calendar-grid
-              role="grid"
-              aria-label="月間カレンダー"
-            ></div>
-            <p class="schedule-calendar__status" data-calendar-status></p>
-            <ul class="schedule-calendar__events" data-calendar-events aria-label="今月のイベント"></ul>
+          <div class="schedule-events" data-schedule-events>
+            <p class="schedule-events__status" data-schedule-events-status>開催予定を読み込んでいます…</p>
+            <ul class="venue-list schedule-event-list" data-schedule-events-list aria-label="開催予定イベント一覧"></ul>
           </div>
 
           <div class="guide-cta" aria-label="参加申し込みの案内">
@@ -283,47 +245,6 @@
             </a>
             <img class="guide-cta__mascot guide-cta__mascot--right" src="assets/images/characters/molkkynist-character-brown.png" alt="" width="279" height="457" loading="lazy" decoding="async" aria-hidden="true">
           </div>
-
-        </div>
-      </section>
-
-      <section id="venue-detail" class="section schedule-venue-section" aria-labelledby="schedule-venue-title">
-        <div class="section__inner">
-          <div class="section-heading schedule-venue-detail__heading">
-            <p class="section__label">Venue Detail</p>
-            <h3 id="schedule-venue-title">開催場所の詳細</h3>
-          </div>
-
-          <ul class="venue-list" aria-label="開催場所一覧">
-            <li class="venue-card">
-              <div class="venue-card__visual" aria-hidden="true"></div>
-              <div class="venue-card__content">
-                <div class="venue-card__body">
-                  <div class="venue-card__meta">
-                    <span class="chip">屋外会場</span>
-                    <span class="chip">○○県</span>
-                  </div>
-                  <h4>芝生のある公園・広場</h4>
-                  <address>住所は開催日ごとに確定次第掲載します。</address>
-                </div>
-                <button class="button button--green venue-card__map-button" type="button">Googleマップで確認する</button>
-              </div>
-            </li>
-            <li class="venue-card">
-              <div class="venue-card__visual" aria-hidden="true"></div>
-              <div class="venue-card__content">
-                <div class="venue-card__body">
-                  <div class="venue-card__meta">
-                    <span class="chip">屋外会場</span>
-                    <span class="chip">○○県</span>
-                  </div>
-                  <h4>Antenna Books &amp; Cafe ココシバ</h4>
-                  <address>住所は確認中です。</address>
-                </div>
-                <button class="button button--green venue-card__map-button" type="button">Googleマップで確認する</button>
-              </div>
-            </li>
-          </ul>
         </div>
       </section>
 
@@ -636,12 +557,10 @@
       </section>
     </main>
 
-    <section class="footer-reserve footer-reserve--site-end" aria-labelledby="footer-reserve-title">
+    <section class="footer-reserve footer-reserve--site-end" aria-labelledby="footer-reserve-label">
       <div class="footer-reserve__inner">
         <div class="footer-reserve__content">
-          <p class="footer-reserve__label">Contact Form</p>
-          <h2 id="footer-reserve-title">モルキニストに入ってモルックを楽しみませんか</h2>
-          <p>参加希望、見学希望、協力のご相談はお問い合わせフォームからお気軽にご連絡ください。まずはふらっと、遊びに来ませんか。</p>
+          <p id="footer-reserve-label" class="footer-reserve__label">Follow Us</p>
         </div>
         <a class="button button--pill-large button--reserve" href="contact.html#contact-form">フォームから申し込む</a>
         <nav class="footer-social" aria-label="SNSリンク">

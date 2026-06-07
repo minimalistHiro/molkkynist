@@ -1,0 +1,40 @@
+rules_version = '2';
+
+// Molkkynist Firebase Storage セキュリティルール
+//
+// 方針:
+// - 公開サイトで表示するメンバー画像は読み取り公開
+// - アップロード・差し替え・削除は管理者 UID のみ
+// - 初期実装では members 配下の画像に限定する
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.uid in [
+          'PvM8qIBG1ETC2Y7qM3PFj1i2ASk2'
+        ];
+    }
+
+    function isAllowedMemberImage() {
+      return request.resource != null
+        && request.resource.size <= 5 * 1024 * 1024
+        && request.resource.contentType in [
+          'image/jpeg',
+          'image/png',
+          'image/webp'
+        ];
+    }
+
+    match /members/{memberId}/{fileName} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isAllowedMemberImage();
+      allow delete: if isAdmin();
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

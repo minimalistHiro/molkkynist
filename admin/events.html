@@ -19,6 +19,7 @@
       </a>
       <nav class="admin-nav" aria-label="管理画面ナビゲーション">
         <a href="index.html">ダッシュボード</a>
+        <a href="venues.html">開催場所</a>
         <a href="news.html">お知らせ管理</a>
         <a href="members.html">メンバー管理</a>
         <a href="contact-submissions.html">お問い合わせ管理</a>
@@ -29,44 +30,32 @@
       <section class="admin-heading" aria-labelledby="events-admin-title">
         <p class="section__label">Events</p>
         <h1 id="events-admin-title">イベント管理</h1>
-        <p>公開状態をオンにしたイベントは、公開サイトのお問い合わせフォームで参加希望の日程候補として使われます。</p>
+        <p>開催予定のイベントは、公開サイトの開催スケジュールとお問い合わせフォームの日程候補として使われます。</p>
         <p class="form-status" data-admin-status hidden></p>
       </section>
 
       <section class="admin-layout" aria-label="イベント編集エリア">
         <form class="contact-form admin-form" data-admin-event-form>
           <div class="form-row">
-            <label for="event-title">
-              <span class="form-label">タイトル <span class="form-required">必須</span></span>
-              <input id="event-title" name="title" type="text" required>
-            </label>
             <label for="event-date">
               <span class="form-label">開催日 <span class="form-required">必須</span></span>
               <input id="event-date" name="eventDate" type="date" required>
             </label>
-          </div>
-          <label for="event-description">
-            <span class="form-label">説明文</span>
-            <textarea id="event-description" name="description" rows="4"></textarea>
-          </label>
-          <div class="form-row">
             <label for="event-start">
               <span class="form-label">開始時間</span>
               <input id="event-start" name="startTime" type="time">
             </label>
+          </div>
+          <div class="form-row">
             <label for="event-end">
               <span class="form-label">終了時間</span>
               <input id="event-end" name="endTime" type="time">
             </label>
-          </div>
-          <div class="form-row">
-            <label for="event-location-name">
-              <span class="form-label">場所名</span>
-              <input id="event-location-name" name="locationName" type="text">
-            </label>
-            <label for="event-location-address">
-              <span class="form-label">住所</span>
-              <input id="event-location-address" name="locationAddress" type="text">
+            <label for="event-venue-id">
+              <span class="form-label">開催場所 <span class="form-required">必須</span></span>
+              <select id="event-venue-id" name="venueId" required data-admin-venue-select>
+                <option value="">開催場所を読み込んでいます</option>
+              </select>
             </label>
           </div>
           <div class="form-row">
@@ -74,34 +63,20 @@
               <span class="form-label">参加費</span>
               <input id="event-fee" name="fee" type="text" placeholder="例: 500円">
             </label>
-            <label for="event-capacity">
-              <span class="form-label">定員</span>
-              <input id="event-capacity" name="capacity" type="number" min="0" inputmode="numeric">
+            <label for="event-rain-policy">
+              <span class="form-label">雨天時の対応</span>
+              <input id="event-rain-policy" name="rainPolicy" type="text" placeholder="例: 前日夜にInstagramで案内">
             </label>
           </div>
-          <label for="event-belongings">
-            <span class="form-label">持ち物</span>
-            <input id="event-belongings" name="belongings" type="text" placeholder="例: 飲み物">
+          <label for="event-status">
+            <span class="form-label">状態</span>
+            <select id="event-status" name="status">
+              <option value="scheduled">開催予定</option>
+              <option value="closed">受付終了</option>
+              <option value="finished">開催済み</option>
+              <option value="canceled">中止</option>
+            </select>
           </label>
-          <label for="event-rain-policy">
-            <span class="form-label">雨天時の対応</span>
-            <input id="event-rain-policy" name="rainPolicy" type="text" placeholder="例: 前日夜にInstagramで案内">
-          </label>
-          <div class="form-row">
-            <label for="event-status">
-              <span class="form-label">状態</span>
-              <select id="event-status" name="status">
-                <option value="scheduled">開催予定</option>
-                <option value="preparing">準備中</option>
-                <option value="closed">受付終了</option>
-                <option value="finished">開催済み</option>
-              </select>
-            </label>
-            <label class="checkbox-line admin-checkbox">
-              <input name="isPublished" type="checkbox">
-              <span>公開する</span>
-            </label>
-          </div>
           <div class="form-actions admin-actions">
             <button class="button button--primary" type="submit">イベントを保存</button>
             <button class="button button--secondary" type="button" data-admin-cancel-edit hidden>編集をキャンセル</button>

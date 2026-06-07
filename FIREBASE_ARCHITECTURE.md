@@ -21,6 +21,7 @@ Molkkynist のサイトでは、静的Webサイトを基本にしつつ、イベ
 用途:
 
 - イベント情報の保存（公開サイトのお問い合わせフォームでの参加日程選択肢としても利用）
+- 開催場所情報の保存（イベント情報から参照）
 - 活動レポートの保存
 - メンバー情報の保存
 - サイト基本設定の保存
@@ -49,6 +50,8 @@ Molkkynist のサイトでは、静的Webサイトを基本にしつつ、イベ
 
 ただし、固定のデザイン素材や生成画像は、初期段階では `assets/` に配置する方針です。
 
+2026年6月7日に、管理画面 `admin/members.html` からメンバー画像をアップロードする初期実装を追加しました。保存先は Firebase Storage `members/{memberId}/profile-{timestamp}.{ext}`、Firestore 側には取得したダウンロードURLを `members.imageUrl` として保存します。対応形式は JPEG / PNG / WebP、上限は5MBです。
+
 ## 公開サイトと管理画面の関係
 
 公開サイト:
@@ -73,6 +76,7 @@ privacy.html
 admin/login.html
 admin/index.html
 admin/events.html
+admin/venues.html
 admin/news.html
 admin/contact-submissions.html
 admin/reports.html
@@ -124,20 +128,45 @@ adminUids = 管理者の Firebase Authentication UID 一覧
 主なフィールド:
 
 ```text
-title
-description
 eventDate
 startTime
 endTime
-locationName
-locationAddress
-capacity
+venueId
 fee
+rainPolicy
 status
-isPublished
 createdAt
 updatedAt
 ```
+
+2026年6月7日に、イベント基本情報からタイトル、説明文、定員、持ち物、公開フラグを削除した。開催場所は `venues` のドキュメントIDを `venueId` として保存し、公開サイトとお問い合わせフォームでは `venues` の場所名・住所・画像などを組み合わせて表示する。
+
+公開サイトでは `status == "scheduled"` かつ `eventDate >= 今日` のイベントを `eventDate` 昇順で取得するため、`firestore.indexes.json` に `events` 用複合インデックスを定義する。
+
+### venues
+
+イベント開催場所を保存します。
+
+主なフィールド:
+
+```text
+name
+area
+address
+venueType      # outdoor / indoor
+imageUrl
+mapUrl
+accessNote
+note
+displayOrder
+isActive
+createdAt
+updatedAt
+```
+
+2026年6月7日に、管理画面 `admin/venues.html` からの追加・編集と、イベント管理画面 `admin/events.html` での選択式利用を実装した。会場タイプは「屋外会場」「屋内会場」の二択とする。
+
+公開サイトとイベント管理画面では `isActive == true` かつ `displayOrder` 昇順で取得するため、`firestore.indexes.json` に `venues` 用複合インデックスを定義する。
 
 ### news
 
@@ -179,6 +208,7 @@ updatedAt
 
 メンバー情報を保存します。
 2026年6月6日に、管理画面 `admin/members.html` からの追加・編集・公開切替・表示順管理と、公開サイト `index.html#members` / `member.html?id=xxx` のFirestore読み込みを実装済み。未登録時や取得失敗時は、初期ダミーデータ3名をフォールバック表示する。
+2026年6月7日に、同じ管理画面へ Firebase Storage 画像アップロードを追加。スマホで選択したメンバー写真を Storage に保存し、`members.imageUrl` へURLを反映する。既存のURL手入力方式も継続する。
 
 主なフィールド:
 
@@ -236,7 +266,7 @@ responseUpdatedBy  # 管理用: 更新した管理者UID
 
 ## 公開データの考え方
 
-公開サイトでは、`isPublished` が `true` のデータだけを表示します。
+公開サイトでは、公開対象のデータだけを表示します。イベントは `status == "scheduled"`、開催場所は `isActive == true`、お知らせ・メンバー・活動レポートは `isPublished == true` を基準にします。
 
 下書きや非公開データは管理画面でのみ扱います。
 
@@ -246,9 +276,9 @@ Firebase を使用する画面では JavaScript が必要になります。
 
 使用箇所:
 
-- 公開サイトで Firestore からイベント情報を読み込む（参加費 `events.fee` のトップページ表示を含む）
+- 公開サイトで Firestore からイベント情報と開催場所情報を読み込む（参加費 `events.fee` と `venues` の場所情報のトップページ表示を含む）
 - 公開サイトで Firestore から活動レポートを読み込む
-- 公開サイトのお問い合わせフォームで Firestore の `events` を参照し、参加日程選択肢として表示する
+- 公開サイトのお問い合わせフォームで Firestore の `events` と `venues` を参照し、参加日程選択肢として表示する
 - 公開サイトのお問い合わせフォームから `contactSubmissions` に書き込む
 - お問い合わせフォーム送信時に、ユーザーへ受付完了の自動返信メールを送信する（Cloud Functions + `nodemailer` + Gmail SMTP）
 - 管理画面でログイン状態を判定する
@@ -269,7 +299,7 @@ Firebase を使用する画面では JavaScript が必要になります。
   - エクスポートする `isFirebaseConfigured(config)` で起動時に判定
 - `js/contact-form.js`
   - Firebase JS SDK v10 のモジュラー API を `https://www.gstatic.com/firebasejs/<ver>/firebase-app.js` / `firebase-firestore.js` から動的 import
-  - 用件区分が「参加希望」のとき `events` コレクション（`isPublished == true` かつ `eventDate >= 今日`）を `eventDate asc` で取得しトグル表示
+  - 用件区分が「参加希望」のとき `events` コレクション（`status == "scheduled"` かつ `eventDate >= 今日`）を `eventDate asc` で取得し、`venues` の開催場所名と組み合わせてトグル表示
   - 送信時は `contactSubmissions` コレクションへ `addDoc`（`createdAt` は `serverTimestamp()`）
   - プライバシーポリシー同意チェックと、参加希望時の日程選択（最低1件）をクライアント側で検証
 
@@ -283,11 +313,15 @@ Firebase コンソールで本番プロジェクトを作成したら、`js/fire
   - Firebase Authentication のメールアドレス + パスワードでログイン
   - `js/firebase-config.js` の `adminConfig.adminUids` とログインユーザーUIDを照合
 - `admin/index.html`
-  - イベント管理・お問い合わせ管理への入口
+  - イベント管理・開催場所・お問い合わせ管理への入口
   - 一般公開ページからはリンクしない
 - `admin/events.html`
-  - Firestore `events` の追加・編集・公開切替
-  - 公開中イベントは公開サイトのお問い合わせフォームの参加希望日程候補として利用
+  - Firestore `events` の追加・編集・状態切り替え
+  - 開催場所は Firestore `venues` から選択
+  - 開催予定イベントは公開サイトのお問い合わせフォームの参加希望日程候補として利用
+- `admin/venues.html`
+  - Firestore `venues` の追加・編集
+  - イベント管理画面で選択する場所名・住所・画像・会場タイプを管理
 - `admin/contact-submissions.html`
   - Firestore `contactSubmissions` を送信日時降順で一覧・詳細表示
   - 自動返信メールの送信状態は callable Functions 経由で取得
@@ -297,6 +331,7 @@ Firebase コンソールで本番プロジェクトを作成したら、`js/fire
 - `js/admin-auth.js` … Firebase初期化、ログイン状態確認、管理者UID判定、ログアウト
 - `js/admin-login.js` … ログイン画面制御
 - `js/admin-events.js` … イベント管理
+- `js/admin-venues.js` … 開催場所管理
 - `js/admin-contact-submissions.js` … お問い合わせ管理
 
 `js/firebase-config.js` には `adminConfig.adminUids` を追加しています。
@@ -345,7 +380,9 @@ Functions Secret として下記を設定します。
 - `firebase.json` … Hosting / Firestore / Functions / Emulator suite の構成
 - `.firebaserc` … Firebase プロジェクト `molkkynist-a0abd` を default に設定済み
 - `firestore.rules` … 公開コレクション読み取り公開、`contactSubmissions` は create 限定（型・件数バリデーション付き）、`mail` は一般ユーザー全面禁止
-- `firestore.indexes.json` … `events` (`isPublished` + `eventDate` asc) と `reports` (`isPublished` + `eventDate` desc) の複合インデックス
+- `firestore.indexes.json` … `events` (`status` + `eventDate` asc)、`venues` (`isActive` + `displayOrder` asc)、`reports` (`isPublished` + `eventDate` desc) などの複合インデックス
+
+2026年6月7日に `storage.rules` を追加し、`firebase.json` に Storage Rules 参照を追加しました。`members/` 配下の画像は公開読み取り、作成・更新・削除は管理者UIDのみ許可します。
 
 セキュリティルールの管理者UID配列には、あなたのUID `PvM8qIBG1ETC2Y7qM3PFj1i2ASk2` を先行登録済みです。石井さんの Firebase Authentication UID が確定したタイミングで配列へ追加してください。
 
@@ -362,6 +399,7 @@ Functions Secret として下記を設定します。
 - Firebase Authentication: あなたのUIDは管理者として先行反映済み。2026-06-05 D-8 で本番管理画面ログイン、イベント管理、お問い合わせ管理の先行確認済み。石井さん用ユーザー作成と石井さんUIDの追加が未完了
 - 自動返信メール: 2026-05-22 に Gmail SMTP 直送方式へ変更済み。2026-06-05 に送信用メールを `molkkynist@gmail.com` に確定し、`SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM` / `SMTP_SECURE` を設定済み。テスト送信も成功確認済み。`mail` コレクションへの送信状態記録に必要なFirestore権限は B-1 で対応済み。D-8 の新規テストお問い合わせ `d8-test-20260605160454` では `mail.delivery.state=SUCCESS` と管理画面の「送信済み」表示を確認済み。
 - Cloud Run Invoker: 2026-06-05 D-8 で、Callable Function `getMailDeliveryStates` の Cloud Run サービス `getmaildeliverystates` へ `allUsers` の `roles/run.invoker` を付与済み。関数内部でFirebase管理者UID判定を行う。
+- Firebase Storage: 2026-06-07 にメンバー画像アップロード用のクライアント実装と `storage.rules` を追加。デプロイ後、管理者UIDでのアップロード確認が必要。
 
 ## 初期段階での注意点
 
@@ -376,5 +414,5 @@ Functions Secret として下記を設定します。
 - 石井さんの管理者UID（決定次第 `js/firebase-config.js` / `firestore.rules` / Functions 環境変数 `ADMIN_UIDS` に追加）
 - Cloud Functions 環境変数 `ADMIN_UIDS` への石井さんUID追加（`getMailDeliveryStates` の管理者判定用。カンマ区切りで複数UIDを指定）
 - Firestore の正式なデータ構造
-- 画像アップロードのサイズ制限
+- 画像アップロードのサイズ制限（メンバー画像は初期値5MB。活動レポート等は別途検討）
 - DM 経由の申込時にユーザーへ受付メールを送る運用フロー（管理画面から手動送信するか）

@@ -53,6 +53,7 @@ async function initContactForm(formEl) {
   const db = getFirestore(app);
 
   let cachedEvents = null;
+  let cachedVenuesById = null;
   let preselectedEventId = prefill.eventId;
 
   inquiryRadios.forEach((radio) => {
@@ -145,15 +146,26 @@ async function initContactForm(formEl) {
       today.setHours(0, 0, 0, 0);
       const eventsQuery = query(
         collection(db, "events"),
-        where("isPublished", "==", true),
+        where("status", "==", "scheduled"),
         where("eventDate", ">=", Timestamp.fromDate(today)),
         orderBy("eventDate", "asc")
       );
-      const snapshot = await getDocs(eventsQuery);
-      cachedEvents = snapshot.docs.map((doc) => ({
+      const venuesQuery = query(
+        collection(db, "venues"),
+        where("isActive", "==", true),
+        orderBy("displayOrder", "asc")
+      );
+      const [eventsSnapshot, venuesSnapshot] = await Promise.all([
+        getDocs(eventsQuery),
+        getDocs(venuesQuery),
+      ]);
+      cachedEvents = eventsSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
+      cachedVenuesById = new Map(
+        venuesSnapshot.docs.map((venueDoc) => [venueDoc.id, venueDoc.data() ?? {}])
+      );
       renderEvents(cachedEvents, selectedEventId);
     } catch (error) {
       console.error("[contact-form] events取得エラー", error);
@@ -182,17 +194,18 @@ async function initContactForm(formEl) {
       checkbox.value = evt.id;
       checkbox.checked = evt.id === selectedEventId;
       const text = document.createElement("span");
-      text.textContent = formatEventLabel(evt);
+      text.textContent = formatEventLabel(evt, cachedVenuesById ?? new Map());
       label.append(checkbox, text);
       eventsList.appendChild(label);
     });
   }
 }
 
-function formatEventLabel(evt) {
+function formatEventLabel(evt, venuesById = new Map()) {
   const dateStr = formatDate(evt.eventDate);
-  const parts = [dateStr, evt.title].filter(Boolean);
-  if (evt.locationName) parts.push(evt.locationName);
+  const venue = venuesById.get(evt.venueId);
+  const venueName = venue?.name || evt.locationName || "";
+  const parts = [dateStr, venueName].filter(Boolean);
   return parts.join(" / ");
 }
 

@@ -30,7 +30,7 @@ index.html
 - Molkkynist の短い紹介（モルキニストの第一印象：活動写真＋活動内容紹介を含む）
 - モルックとは（紹介文、`molkky.html` への中央配置カプセル型CTA。詳しい基本ルールは別ページで確認できるようにする）
 - お知らせ（正方形ビジュアル＋日付＋タイトルのニュースカードを横スライドするカルーセル `report-carousel` / `report-news-card`。PC は3枚グリッド / タブレットは2枚グリッド / SP は中央1枚＋両隣ピーク表示。SPでは両隣カードのタップ、または横スワイプでカードを切り替える。5秒間隔で自動送り、前後ボタン・ドットインジケータは設けない。各カードは共通テンプレート `news.html` に `?id=xxx` を付けて遷移する。表示データは Firestore `news` の公開済み記事から取得し、未登録・取得失敗時は初期ダミーデータをフォールバック表示する）
-- 開催スケジュール（Firestore `events` の公開済みかつ今後のイベントを直近順に最大4件カード表示する。旧カレンダーUIと独立した開催場所詳細セクションは廃止し、イベントカード内に日程・時間・会場情報・参加導線をまとめる。各カードの「イベントに参加する」ボタンは `contact.html#contact-form` へ遷移し、参加希望と該当日程を事前選択する）
+- 開催スケジュール（Firestore `events` の `status == "scheduled"` かつ今後のイベントを直近順に最大4件カード表示する。開催場所は `venues` の `venueId` 参照から取得する。旧カレンダーUIと独立した開催場所詳細セクションは廃止し、イベントカード内に日程・時間・会場情報・参加導線をまとめる。各カードの「イベントに参加する」ボタンは `contact.html#contact-form` へ遷移し、参加希望と該当日程を事前選択する）
 - 参加の流れ（3ステップ＋併記情報＋CTAボタン。各ステップは `assets/images/generated/flow/flow-icon-choose.png` / `flow-icon-apply.png` / `flow-icon-join.png` のアイコンと番号・見出し・本文で構成する。詳細は `CONTENT_GUIDELINES.md`）
 - 活動の様子（既存9枚の活動写真を、縦横比に変化をつけた `activity-grid` コラージュで並べるセクション `#activity`。画像は `assets/images/activity/activity-01.jpg` 〜 `activity-09.jpg` を参照。写真クリック不可・装飾のみ。セクション上部に活動レポートへの導線ボタンは置かない）
 - メンバー紹介への導線
@@ -224,6 +224,7 @@ admin/index.html
 主な機能:
 
 - イベント管理へのリンク
+- 開催場所へのリンク
 - お問い合わせ管理へのリンク
 - レポート管理へのリンク
 - メンバー管理へのリンク
@@ -241,10 +242,26 @@ admin/events.html
 
 - イベントの追加
 - イベントの編集
-- 公開・非公開の切り替え
-- 開催日時や場所の更新
+- 開催予定 / 受付終了 / 開催済み / 中止の状態切り替え
+- 開催日時や参加費の更新
+- 開催場所は `venues` から選択
 
-### 4. レポート管理
+### 4. 開催場所
+
+想定ファイル:
+
+```text
+admin/venues.html
+```
+
+主な機能:
+
+- 開催場所の追加
+- 開催場所の編集
+- 場所名、住所、会場タイプ、画像、GoogleマップURLの管理
+- イベント管理画面で選択できるかどうかの切り替え
+
+### 5. レポート管理
 
 想定ファイル:
 
@@ -259,7 +276,7 @@ admin/reports.html
 - 写真の登録
 - 公開・非公開の切り替え
 
-### 5. メンバー管理
+### 6. メンバー管理
 
 想定ファイル:
 
@@ -274,7 +291,7 @@ admin/members.html
 - 表示順の変更
 - 写真の登録
 
-### 6. お問い合わせ管理
+### 7. お問い合わせ管理
 
 想定ファイル:
 
@@ -289,7 +306,7 @@ admin/contact-submissions.html
 - 自動返信メールの送信状態確認
 - Cloud Functions callable 経由で `mail` コレクションの `delivery.state` を取得
 
-### 9. プライバシーポリシー
+### 8. プライバシーポリシー
 
 想定ファイル:
 
@@ -355,7 +372,7 @@ Instagram DM 導線は必要なページに残しつつ、参加申し込みの�
 - `index.html` を C-1 の構成に再整理（`#about` → `#schedule` → `#flow` → `#activity` → `#members` → `#faq` → `#partners`）。
 - `contact.html` に Firebase 連携の独自お問い合わせフォーム（D-1）を実装。
   - 関連スクリプト: `js/firebase-config.js`（設定値テンプレート） / `js/contact-form.js`（フォーム制御、Firebase v10 モジュラー CDN を利用）
-  - 参加希望時は Firestore `events` から `isPublished==true` かつ `eventDate>=今日` の日程を取得しトグル表示
+  - 参加希望時は Firestore `events` から `status=="scheduled"` かつ `eventDate>=今日` の日程を取得し、`venues` の開催場所情報と組み合わせてトグル表示
   - 送信内容は Firestore `contactSubmissions` に保存
   - Firebase 設定値が未投入の状態（`YOUR_*` のまま）では、送信ボタンが無効化され Instagram DM への案内に自動フォールバック
 
@@ -406,8 +423,9 @@ Instagram DM 導線は必要なページに残しつつ、参加申し込みの�
 - トップページの開催場所詳細を `#schedule` 内から独立した `#venue-detail` セクションへ分離し、カレンダー情報と会場情報を別ブロックとして見せる構成に変更。
 - トップページの `#about` に「モルックのルールはこちら」カプセル型CTAを追加。トップページ内に詳細ルールは置かず、既存の `molkky.html` へ遷移して基本ルールを確認する構成に変更。
 - トップページの `#schedule` カレンダー下に、キャラクター付きの「参加申し込みはこちら」CTAを追加し、`contact.html#contact-form` へ誘導する構成に変更。
-- トップページの `#schedule` を月次カレンダーから直近イベントカード一覧へ変更。Firestore `events` の公開済み・今後のイベントを最大4件表示し、独立していた `#venue-detail` は `#schedule` に統合した。
+- トップページの `#schedule` を月次カレンダーから直近イベントカード一覧へ変更。Firestore `events` の `status == "scheduled"`・今後のイベントを最大4件表示し、開催場所は `venues` から取得する構成にした。独立していた `#venue-detail` は `#schedule` に統合した。
 - 各イベントカードのCTAを「イベントに参加する」に統一し、`contact.html` 側で用件区分「参加希望」と該当日程を事前選択する導線に変更。
+- 管理画面に `admin/venues.html` を追加し、イベント管理画面では登録済み開催場所を選択して `events.venueId` に保存する構成へ変更。
 - トップページのヒーロー写真をスクロール中に固定表示し、`About us` の紹介エリアが写真の上へ重なるスクロール方式に変更。
 - `About us` と `#about`（モルックとは）の境目を角丸接続ではなく、従来の画面幅いっぱいの波形境界に戻した。
 

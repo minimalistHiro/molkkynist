@@ -1,5 +1,5 @@
 // トップページ「開催スケジュール」の直近イベントカード一覧。
-// Firestore の events から公開済みの今後のイベントを最大4件取得し、会場カードUIで表示する。
+// events の開催日程と venues の会場情報を組み合わせて表示する。
 
 import { firebaseConfig, isFirebaseConfigured } from "./firebase-config.js";
 
@@ -32,9 +32,9 @@ async function initScheduleEvents(container) {
   setStatus(container, "開催予定を読み込んでいます…");
 
   try {
-    const events = await fetchUpcomingEvents();
+    const { events, venuesById } = await fetchUpcomingEvents();
     setStatus(container, "");
-    renderEvents(listEl, events);
+    renderEvents(listEl, events, venuesById);
   } catch (error) {
     console.error("[schedule-events] イベント取得に失敗しました", error);
     listEl.innerHTML = "";
@@ -54,18 +54,33 @@ async function fetchUpcomingEvents() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const q = query(
-    collection(db, "events"),
-    where("isPublished", "==", true),
-    where("eventDate", ">=", Timestamp.fromDate(today)),
-    orderBy("eventDate", "asc"),
-    limit(MAX_EVENTS)
-  );
-  const snapshot = await getDocs(q);
+  const [eventsSnapshot, venuesSnapshot] = await Promise.all([
+    getDocs(
+      query(
+        collection(db, "events"),
+        where("status", "==", "scheduled"),
+        where("eventDate", ">=", Timestamp.fromDate(today)),
+        orderBy("eventDate", "asc"),
+        limit(MAX_EVENTS),
+      ),
+    ),
+    getDocs(
+      query(
+        collection(db, "venues"),
+        where("isActive", "==", true),
+        orderBy("displayOrder", "asc"),
+      ),
+    ),
+  ]);
 
-  return snapshot.docs
-    .map((doc) => normalizeEvent(doc.id, doc.data()))
+  const venuesById = new Map(
+    venuesSnapshot.docs.map((venueDoc) => [venueDoc.id, normalizeVenue(venueDoc.id, venueDoc.data())]),
+  );
+  const events = eventsSnapshot.docs
+    .map((eventDoc) => normalizeEvent(eventDoc.id, eventDoc.data()))
     .filter(Boolean);
+
+  return { events, venuesById };
 }
 
 function normalizeEvent(id, data = {}) {
@@ -74,36 +89,64 @@ function normalizeEvent(id, data = {}) {
   return {
     id,
     date,
-    title: typeof data.title === "string" ? data.title : "",
-    description: typeof data.description === "string" ? data.description : "",
-    startTime: typeof data.startTime === "string" ? data.startTime : "",
-    endTime: typeof data.endTime === "string" ? data.endTime : "",
-    locationName: typeof data.locationName === "string" ? data.locationName : "",
-    locationAddress: typeof data.locationAddress === "string" ? data.locationAddress : "",
-    status: typeof data.status === "string" ? data.status : "",
+    startTime: stringValue(data.startTime),
+    endTime: stringValue(data.endTime),
+    venueId: stringValue(data.venueId),
+    fee: stringValue(data.fee),
+    rainPolicy: stringValue(data.rainPolicy),
+    status: stringValue(data.status),
+    locationName: stringValue(data.locationName),
+    locationAddress: stringValue(data.locationAddress),
   };
 }
 
-function renderEvents(listEl, events) {
+function normalizeVenue(id, data = {}) {
+  return {
+    id,
+    name: stringValue(data.name),
+    address: stringValue(data.address),
+    area: stringValue(data.area),
+    venueType: data.venueType === "indoor" ? "indoor" : "outdoor",
+    imageUrl: stringValue(data.imageUrl),
+    mapUrl: stringValue(data.mapUrl),
+    accessNote: stringValue(data.accessNote),
+  };
+}
+
+function renderEvents(listEl, events, venuesById) {
   listEl.innerHTML = "";
 
-  if (!events.length) {
+  const visibleEvents = events.filter((eventItem) => {
+    if (!eventItem.venueId) return true;
+    return venuesById.has(eventItem.venueId);
+  });
+
+  if (!visibleEvents.length) {
     renderEmpty(listEl, "現在受付中の開催予定はありません。");
     return;
   }
 
-  events.forEach((eventItem) => {
-    listEl.appendChild(createEventCard(eventItem));
+  visibleEvents.forEach((eventItem) => {
+    listEl.appendChild(createEventCard(eventItem, venuesById.get(eventItem.venueId)));
   });
 }
 
-function createEventCard(eventItem) {
+function createEventCard(eventItem, venue) {
   const li = document.createElement("li");
   li.className = "venue-card schedule-event-card";
 
   const visual = document.createElement("div");
   visual.className = "venue-card__visual schedule-event-card__visual";
   visual.setAttribute("aria-hidden", "true");
+  if (venue?.imageUrl) {
+    const image = document.createElement("img");
+    image.className = "schedule-event-card__image";
+    image.src = venue.imageUrl;
+    image.alt = "";
+    image.loading = "lazy";
+    image.decoding = "async";
+    visual.appendChild(image);
+  }
 
   const content = document.createElement("div");
   content.className = "venue-card__content";
@@ -113,23 +156,17 @@ function createEventCard(eventItem) {
 
   const meta = document.createElement("div");
   meta.className = "venue-card__meta";
-  appendChip(meta, statusLabel(eventItem.status));
+  appendChip(meta, venueTypeLabel(venue?.venueType));
+  appendChip(meta, venue?.area);
   appendChip(meta, formatDate(eventItem.date));
 
   const title = document.createElement("h3");
-  title.textContent = eventItem.title || "モルック体験会";
+  title.textContent = venue?.name || eventItem.locationName || "開催場所未定";
 
   const details = document.createElement("address");
-  details.textContent = buildEventDetail(eventItem);
+  details.textContent = buildEventDetail(eventItem, venue);
 
   body.append(meta, title, details);
-
-  if (eventItem.description) {
-    const description = document.createElement("p");
-    description.className = "schedule-event-card__description";
-    description.textContent = eventItem.description;
-    body.appendChild(description);
-  }
 
   const button = document.createElement("a");
   button.className = "button button--green venue-card__join-button";
@@ -149,12 +186,13 @@ function appendChip(parent, label) {
   parent.appendChild(chip);
 }
 
-function buildEventDetail(eventItem) {
+function buildEventDetail(eventItem, venue) {
   const parts = [];
   const timeLabel = formatTimeRange(eventItem.startTime, eventItem.endTime);
   if (timeLabel) parts.push(timeLabel);
-  if (eventItem.locationName) parts.push(eventItem.locationName);
-  if (eventItem.locationAddress) parts.push(eventItem.locationAddress);
+  if (venue?.address) parts.push(venue.address);
+  if (!venue && eventItem.locationAddress) parts.push(eventItem.locationAddress);
+  if (venue?.accessNote) parts.push(venue.accessNote);
   if (!parts.length) return "会場情報は確定次第掲載します。";
   return parts.join(" / ");
 }
@@ -189,6 +227,10 @@ function normalizeDate(value) {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
+function stringValue(value) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
 function formatDate(date) {
   return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日（${
     WEEKDAY_LABELS[date.getDay()]
@@ -202,15 +244,8 @@ function formatTimeRange(startTime, endTime) {
   return "";
 }
 
-function statusLabel(status) {
-  const labels = {
-    scheduled: "開催予定",
-    accepting: "受付中",
-    full: "満員",
-    closed: "受付終了",
-    canceled: "中止",
-  };
-  return labels[status] || "開催予定";
+function venueTypeLabel(value) {
+  return value === "indoor" ? "屋内会場" : "屋外会場";
 }
 
 function toDateKey(date) {

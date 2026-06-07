@@ -13,6 +13,14 @@
 
 ---
 
+## 2026-06-07
+
+| ID | 区分 | 対象 | 内容 | 備考 |
+|----|------|------|------|------|
+| D-13 | 独自対応 | 管理画面 / Firebase Storage | メンバー管理画面からの画像アップロード | `admin/members.html` にスマホ対応の写真アップロード欄とプレビューを追加し、`js/admin-members.js` で JPEG / PNG / WebP、5MB以下の画像を Firebase Storage `members/{memberId}/` 配下へアップロードできるようにした。アップロード後は取得したURLを Firestore `members.imageUrl` に保存するため、公開サイト側の `js/member-list.js` / `js/member-detail.js` は既存の画像表示ロジックを継続利用する。`storage.rules` を追加し、`firebase.json` に Storage Rules 参照を追加。Storage Rules の本番デプロイと管理者UIDでのアップロード確認は別途実施が必要。 |
+
+---
+
 ## 2026-06-06
 
 | ID | 区分 | 対象 | 内容 | 備考 |

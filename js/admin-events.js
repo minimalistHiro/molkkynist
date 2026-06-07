@@ -13,8 +13,9 @@ import {
 const form = document.querySelector("[data-admin-event-form]");
 const listEl = document.querySelector("[data-admin-events-list]");
 const statusEl = document.querySelector("[data-admin-status]");
+const venueSelect = document.querySelector("[data-admin-venue-select]");
 
-if (form && listEl) {
+if (form && listEl && venueSelect) {
   initEventsPage().catch((error) => {
     console.error("[admin-events] 初期化に失敗しました", error);
     showAdminStatus(statusEl, "イベント管理画面の初期化に失敗しました。", "error");
@@ -37,41 +38,66 @@ async function initEventsPage() {
     onSnapshot,
     addDoc,
     updateDoc,
+    deleteField,
     serverTimestamp,
     Timestamp,
   } = firestore;
   const db = getFirestore(app);
   const eventsRef = collection(db, "events");
+  const venuesRef = collection(db, "venues");
 
   let editingId = null;
+  let eventsCache = [];
+  let venuesCache = [];
   const cancelButton = form.querySelector("[data-admin-cancel-edit]");
+  const submitButton = form.querySelector('button[type="submit"]');
+
+  function rerenderEvents() {
+    renderEvents(eventsCache, venueMapFrom(venuesCache), (eventItem) => {
+      fillForm(eventItem);
+      editingId = eventItem.id;
+      cancelButton.hidden = false;
+      submitButton.textContent = "イベントを更新";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }
+
+  onSnapshot(
+    query(venuesRef, orderBy("displayOrder", "asc")),
+    (snapshot) => {
+      venuesCache = snapshot.docs.map((venueDoc) => ({
+        id: venueDoc.id,
+        ...venueDoc.data(),
+      }));
+      renderVenueOptions(venuesCache);
+      rerenderEvents();
+    },
+    (error) => {
+      console.error("[admin-events] venues購読に失敗しました", error);
+      showAdminStatus(statusEl, "開催場所一覧の取得に失敗しました。", "error");
+    },
+  );
 
   onSnapshot(
     query(eventsRef, orderBy("eventDate", "asc")),
     (snapshot) => {
-      const events = snapshot.docs.map((eventDoc) => ({
+      eventsCache = snapshot.docs.map((eventDoc) => ({
         id: eventDoc.id,
         ...eventDoc.data(),
       }));
-      renderEvents(events, async (eventItem) => {
-        fillForm(eventItem);
-        editingId = eventItem.id;
-        cancelButton.hidden = false;
-        form.querySelector('button[type="submit"]').textContent = "イベントを更新";
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      });
+      rerenderEvents();
     },
     (error) => {
       console.error("[admin-events] events購読に失敗しました", error);
       showAdminStatus(statusEl, "イベント一覧の取得に失敗しました。", "error");
-    }
+    },
   );
 
   cancelButton.addEventListener("click", () => {
     editingId = null;
     form.reset();
     cancelButton.hidden = true;
-    form.querySelector('button[type="submit"]').textContent = "イベントを保存";
+    submitButton.textContent = "イベントを保存";
     clearAdminStatus(statusEl);
   });
 
@@ -79,15 +105,21 @@ async function initEventsPage() {
     event.preventDefault();
     if (!form.reportValidity()) return;
 
-    const submitButton = form.querySelector('button[type="submit"]');
     submitButton.disabled = true;
     showAdminStatus(statusEl, "保存しています…", "loading");
 
     try {
-      const payload = buildEventPayload(new FormData(form), Timestamp, serverTimestamp);
+      const payload = buildEventPayload(new FormData(form), Timestamp);
       if (editingId) {
         await updateDoc(doc(db, "events", editingId), {
           ...payload,
+          title: deleteField(),
+          description: deleteField(),
+          locationName: deleteField(),
+          locationAddress: deleteField(),
+          capacity: deleteField(),
+          belongings: deleteField(),
+          isPublished: deleteField(),
           updatedAt: serverTimestamp(),
         });
       } else {
@@ -114,26 +146,43 @@ async function initEventsPage() {
 function buildEventPayload(formData, Timestamp) {
   const dateValue = formData.get("eventDate")?.toString() ?? "";
   const eventDate = dateValue ? Timestamp.fromDate(new Date(`${dateValue}T00:00:00+09:00`)) : null;
-  const capacity = Number.parseInt(formData.get("capacity")?.toString() ?? "", 10);
 
   return {
-    title: formData.get("title")?.toString().trim() ?? "",
-    description: formData.get("description")?.toString().trim() ?? "",
     eventDate,
     startTime: formData.get("startTime")?.toString().trim() ?? "",
     endTime: formData.get("endTime")?.toString().trim() ?? "",
-    locationName: formData.get("locationName")?.toString().trim() ?? "",
-    locationAddress: formData.get("locationAddress")?.toString().trim() ?? "",
+    venueId: formData.get("venueId")?.toString().trim() ?? "",
     fee: formData.get("fee")?.toString().trim() ?? "",
-    capacity: Number.isNaN(capacity) ? null : capacity,
-    belongings: formData.get("belongings")?.toString().trim() ?? "",
     rainPolicy: formData.get("rainPolicy")?.toString().trim() ?? "",
     status: formData.get("status")?.toString() ?? "scheduled",
-    isPublished: formData.get("isPublished") === "on",
   };
 }
 
-function renderEvents(events, onEdit) {
+function renderVenueOptions(venues) {
+  const currentValue = venueSelect.value;
+  const activeVenues = venues.filter((venue) => venue.isActive !== false);
+  venueSelect.innerHTML = "";
+
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = activeVenues.length
+    ? "開催場所を選択してください"
+    : "有効な開催場所がありません";
+  venueSelect.appendChild(placeholder);
+
+  activeVenues.forEach((venue) => {
+    const option = document.createElement("option");
+    option.value = venue.id;
+    option.textContent = `${venue.name || "名称未設定"}${venue.area ? ` / ${venue.area}` : ""}`;
+    venueSelect.appendChild(option);
+  });
+
+  if (currentValue && Array.from(venueSelect.options).some((option) => option.value === currentValue)) {
+    venueSelect.value = currentValue;
+  }
+}
+
+function renderEvents(events, venuesById, onEdit) {
   listEl.innerHTML = "";
   if (!events.length) {
     listEl.innerHTML = '<p class="admin-empty">登録済みのイベントはありません。</p>';
@@ -141,19 +190,20 @@ function renderEvents(events, onEdit) {
   }
 
   events.forEach((eventItem) => {
+    const venue = venuesById.get(eventItem.venueId);
     const article = document.createElement("article");
     article.className = "admin-list-item";
     article.innerHTML = `
       <div>
         <p class="admin-item-meta">${formatDate(eventItem.eventDate)} / ${escapeHtml(
-          eventItem.locationName || "場所未定"
+          venue?.name || legacyLocationName(eventItem),
         )}</p>
-        <h3>${escapeHtml(eventItem.title || "無題のイベント")}</h3>
-        <p>${escapeHtml(eventItem.description || "説明文は未入力です。")}</p>
+        <h3>${escapeHtml(formatEventHeading(eventItem, venue))}</h3>
+        <p>${escapeHtml(buildEventDescription(eventItem, venue))}</p>
         <div class="admin-chip-row">
-          <span class="status-chip">${eventItem.isPublished ? "公開中" : "非公開"}</span>
           <span class="status-chip">${escapeHtml(statusLabel(eventItem.status))}</span>
           <span class="status-chip">参加費: ${escapeHtml(eventItem.fee || "未設定")}</span>
+          <span class="status-chip">${venue ? "開催場所連携済み" : "開催場所未選択"}</span>
         </div>
       </div>
       <button class="button button--secondary" type="button">編集</button>
@@ -164,19 +214,17 @@ function renderEvents(events, onEdit) {
 }
 
 function fillForm(eventItem) {
-  form.elements.title.value = eventItem.title || "";
-  form.elements.description.value = eventItem.description || "";
   form.elements.eventDate.value = toDateInputValue(eventItem.eventDate);
   form.elements.startTime.value = eventItem.startTime || "";
   form.elements.endTime.value = eventItem.endTime || "";
-  form.elements.locationName.value = eventItem.locationName || "";
-  form.elements.locationAddress.value = eventItem.locationAddress || "";
+  form.elements.venueId.value = eventItem.venueId || "";
   form.elements.fee.value = eventItem.fee || "";
-  form.elements.capacity.value = eventItem.capacity ?? "";
-  form.elements.belongings.value = eventItem.belongings || "";
   form.elements.rainPolicy.value = eventItem.rainPolicy || "";
-  form.elements.status.value = eventItem.status || "scheduled";
-  form.elements.isPublished.checked = Boolean(eventItem.isPublished);
+  form.elements.status.value = normalizeStatus(eventItem.status);
+}
+
+function venueMapFrom(venues) {
+  return new Map(venues.map((venue) => [venue.id, venue]));
 }
 
 function toDateInputValue(value) {
@@ -205,12 +253,48 @@ function normalizeDate(value) {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
+function formatEventHeading(eventItem, venue) {
+  const date = formatDate(eventItem.eventDate);
+  if (venue?.name) return `${date} ${venue.name}`;
+  return `${date} 開催場所未選択`;
+}
+
+function buildEventDescription(eventItem, venue) {
+  const parts = [];
+  const timeLabel = formatTimeRange(eventItem.startTime, eventItem.endTime);
+  if (timeLabel) parts.push(timeLabel);
+  if (venue?.address) parts.push(venue.address);
+  if (!venue && eventItem.locationAddress) parts.push(eventItem.locationAddress);
+  if (!parts.length) return "時間や会場の詳細は未設定です。";
+  return parts.join(" / ");
+}
+
+function legacyLocationName(eventItem) {
+  return eventItem.locationName || "開催場所未選択";
+}
+
+function formatTimeRange(startTime, endTime) {
+  if (startTime && endTime) return `${startTime} - ${endTime}`;
+  if (startTime) return `${startTime}開始`;
+  if (endTime) return `${endTime}終了`;
+  return "";
+}
+
+function normalizeStatus(status) {
+  if (status === "preparing") return "scheduled";
+  if (status === "canceled") return "canceled";
+  if (status === "closed") return "closed";
+  if (status === "finished") return "finished";
+  return "scheduled";
+}
+
 function statusLabel(status) {
   const labels = {
     scheduled: "開催予定",
     preparing: "準備中",
     closed: "受付終了",
     finished: "開催済み",
+    canceled: "中止",
   };
   return labels[status] || "未設定";
 }
@@ -223,4 +307,3 @@ function escapeHtml(value) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
-

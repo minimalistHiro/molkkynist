@@ -3,6 +3,7 @@
 
 import {
   FIRESTORE_MODULE_URL,
+  STORAGE_MODULE_URL,
   clearAdminStatus,
   getAdminApp,
   initLogoutButtons,
@@ -13,6 +14,13 @@ import {
 const form = document.querySelector("[data-admin-member-form]");
 const listEl = document.querySelector("[data-admin-members-list]");
 const statusEl = document.querySelector("[data-admin-status]");
+const imageFileInput = document.querySelector("[data-admin-member-image-file]");
+const imagePreview = document.querySelector("[data-admin-member-image-preview]");
+const imagePreviewImg = document.querySelector("[data-admin-member-image-preview-img]");
+const imageClearButton = document.querySelector("[data-admin-member-image-clear]");
+
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 if (form && listEl) {
   initMembersPage().catch((error) => {
@@ -35,7 +43,7 @@ async function initMembersPage() {
     query,
     orderBy,
     onSnapshot,
-    addDoc,
+    setDoc,
     updateDoc,
     serverTimestamp,
   } = firestore;
@@ -45,6 +53,7 @@ async function initMembersPage() {
   let editingId = null;
   const cancelButton = form.querySelector("[data-admin-cancel-edit]");
   const submitButton = form.querySelector('button[type="submit"]');
+  setupImagePreview();
 
   onSnapshot(
     query(membersRef, orderBy("displayOrder", "asc")),
@@ -70,6 +79,7 @@ async function initMembersPage() {
   cancelButton.addEventListener("click", () => {
     editingId = null;
     form.reset();
+    clearSelectedImage();
     cancelButton.hidden = true;
     submitButton.textContent = "メンバーを保存";
     clearAdminStatus(statusEl);
@@ -83,27 +93,38 @@ async function initMembersPage() {
     showAdminStatus(statusEl, "保存しています…", "loading");
 
     try {
+      const selectedImage = getSelectedImageFile();
       const payload = buildMemberPayload(new FormData(form));
+      const memberRef = editingId ? doc(db, "members", editingId) : doc(membersRef);
+
+      if (selectedImage) {
+        showAdminStatus(statusEl, "画像をアップロードしています…", "loading");
+        payload.imageUrl = await uploadMemberImage(app, memberRef.id, selectedImage);
+      }
+
       if (editingId) {
-        await updateDoc(doc(db, "members", editingId), {
+        await updateDoc(memberRef, {
           ...payload,
           updatedAt: serverTimestamp(),
         });
       } else {
-        await addDoc(membersRef, {
+        await setDoc(memberRef, {
           ...payload,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         });
       }
       form.reset();
+      clearSelectedImage();
       editingId = null;
       cancelButton.hidden = true;
       submitButton.textContent = "メンバーを保存";
       showAdminStatus(statusEl, "メンバーを保存しました。", "success");
     } catch (error) {
       console.error("[admin-members] 保存に失敗しました", error);
-      showAdminStatus(statusEl, "メンバーの保存に失敗しました。", "error");
+      const message =
+        error instanceof Error && error.message ? error.message : "メンバーの保存に失敗しました。";
+      showAdminStatus(statusEl, message, "error");
     } finally {
       submitButton.disabled = false;
     }
@@ -125,6 +146,98 @@ function buildMemberPayload(formData) {
     displayOrder: Number.isNaN(displayOrder) ? 9999 : displayOrder,
     isPublished: formData.get("isPublished") === "on",
   };
+}
+
+function setupImagePreview() {
+  if (!imageFileInput) return;
+
+  imageFileInput.addEventListener("change", () => {
+    const file = imageFileInput.files?.[0] ?? null;
+    clearAdminStatus(statusEl);
+
+    if (!file) {
+      clearSelectedImage();
+      return;
+    }
+
+    const validationError = validateImageFile(file);
+    if (validationError) {
+      imageFileInput.value = "";
+      clearSelectedImage();
+      showAdminStatus(statusEl, validationError, "error");
+      return;
+    }
+
+    if (imagePreview && imagePreviewImg) {
+      if (imagePreviewImg.src.startsWith("blob:")) {
+        URL.revokeObjectURL(imagePreviewImg.src);
+      }
+      imagePreviewImg.src = URL.createObjectURL(file);
+      imagePreview.hidden = false;
+    }
+  });
+
+  imageClearButton?.addEventListener("click", () => {
+    clearSelectedImage();
+    clearAdminStatus(statusEl);
+  });
+}
+
+function getSelectedImageFile() {
+  const file = imageFileInput?.files?.[0] ?? null;
+  if (!file) return null;
+
+  const validationError = validateImageFile(file);
+  if (validationError) {
+    throw new Error(validationError);
+  }
+
+  return file;
+}
+
+function validateImageFile(file) {
+  if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+    return "アップロードできる画像は JPEG / PNG / WebP のみです。";
+  }
+  if (file.size > MAX_IMAGE_SIZE) {
+    return "画像サイズは5MB以下にしてください。";
+  }
+  return "";
+}
+
+async function uploadMemberImage(app, memberId, file) {
+  const storage = await import(STORAGE_MODULE_URL);
+  const { getStorage, ref, uploadBytes, getDownloadURL } = storage;
+  const storageRef = ref(getStorage(app), buildMemberImagePath(memberId, file));
+  const snapshot = await uploadBytes(storageRef, file, {
+    contentType: file.type,
+    customMetadata: {
+      source: "admin-members",
+    },
+  });
+  return getDownloadURL(snapshot.ref);
+}
+
+function buildMemberImagePath(memberId, file) {
+  const extension = imageExtension(file.type);
+  return `members/${memberId}/profile-${Date.now()}.${extension}`;
+}
+
+function imageExtension(contentType) {
+  if (contentType === "image/png") return "png";
+  if (contentType === "image/webp") return "webp";
+  return "jpg";
+}
+
+function clearSelectedImage() {
+  if (imageFileInput) imageFileInput.value = "";
+  if (imagePreviewImg) {
+    if (imagePreviewImg.src.startsWith("blob:")) {
+      URL.revokeObjectURL(imagePreviewImg.src);
+    }
+    imagePreviewImg.src = "";
+  }
+  if (imagePreview) imagePreview.hidden = true;
 }
 
 function renderMembers(items, onEdit) {
@@ -157,6 +270,7 @@ function renderMembers(items, onEdit) {
 }
 
 function fillForm(item) {
+  clearSelectedImage();
   form.elements.name.value = item.name || "";
   form.elements.role.value = item.role || "";
   form.elements.imageUrl.value = item.imageUrl || "";

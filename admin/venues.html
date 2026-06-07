@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <title>開催場所 | Molkkynist</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+    <script type="module" src="../js/admin-venues.js"></script>
+  </head>
+  <body class="admin-page">
+    <header class="admin-header">
+      <a class="brand" href="index.html" aria-label="管理ダッシュボード">
+        <img class="brand__mark" src="../assets/images/logos/molkkynist-logo-mark.png" alt="" width="48" height="48">
+        <span class="brand__name">Molkkynist Admin</span>
+      </a>
+      <nav class="admin-nav" aria-label="管理画面ナビゲーション">
+        <a href="index.html">ダッシュボード</a>
+        <a href="events.html">イベント管理</a>
+        <a href="news.html">お知らせ管理</a>
+        <a href="members.html">メンバー管理</a>
+        <a href="contact-submissions.html">お問い合わせ管理</a>
+        <button class="button button--secondary" type="button" data-admin-logout>ログアウト</button>
+      </nav>
+    </header>
+    <main class="admin-shell">
+      <section class="admin-heading" aria-labelledby="venues-admin-title">
+        <p class="section__label">Venues</p>
+        <h1 id="venues-admin-title">開催場所</h1>
+        <p>イベント管理画面で選択する会場情報を登録します。有効な開催場所のみ、イベント作成時の選択肢に表示されます。</p>
+        <p class="form-status" data-admin-status hidden></p>
+      </section>
+
+      <section class="admin-layout" aria-label="開催場所編集エリア">
+        <form class="contact-form admin-form" data-admin-venue-form>
+          <div class="form-row">
+            <label for="venue-name">
+              <span class="form-label">場所名 <span class="form-required">必須</span></span>
+              <input id="venue-name" name="name" type="text" required>
+            </label>
+            <label for="venue-area">
+              <span class="form-label">都道府県 / エリア</span>
+              <input id="venue-area" name="area" type="text" placeholder="例: 東京都">
+            </label>
+          </div>
+          <label for="venue-address">
+            <span class="form-label">住所 <span class="form-required">必須</span></span>
+            <input id="venue-address" name="address" type="text" required>
+          </label>
+          <div class="form-row">
+            <label for="venue-type">
+              <span class="form-label">会場タイプ <span class="form-required">必須</span></span>
+              <select id="venue-type" name="venueType" required>
+                <option value="outdoor">屋外会場</option>
+                <option value="indoor">屋内会場</option>
+              </select>
+            </label>
+            <label for="venue-display-order">
+              <span class="form-label">表示順</span>
+              <input id="venue-display-order" name="displayOrder" type="number" min="0" inputmode="numeric" value="100">
+            </label>
+          </div>
+          <label for="venue-image-url">
+            <span class="form-label">会場画像URL</span>
+            <input id="venue-image-url" name="imageUrl" type="text" placeholder="例: assets/images/venues/venue-01.jpg">
+          </label>
+          <label for="venue-map-url">
+            <span class="form-label">GoogleマップURL</span>
+            <input id="venue-map-url" name="mapUrl" type="url" placeholder="https://maps.google.com/...">
+          </label>
+          <label for="venue-access-note">
+            <span class="form-label">アクセス補足</span>
+            <input id="venue-access-note" name="accessNote" type="text" placeholder="例: 最寄り駅から徒歩5分">
+          </label>
+          <label for="venue-note">
+            <span class="form-label">備考</span>
+            <textarea id="venue-note" name="note" rows="4"></textarea>
+          </label>
+          <label class="checkbox-line admin-checkbox">
+            <input name="isActive" type="checkbox" checked>
+            <span>イベント管理画面の選択肢に表示する</span>
+          </label>
+          <div class="form-actions admin-actions">
+            <button class="button button--primary" type="submit">開催場所を保存</button>
+            <button class="button button--secondary" type="button" data-admin-cancel-edit hidden>編集をキャンセル</button>
+          </div>
+        </form>
+
+        <div class="admin-card">
+          <h2>登録済み開催場所</h2>
+          <div class="admin-list" data-admin-venues-list>
+            <p class="admin-empty">開催場所を読み込んでいます。</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

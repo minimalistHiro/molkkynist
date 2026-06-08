@@ -217,17 +217,49 @@
 })();
 
 (() => {
-  const aboutIllustration = document.querySelector(".about-wide-illustration");
+  const heroTitle = document.querySelector(".hero__title-image");
 
-  if (!aboutIllustration) {
+  if (!heroTitle) {
     return;
   }
 
-  document.documentElement.classList.add("has-about-illustration-animation");
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (prefersReducedMotion) {
+    return;
+  }
+
+  document.documentElement.classList.add("has-hero-title-animation");
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
+      heroTitle.classList.add("is-hero-title-visible");
+      window.setTimeout(() => {
+        heroTitle.classList.add("is-hero-title-complete");
+      }, 1100);
+    });
+  });
+})();
+
+(() => {
+  const aboutCollages = Array.from(document.querySelectorAll(".about-photo-collage"));
+
+  if (!aboutCollages.length) {
+    return;
+  }
+
+  document.documentElement.classList.add("has-about-collage-animation");
+  aboutCollages.forEach((collage) => {
+    Array.from(collage.querySelectorAll(".about-photo-collage__item")).forEach((item, index) => {
+      item.style.setProperty("--about-collage-index", String(index));
+    });
+  });
 
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (prefersReducedMotion || !("IntersectionObserver" in window)) {
-    aboutIllustration.classList.add("is-about-illustration-visible");
+    aboutCollages.forEach((collage) => {
+      collage.querySelectorAll(".about-photo-collage__item").forEach((item) => {
+        item.classList.add("is-about-collage-visible");
+      });
+    });
     return;
   }
 
@@ -238,7 +270,9 @@
           return;
         }
 
-        entry.target.classList.add("is-about-illustration-visible");
+        entry.target.querySelectorAll(".about-photo-collage__item").forEach((item) => {
+          item.classList.add("is-about-collage-visible");
+        });
         observer.unobserve(entry.target);
       });
     },
@@ -248,7 +282,7 @@
     },
   );
 
-  observer.observe(aboutIllustration);
+  aboutCollages.forEach((collage) => observer.observe(collage));
 })();
 
 (() => {

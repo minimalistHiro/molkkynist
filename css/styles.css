@@ -32,7 +32,7 @@
   --font-base: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-cta: "BIZ UDPGothic", "Noto Sans JP", "Hiragino Sans", "Yu Gothic", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-rounded: "M PLUS Rounded 1c", "Noto Sans JP", "Hiragino Sans", "Yu Gothic", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-script: "Dancing Script", cursive;
+  --font-script: "Lora", "Times New Roman", serif;
 }
 
 * {
@@ -409,6 +409,22 @@ p {
   width: min(78vw, 580px);
   height: auto;
   filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.28));
+}
+
+.has-hero-title-animation .hero__title-image {
+  transform: translate3d(0, 56px, 0);
+  transition: transform 0.92s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.has-hero-title-animation .hero__title-image.is-hero-title-visible {
+  transform: translate3d(0, 0, 0);
+}
+
+.has-hero-title-animation .hero__title-image.is-hero-title-complete {
+  transform: none;
+  transition: none;
+  will-change: auto;
 }
 
 .hero__lead {
@@ -864,6 +880,7 @@ p {
 }
 
 #faq {
+  padding-bottom: clamp(40px, 6vw, 56px);
   background: var(--color-flow-beige);
 }
 
@@ -941,6 +958,7 @@ p {
   margin-bottom: 28px;
 }
 
+.section-heading h1,
 .section-heading h2,
 .split-layout > div:first-child > h2,
 .page-hero h1,
@@ -952,6 +970,7 @@ p {
   font-weight: 700;
 }
 
+.section-heading h1,
 .section-heading h2,
 .split-layout > div:first-child > h2,
 .cta-band h2 {
@@ -968,6 +987,7 @@ p {
   font-weight: 700;
 }
 
+.section-heading h1::after,
 .section-heading h2::after,
 .split-layout > div:first-child > h2::after,
 .page-hero h1::after,
@@ -1023,6 +1043,11 @@ p {
   }
 
   .section-heading:not(.section-heading--with-link) h2::after {
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .section-heading:not(.section-heading--with-link) h1::after {
     margin-right: auto;
     margin-left: auto;
   }
@@ -1129,17 +1154,21 @@ p {
   object-position: center bottom;
 }
 
-.has-about-illustration-animation .about-wide-illustration {
+.has-about-collage-animation .about-photo-collage__item {
   opacity: 0;
-  transform: translate3d(0, 28px, 0);
-  transition:
-    opacity 0.7s ease,
-    transform 0.82s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translate3d(0, 22px, 0);
 }
 
-.has-about-illustration-animation .about-wide-illustration.is-about-illustration-visible {
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
+.has-about-collage-animation .about-photo-collage__item.is-about-collage-visible {
+  animation: about-collage-fade-in 0.76s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--about-collage-index, 0) * 90ms);
+}
+
+@keyframes about-collage-fade-in {
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
 }
 
 .card-grid,
@@ -1467,10 +1496,16 @@ dd {
     transition: none;
   }
 
-  .has-about-illustration-animation .about-wide-illustration {
+  .has-about-collage-animation .about-photo-collage__item {
     opacity: 1;
     transform: none;
+    animation: none;
+  }
+
+  .has-hero-title-animation .hero__title-image {
+    transform: none;
     transition: none;
+    will-change: auto;
   }
 }
 
@@ -2866,7 +2901,7 @@ dd {
   color: rgba(255, 255, 255, 0.78);
   font-family: var(--font-script);
   font-size: clamp(1.9rem, 5vw, 2.85rem);
-  font-style: normal;
+  font-style: italic;
   font-weight: 400;
   letter-spacing: 0;
   line-height: 1;

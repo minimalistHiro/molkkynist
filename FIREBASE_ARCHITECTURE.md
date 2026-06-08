@@ -77,6 +77,7 @@ admin/index.html
 admin/events.html
 admin/venues.html
 admin/news.html
+admin/event-participants.html
 admin/contact-submissions.html
 admin/reports.html
 ```
@@ -254,6 +255,7 @@ updatedAt
 name
 email
 phone
+address
 inquiryType   # 参加希望 / イベント問い合わせ / メディア取材 / その他
 selectedEventIds   # 参加希望時のみ、events への参照を配列で保持
 message
@@ -285,6 +287,7 @@ Firebase を使用する画面では JavaScript が必要になります。
 - 管理画面でデータを追加・編集する
 - 管理画面でお問い合わせ送信内容を確認し、自動返信メールの送信状態を Cloud Functions 経由で取得する
 - 管理画面でお問い合わせの対応ステータスと対応メモを更新する
+- 管理画面で `contactSubmissions` の参加希望データをイベント別に集計し、参加人数と参加者一覧を表示する
 - Storage に画像をアップロードする
 
 静的な本文やデザインは HTML / CSS を基本にします。
@@ -313,7 +316,7 @@ Firebase コンソールで本番プロジェクトを作成したら、`js/fire
   - Firebase Authentication のメールアドレス + パスワードでログイン
   - `js/firebase-config.js` の `adminConfig.adminUids` とログインユーザーUIDを照合
 - `admin/index.html`
-  - イベント管理・開催場所・お問い合わせ管理への入口
+  - イベント管理・開催場所・イベント参加者一覧・お問い合わせ管理への入口
   - 一般公開ページからはリンクしない
 - `admin/events.html`
   - Firestore `events` の追加・編集・状態切り替え
@@ -325,6 +328,9 @@ Firebase コンソールで本番プロジェクトを作成したら、`js/fire
 - `admin/contact-submissions.html`
   - Firestore `contactSubmissions` を送信日時降順で一覧・詳細表示
   - 自動返信メールの送信状態は callable Functions 経由で取得
+- `admin/event-participants.html`
+  - 開催予定イベントごとに参加人数を表示
+  - `contactSubmissions` の `inquiryType == "participate"` と `selectedEventIds` をもとに、選択イベントの参加者を一覧表示
 
 管理画面用スクリプト:
 
@@ -333,6 +339,7 @@ Firebase コンソールで本番プロジェクトを作成したら、`js/fire
 - `js/admin-events.js` … イベント管理
 - `js/admin-venues.js` … 開催場所管理
 - `js/admin-contact-submissions.js` … お問い合わせ管理
+- `js/admin-event-participants.js` … イベント参加者一覧
 
 `js/firebase-config.js` には `adminConfig.adminUids` を追加しています。
 2026年6月5日時点では、あなたのUID `PvM8qIBG1ETC2Y7qM3PFj1i2ASk2` を先行登録済みです。石井さんのFirebase Authentication UID確定後に配列へ追加してください。

@@ -231,10 +231,13 @@
   document.documentElement.classList.add("has-hero-title-animation");
   window.requestAnimationFrame(() => {
     window.requestAnimationFrame(() => {
-      heroTitle.classList.add("is-hero-title-visible");
       window.setTimeout(() => {
-        heroTitle.classList.add("is-hero-title-complete");
-      }, 1100);
+        document.documentElement.classList.add("has-hero-title-ready");
+        heroTitle.classList.add("is-hero-title-visible");
+        window.setTimeout(() => {
+          heroTitle.classList.add("is-hero-title-complete");
+        }, 1800);
+      }, 750);
     });
   });
 })();

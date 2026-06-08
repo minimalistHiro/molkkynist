@@ -26,7 +26,7 @@
   - `js/firebase-config.js` の `adminConfig.adminUids` で管理者UID一覧を照合
   - Firebase設定値または管理者UIDが未設定の場合はログインを無効化
 - `admin/index.html`
-  - イベント管理・開催場所・お知らせ管理・お問い合わせ管理への導線
+  - イベント管理・開催場所・お知らせ管理・イベント参加者一覧・お問い合わせ管理への導線
   - ログアウトボタン
 - `admin/events.html`
   - イベントの追加・編集
@@ -45,6 +45,11 @@
   - 送信内容の詳細表示
   - 送信内容の削除
   - Cloud Functions callable `getMailDeliveryStates` 経由で自動返信メールの送信状態を表示
+- `admin/event-participants.html`
+  - 開催予定イベントをカード形式で一覧表示
+  - 各イベントカードに参加人数を表示
+  - 選択したイベントに紐づく参加希望者の名前・メールアドレス・電話番号・住所・一言を表示
+  - 参加者情報は `contactSubmissions` の `inquiryType == "participate"` と `selectedEventIds` から集計する
 
 未実装の管理画面:
 
@@ -86,6 +91,7 @@ admin/index.html
 - 開催場所
 - 活動レポート管理
 - サイト基本設定
+- イベント参加者一覧（イベント別の参加人数・参加希望者情報の閲覧）
 - お問い合わせ管理（送信内容の閲覧・自動返信メールの送信状況確認）
 
 ## イベント管理要件
@@ -270,7 +276,7 @@ admin/contact-submissions.html
 
 - 公開サイトのお問い合わせフォーム経由で `contactSubmissions` に保存された送信内容を一覧表示する
 - 送信日時の降順で並べる
-- 1件ずつ詳細（名前 / メール / 電話 / 用件区分 / 参加希望日程 / 本文）を確認できる
+- 1件ずつ詳細（名前 / メール / 電話 / 住所 / 用件区分 / 参加希望日程 / 本文）を確認できる
 - 各送信に対する自動返信メール（`mail` コレクション）の `delivery.state`（`SUCCESS` / `ERROR` / `PROCESSING` 等）と、エラー時のメッセージを表示する
 - 手動で対応ステータス（未対応・対応中・対応済み）と対応メモを保存できる
 - 不要になった送信内容を削除できる
@@ -290,6 +296,32 @@ admin/contact-submissions.html
 - 2026-06-05 B-1 で Cloud Functions 実行サービスアカウント `264727261204-compute@developer.gserviceaccount.com` に `roles/datastore.user` を付与済み。これにより、`mail` コレクションへの送信状態記録に必要なFirestore読み書き権限は設定済み。
 - 2026-06-05 D-8 で、本番 `admin/contact-submissions.html` からお問い合わせ一覧・詳細閲覧と自動返信メール送信状態の取得を確認済み。新規テストお問い合わせ `d8-test-20260605160454` では `mail.delivery.state=SUCCESS` が記録され、管理画面でも「送信済み」と表示された。
 - 2026-06-05 D-8 で、Callable Function `getMailDeliveryStates` をブラウザから呼び出せるように、Cloud Run サービス `getmaildeliverystates` へ `allUsers` の `roles/run.invoker` を付与済み。外部からの到達は許可しつつ、実際の利用可否は Functions 内部のFirebase管理者UID判定で制御する。
+
+## イベント参加者一覧要件
+
+想定画面:
+
+```text
+admin/event-participants.html
+```
+
+できること:
+
+- 今後開催予定のイベントをカード形式で確認する
+- 各イベントカードで参加人数を確認する
+- イベントカードを選択し、そのイベントの参加希望者一覧を確認する
+- 参加者の名前、メールアドレス、電話番号、住所、一言・質問、対応ステータスを確認する
+
+表示対象:
+
+- `events.status == "scheduled"` かつ `eventDate >= 今日` のイベント
+- `contactSubmissions.inquiryType == "participate"` かつ `selectedEventIds` に対象イベントIDを含む送信
+
+備考:
+
+- 参加者情報の正本は `contactSubmissions` とする。初期実装では `eventParticipants` 専用コレクションは作成しない。
+- 住所は `contactSubmissions.address` を表示する。既存送信データなど住所未取得の場合は「未取得」と表示する。
+- この画面では参加者データの削除・対応メモ編集は行わない。削除や対応状況の編集が必要な場合は、お問い合わせ管理画面で対応する。
 
 ## サイト基本設定要件
 

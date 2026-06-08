@@ -109,6 +109,7 @@ async function initContactForm(formEl) {
         name: formData.get("name")?.toString().trim() ?? "",
         email: formData.get("email")?.toString().trim() ?? "",
         phone: formData.get("phone")?.toString().trim() ?? "",
+        address: formData.get("address")?.toString().trim() ?? "",
         inquiryType,
         selectedEventIds,
         message: formData.get("message")?.toString().trim() ?? "",
@@ -116,11 +117,7 @@ async function initContactForm(formEl) {
       });
       formEl.reset();
       eventsField.hidden = true;
-      showStatus(
-        formEl,
-        "送信ありがとうございました。受付完了メールを登録いただいたメールアドレスへお送りします。",
-        "success"
-      );
+      window.location.href = "contact-complete.html";
     } catch (error) {
       console.error("[contact-form] 送信エラー", error);
       showStatus(

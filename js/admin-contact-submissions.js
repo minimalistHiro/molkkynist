@@ -257,6 +257,10 @@ function renderDetail(submission, deliveryState) {
         <dd>${escapeHtml(submission.phone || "未入力")}</dd>
       </div>
       <div>
+        <dt>住所</dt>
+        <dd>${escapeHtml(submission.address || "未取得")}</dd>
+      </div>
+      <div>
         <dt>用件区分</dt>
         <dd>${escapeHtml(inquiryLabel(submission.inquiryType))}</dd>
       </div>

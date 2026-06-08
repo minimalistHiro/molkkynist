@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
-    <title>お問い合わせ管理 | Molkkynist</title>
+    <title>イベント参加者一覧 | Molkkynist</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/styles.css">
-    <script type="module" src="../js/admin-contact-submissions.js"></script>
+    <script type="module" src="../js/admin-event-participants.js"></script>
   </head>
   <body class="admin-page">
     <header class="admin-header">
@@ -23,26 +23,27 @@
         <a href="venues.html">開催場所</a>
         <a href="news.html">お知らせ管理</a>
         <a href="event-participants.html">イベント参加者一覧</a>
+        <a href="contact-submissions.html">お問い合わせ管理</a>
         <button class="button button--secondary" type="button" data-admin-logout>ログアウト</button>
       </nav>
     </header>
     <main class="admin-shell">
-      <section class="admin-heading" aria-labelledby="contact-admin-title">
-        <p class="section__label">Contact</p>
-        <h1 id="contact-admin-title">お問い合わせ管理</h1>
-        <p>公開サイトのお問い合わせフォームから届いた内容を確認します。自動返信メールの送信状態はCloud Functions経由で取得します。</p>
+      <section class="admin-heading" aria-labelledby="event-participants-title">
+        <p class="section__label">Participants</p>
+        <h1 id="event-participants-title">イベント参加者一覧</h1>
+        <p>開催予定イベントごとに、参加希望フォームから届いた参加者情報を確認します。</p>
         <p class="form-status" data-admin-status hidden></p>
       </section>
 
-      <section class="admin-layout admin-layout--contact" aria-label="お問い合わせ管理エリア">
+      <section class="admin-layout admin-layout--participants" aria-label="イベント参加者管理エリア">
         <div class="admin-card">
-          <h2>送信一覧</h2>
-          <div class="admin-contact-list" data-admin-contact-list>
-            <p class="admin-empty">お問い合わせを読み込んでいます。</p>
-          </div>
+          <h2>開催予定イベント</h2>
+          <p>カードを選択すると、そのイベントの参加希望者を表示します。</p>
+          <p class="schedule-events__status" data-admin-participants-events-status>開催予定イベントを読み込んでいます…</p>
+          <ul class="venue-list admin-participant-event-list" data-admin-participant-events aria-label="開催予定イベント一覧"></ul>
         </div>
-        <article class="admin-card admin-contact-detail" data-admin-contact-detail>
-          <p class="admin-empty">左の一覧からお問い合わせを選択してください。</p>
+        <article class="admin-card admin-participant-detail" data-admin-participant-detail>
+          <p class="admin-empty">左のイベントを選択してください。</p>
         </article>
       </section>
     </main>

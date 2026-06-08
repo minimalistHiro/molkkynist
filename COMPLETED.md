@@ -13,6 +13,15 @@
 
 ---
 
+## 2026-06-08
+
+| ID | 区分 | 対象 | 内容 | 備考 |
+|----|------|------|------|------|
+| D-16 | 独自対応 | 管理画面 / Firestore | イベント参加者一覧管理画面を追加 | `contact.html` に任意の住所欄を追加し、`js/contact-form.js` と `firestore.rules` で `contactSubmissions.address` の保存を許可。`js/admin-contact-submissions.js` の詳細表示にも住所を追加した。新規 `admin/event-participants.html` / `js/admin-event-participants.js` では、開催予定イベントをカード形式で表示し、`contactSubmissions` の参加希望データからイベント別の参加人数と参加者一覧（名前・メール・電話・住所・一言・対応ステータス）を表示する。管理ダッシュボードと各管理画面ナビゲーションにも「イベント参加者一覧」導線を追加し、`css/styles.css` に専用レイアウトを追加。 |
+| D-15 | 独自対応 | HTML / JavaScript / CSS | お問い合わせフォーム送信完了ページを追加 | `contact-complete.html` を追加し、フォーム送信成功後に `js/contact-form.js` から遷移する構成へ変更。完了ページには送信完了、受付完了メール送信、3営業日以内を目安に返信する旨、公式Instagram DM補足を記載。`css/styles.css` に完了ページ用のカード・余白・ボタン配置スタイルを追加し、`SITE_STRUCTURE.md` / `CONTENT_GUIDELINES.md` / 実装設計書を同期。 |
+
+---
+
 ## 2026-06-07
 
 | ID | 区分 | 対象 | 内容 | 備考 |

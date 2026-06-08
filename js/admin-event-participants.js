@@ -12,11 +12,10 @@ import {
 const WEEKDAY_LABELS = ["日", "月", "火", "水", "木", "金", "土"];
 
 const eventsListEl = document.querySelector("[data-admin-participant-events]");
-const detailEl = document.querySelector("[data-admin-participant-detail]");
 const eventsStatusEl = document.querySelector("[data-admin-participants-events-status]");
 const statusEl = document.querySelector("[data-admin-status]");
 
-if (eventsListEl && detailEl) {
+if (eventsListEl) {
   initEventParticipantsPage().catch((error) => {
     console.error("[admin-event-participants] 初期化に失敗しました", error);
     showAdminStatus(statusEl, "イベント参加者一覧の初期化に失敗しました。", "error");
@@ -47,16 +46,10 @@ async function initEventParticipantsPage() {
   let events = [];
   let venues = [];
   let submissions = [];
-  let selectedEventId = null;
 
   function renderCurrentState() {
-    if (!selectedEventId && events.length) {
-      selectedEventId = events[0].id;
-    }
-
     const venuesById = new Map(venues.map((venue) => [venue.id, venue]));
-    renderEvents(events, venuesById, submissions, selectedEventId);
-    renderParticipants(getSelectedEvent(events, selectedEventId), venuesById, submissions);
+    renderEvents(events, venuesById, submissions);
   }
 
   onSnapshot(
@@ -70,11 +63,6 @@ async function initEventParticipantsPage() {
       events = snapshot.docs
         .map((eventDoc) => normalizeEvent(eventDoc.id, eventDoc.data()))
         .filter(Boolean);
-
-      if (selectedEventId && !events.some((eventItem) => eventItem.id === selectedEventId)) {
-        selectedEventId = null;
-      }
-
       setEventsStatus(events.length ? "" : "開催予定イベントはありません。");
       renderCurrentState();
     },
@@ -102,8 +90,7 @@ async function initEventParticipantsPage() {
     (snapshot) => {
       submissions = snapshot.docs
         .map((submissionDoc) => normalizeSubmission(submissionDoc.id, submissionDoc.data()))
-        .filter(Boolean)
-        .sort((a, b) => compareCreatedAtDesc(a.createdAt, b.createdAt));
+        .filter(Boolean);
       renderCurrentState();
     },
     (error) => {
@@ -111,16 +98,9 @@ async function initEventParticipantsPage() {
       showAdminStatus(statusEl, "参加希望データの取得に失敗しました。", "error");
     },
   );
-
-  eventsListEl.addEventListener("click", (event) => {
-    const button = event.target.closest("[data-admin-participant-event-id]");
-    if (!button) return;
-    selectedEventId = button.dataset.adminParticipantEventId;
-    renderCurrentState();
-  });
 }
 
-function renderEvents(events, venuesById, submissions, selectedEventId) {
+function renderEvents(events, venuesById, submissions) {
   eventsListEl.innerHTML = "";
 
   if (!events.length) {
@@ -134,13 +114,14 @@ function renderEvents(events, venuesById, submissions, selectedEventId) {
     const li = document.createElement("li");
     li.className = "admin-participant-event-item";
 
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = `venue-card schedule-event-card admin-participant-event-card${
-      eventItem.id === selectedEventId ? " is-active" : ""
-    }`;
-    button.dataset.adminParticipantEventId = eventItem.id;
-    button.innerHTML = `
+    const link = document.createElement("a");
+    link.className = "venue-card schedule-event-card admin-participant-event-card";
+    link.href = `event-participants-detail.html?eventId=${encodeURIComponent(eventItem.id)}`;
+    link.setAttribute(
+      "aria-label",
+      `${formatDate(eventItem.date)} ${venue?.name || eventItem.locationName || "開催場所未定"}の参加者一覧を見る`,
+    );
+    link.innerHTML = `
       <span class="venue-card__visual schedule-event-card__visual admin-participant-event-card__visual" aria-hidden="true">
         ${venue?.imageUrl ? `<img class="schedule-event-card__image" src="${escapeHtml(venue.imageUrl)}" alt="" loading="lazy" decoding="async">` : ""}
       </span>
@@ -158,73 +139,14 @@ function renderEvents(events, venuesById, submissions, selectedEventId) {
           <span class="schedule-event-card__details">
             ${eventDetailsHtml(eventItem, venue)}
           </span>
+          <span class="admin-participant-event-card__action">参加者一覧を見る</span>
         </span>
       </span>
     `;
 
-    li.appendChild(button);
+    li.appendChild(link);
     eventsListEl.appendChild(li);
   });
-}
-
-function renderParticipants(eventItem, venuesById, submissions) {
-  if (!eventItem) {
-    detailEl.innerHTML = '<p class="admin-empty">左のイベントを選択してください。</p>';
-    return;
-  }
-
-  const venue = venuesById.get(eventItem.venueId);
-  const participants = participantsForEvent(submissions, eventItem.id);
-
-  detailEl.innerHTML = `
-    <div class="admin-detail-heading">
-      <div>
-        <p class="admin-item-meta">${escapeHtml(formatDate(eventItem.date))}</p>
-        <h2>${escapeHtml(venue?.name || eventItem.locationName || "開催場所未定")}</h2>
-        <p>${escapeHtml(buildEventSummary(eventItem, venue))}</p>
-      </div>
-      <span class="status-chip">${participants.length}名</span>
-    </div>
-    <div class="admin-participant-list" data-admin-participant-list>
-      ${
-        participants.length
-          ? participants.map((participant) => participantHtml(participant)).join("")
-          : '<p class="admin-empty">このイベントの参加希望者はまだいません。</p>'
-      }
-    </div>
-  `;
-}
-
-function participantHtml(participant) {
-  return `
-    <article class="admin-participant-item">
-      <div class="admin-participant-item__heading">
-        <div>
-          <p class="admin-item-meta">${escapeHtml(formatDateTime(participant.createdAt))}</p>
-          <h3>${escapeHtml(participant.name || "名前未入力")}</h3>
-        </div>
-        <span class="status-chip">${escapeHtml(responseStatusLabel(participant.responseStatus))}</span>
-      </div>
-      <dl class="admin-detail-list admin-detail-list--compact">
-        <div>
-          <dt>メールアドレス</dt>
-          <dd>${escapeHtml(participant.email || "未入力")}</dd>
-        </div>
-        <div>
-          <dt>電話番号</dt>
-          <dd>${escapeHtml(participant.phone || "未入力")}</dd>
-        </div>
-        <div>
-          <dt>住所</dt>
-          <dd>${escapeHtml(participant.address || "未取得")}</dd>
-        </div>
-        <div>
-          <dt>一言・ご質問</dt>
-          <dd><pre class="admin-message">${escapeHtml(participant.message || "記載はありません。")}</pre></dd>
-        </div>
-      </dl>
-    </article>
-  `;
 }
 
 function normalizeEvent(id, data = {}) {
@@ -264,20 +186,8 @@ function normalizeSubmission(id, data = {}) {
 
   return {
     id,
-    name: stringValue(data.name),
-    email: stringValue(data.email),
-    phone: stringValue(data.phone),
-    address: stringValue(data.address),
-    message: stringValue(data.message),
-    responseStatus: stringValue(data.responseStatus),
     selectedEventIds,
-    createdAt: data.createdAt,
   };
-}
-
-function getSelectedEvent(events, selectedEventId) {
-  if (!events.length) return null;
-  return events.find((eventItem) => eventItem.id === selectedEventId) || events[0];
 }
 
 function participantsForEvent(submissions, eventId) {
@@ -291,13 +201,6 @@ function eventDetailsHtml(eventItem, venue) {
   const parts = [address, note, fee].filter(Boolean);
   if (!parts.length) return "会場情報は確定次第掲載します。";
   return parts.map((part) => `<span>${escapeHtml(part)}</span>`).join("");
-}
-
-function buildEventSummary(eventItem, venue) {
-  const parts = [buildDateTimeLabel(eventItem).replace(/\n/g, " / ")];
-  if (venue?.address) parts.push(venue.address);
-  if (eventItem.fee) parts.push(`参加費: ${eventItem.fee}`);
-  return parts.filter(Boolean).join(" / ");
 }
 
 function chipHtml(label) {
@@ -317,29 +220,6 @@ function formatDate(date) {
   }）`;
 }
 
-function formatDateTime(value) {
-  if (!value) return "申込日時未取得";
-  try {
-    const date = typeof value.toDate === "function" ? value.toDate() : new Date(value);
-    if (Number.isNaN(date.getTime())) return "申込日時未取得";
-    return new Intl.DateTimeFormat("ja-JP", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(date);
-  } catch (_error) {
-    return "申込日時未取得";
-  }
-}
-
-function compareCreatedAtDesc(a, b) {
-  const dateA = normalizeDate(a)?.getTime() ?? 0;
-  const dateB = normalizeDate(b)?.getTime() ?? 0;
-  return dateB - dateA;
-}
-
 function normalizeDate(value) {
   if (!value) return null;
   const date = typeof value.toDate === "function" ? value.toDate() : new Date(value);
@@ -355,15 +235,6 @@ function formatTimeRange(startTime, endTime) {
 
 function venueTypeLabel(value) {
   return value === "indoor" ? "屋内会場" : "屋外会場";
-}
-
-function responseStatusLabel(value) {
-  const labels = {
-    unhandled: "未対応",
-    in_progress: "対応中",
-    done: "対応済み",
-  };
-  return labels[value] || "未対応";
 }
 
 function stringValue(value) {

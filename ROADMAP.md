@@ -46,7 +46,7 @@ Molkkynist のサイトは、最初から全機能を作り込まず、公開に
 - 2026年6月6日に R-10 を確定し、D-12（メンバー管理）を実装。`admin/members.html` と `js/admin-members.js` を追加し、Firestore `members` の追加・編集・公開切替・表示順管理に対応した。
 - 2026年6月7日に管理画面の画像管理方針を Cloud Storage for Firebase へ統一。お知らせ / 開催場所では画像URLの手入力欄を廃止し、スマホやPCで選択した JPEG / PNG / WebP（5MB以下）を `news/` / `venues/` 配下へアップロードして、取得したURLを Firestore の `imageUrl` に保存する。活動レポート画像は `reports/` 配下で同じ共通処理を使う予定。
 - 2026年6月7日にメンバー情報を Firestore / Storage / 管理画面から外し、ローカル管理へ移行。`admin/members.html` と `js/admin-members.js` を削除し、トップページ `#members` と `member.html?id=xxx` は `js/member-data.js` のローカルデータを正本として表示する。新規メンバー追加時は `local-member-create` スキルで必要項目をヒアリングしてから反映する。
-- 2026年6月8日に D-16（イベント参加者一覧管理画面）を実装。`contact.html` に任意の住所欄を追加し、`contactSubmissions.address` として保存する構成へ変更。`admin/event-participants.html` と `js/admin-event-participants.js` を追加し、開催予定イベントごとの参加人数と参加希望者一覧を `contactSubmissions` から集計表示できるようにした。Hosting / Firestore Rules は本番デプロイ済み。
+- 2026年6月8日に D-16（イベント参加者一覧管理画面）を実装。`admin/event-participants.html` と `js/admin-event-participants.js` を追加し、開催予定イベントごとの参加人数を `contactSubmissions` から集計表示できるようにした。2026年6月8日の追加対応で `admin/event-participants-detail.html` と `js/admin-event-participants-detail.js` を追加し、イベントカードから詳細ページへ遷移して、参加者名のみの一覧と開閉式の参加者詳細を表示する構成へ変更した。
 - 2026年6月7日に `member.html` の各メンバー詳細画面から「メンバー一覧へ戻る」ボタンを撤去。トップページ `#members` への導線はヘッダー・フッターの「メンバー」リンクで維持する。
 - 2026年5月24日に `index.html` 旧 `#reports`（活動レポート）セクションを `#activity`（活動の様子）として刷新。横スライドのカルーセル UI を撤去し、正方形写真を 3×3 グリッドで並べる新 `.activity-grid` 構造に置き換え。9 枚の画像は `assets/images/activity/activity-01.jpg` 〜 `activity-09.jpg` を参照し、画像未配置時は黄色〜緑系の淡いグラデーションでプレースホルダー表示する。英字ラベルは `Activity Reports` → `Activity`、見出しは「活動レポート」→「活動の様子」、リード文と CTA「活動レポートを見る」（リンク先は `reports.html`）を整備。全公開ページのヘッダーナビゲーションのリンクを `index.html#reports / 活動レポート` から `index.html#activity / 活動の様子` に更新。既存の `report-carousel` 系 CSS と `js/report-carousel.js` は `#news` セクションで継続使用するため残置。
 - 2026年5月24日に公開サイトのメンバー一覧専用ページ `members.html` を廃止。一覧表示はトップページ `#members` セクションに一本化し、`index.html` から「メンバー紹介へ」ボタンと `section-heading--with-link` 装飾を撤去。全公開ページのフッター「メンバー」リンクと `member.html` の「メンバー一覧へ戻る」ボタンの参照先を `index.html#members` に変更。個別メンバー詳細テンプレート `member.html?id=xxx` は存続し、2026年6月7日以降は `js/member-data.js` のローカルデータを表示する。
@@ -144,7 +144,7 @@ Molkkynist のサイトは、最初から全機能を作り込まず、公開に
 - 活動レポート管理機能
 - お知らせ管理機能（`admin/news.html` / Firestore `news` コレクション）
 - 画像アップロード機能
-- お問い合わせ管理機能（`contactSubmissions` の一覧・詳細表示、`mail` の `delivery.state` 確認）
+- お問い合わせ管理機能（参加希望以外の `contactSubmissions` の一覧・詳細表示、`mail` の `delivery.state` 確認）
 - イベント参加者一覧機能（開催予定イベントごとの参加人数・参加希望者情報の確認）
 
 成果物:
@@ -165,7 +165,7 @@ Molkkynist のサイトは、最初から全機能を作り込まず、公開に
 - Firestore は `asia-northeast1`（東京）で再作成済み。Cloud Functions は `sendAutoReplyOnContactCreate` と `getMailDeliveryStates` を `asia-northeast1` にデプロイ済み。2026年5月22日に自動返信メールを Gmail SMTP 直送方式へ変更。2026年6月5日に送信用Gmail `molkkynist@gmail.com`、App Password、SMTP Secret 設定を反映し、フォーム相当のテスト送信で自動返信メール送信成功を確認済み。2026年6月5日に B-1 として Cloud Functions 実行サービスアカウントへ `roles/datastore.user` を付与し、`mail` コレクションへの送信状態記録に必要なFirestore権限も設定済み。Authentication の石井さん用ユーザー作成と管理者UID反映は残作業。
 - 2026年6月5日に D-8 として、本番管理画面の先行確認を実施。あなたのアカウントで `admin/events.html` と `admin/contact-submissions.html` にログインできること、イベント作成・編集・公開ON/OFF、問い合わせ一覧・詳細閲覧、自動返信メール送信状態の取得を確認済み。`getMailDeliveryStates` はブラウザから呼び出せるよう、Cloud Run サービス `getmaildeliverystates` に `allUsers` の `roles/run.invoker` を付与し、関数内部のFirebase管理者UID判定で制御する構成にした。確認用テストイベントは削除済み。
 - 2026年6月7日に開催場所管理 `admin/venues.html` と `js/admin-venues.js` を追加。イベント管理 `admin/events.html` は開催場所を `venues` から選択する形式へ変更し、イベントの公開判定は公開フラグではなく `status == "scheduled"` を基準にした。
-- 2026年6月8日にイベント参加者一覧 `admin/event-participants.html` と `js/admin-event-participants.js` を追加。`contactSubmissions.inquiryType == "participate"` と `selectedEventIds` をもとに、イベントカード単位で参加人数と参加者情報を表示する。住所は `contactSubmissions.address` として保存し、既存データは未取得表示にする。
+- 2026年6月8日にイベント参加者一覧 `admin/event-participants.html` と `js/admin-event-participants.js` を追加。`contactSubmissions.inquiryType == "participate"` と `selectedEventIds` をもとに、イベントカード単位で参加人数を表示する。同日の追加対応で `admin/event-participants-detail.html` と `js/admin-event-participants-detail.js` を追加し、詳細ページで参加者名のみを初期表示、開閉時にメールアドレス・電話番号・一言・申込日時・対応ステータスを表示する。参加希望はお問い合わせ管理画面では非表示にし、イベント参加者一覧側で扱う。
 - 活動レポート管理、サイト基本設定は未実装。メンバー管理は 2026年6月7日に管理画面・Firestore方式を廃止し、ローカルデータ管理へ移行済み。お知らせ / 開催場所画像のStorageアップロードは2026年6月7日にローカル実装済みで、Storage Rules のデプロイと本番アップロード確認が残る。
 
 ## 第6段階: 公開前確認

@@ -39,16 +39,20 @@
 - `admin/news.html`
   - お知らせ記事の追加・編集
   - 公開 / 非公開の切り替え
-  - 配信日、本文、カード画像アップロード、プレースホルダー色の編集
+  - 配信日、本文、カード画像アップロードの編集
 - `admin/contact-submissions.html`
-  - `contactSubmissions` の送信日時降順一覧
+  - `contactSubmissions` のうち `inquiryType != "participate"` の送信日時降順一覧
   - 送信内容の詳細表示
   - 送信内容の削除
   - Cloud Functions callable `getMailDeliveryStates` 経由で自動返信メールの送信状態を表示
+  - 参加希望のお問い合わせは非表示にし、イベント参加者一覧で管理
 - `admin/event-participants.html`
   - 開催予定イベントをカード形式で一覧表示
   - 各イベントカードに参加人数を表示
-  - 選択したイベントに紐づく参加希望者の名前・メールアドレス・電話番号・住所・一言を表示
+  - 各イベントカードから `admin/event-participants-detail.html?eventId=...` へ遷移
+- `admin/event-participants-detail.html`
+  - 選択したイベントに紐づく参加希望者をユーザー名のみのリストで表示
+  - 各ユーザー名の右側のくの字型ボタンを開くと、メールアドレス・電話番号・一言・申込日時・対応ステータスを表示
   - 参加者情報は `contactSubmissions` の `inquiryType == "participate"` と `selectedEventIds` から集計する
 
 未実装の管理画面:
@@ -92,7 +96,7 @@ admin/index.html
 - 活動レポート管理
 - サイト基本設定
 - イベント参加者一覧（イベント別の参加人数・参加希望者情報の閲覧）
-- お問い合わせ管理（送信内容の閲覧・自動返信メールの送信状況確認）
+- お問い合わせ管理（参加希望以外の送信内容の閲覧・自動返信メールの送信状況確認）
 
 ## イベント管理要件
 
@@ -191,6 +195,7 @@ admin/news.html
 
 - 2026年6月5日に `admin/news.html` と Firestore `news` コレクション連携を実装済み。公開サイト側はトップページ `#news` カルーセルと共通テンプレート `news.html?id=xxx` で公開済み記事を表示し、Firestore未登録・取得失敗時は初期ダミーデータ4件をフォールバック表示する。
 - 2026年6月7日に画像URL手入力を廃止し、Cloud Storage for Firebase へのカード画像アップロード方式へ統一。
+- 2026年6月8日に、管理画面の「プレースホルダー色」入力を削除。画像未設定時は標準プレースホルダーを使う。
 
 ## 活動レポート管理要件
 
@@ -275,8 +280,10 @@ admin/contact-submissions.html
 できること:
 
 - 公開サイトのお問い合わせフォーム経由で `contactSubmissions` に保存された送信内容を一覧表示する
+- `inquiryType == "participate"` の参加希望はこの画面では非表示にする
+- 参加希望以外の用件（イベント問い合わせ / メディア取材 / その他）のみを表示対象にする
 - 送信日時の降順で並べる
-- 1件ずつ詳細（名前 / メール / 電話 / 住所 / 用件区分 / 参加希望日程 / 本文）を確認できる
+- 1件ずつ詳細（名前 / メール / 電話 / 用件区分 / 本文）を確認できる
 - 各送信に対する自動返信メール（`mail` コレクション）の `delivery.state`（`SUCCESS` / `ERROR` / `PROCESSING` 等）と、エラー時のメッセージを表示する
 - 手動で対応ステータス（未対応・対応中・対応済み）と対応メモを保存できる
 - 不要になった送信内容を削除できる
@@ -289,6 +296,7 @@ admin/contact-submissions.html
 備考:
 
 - 2026年6月6日に D-9 として、`admin/contact-submissions.html` の詳細欄へ対応ステータスと対応メモの保存フォームを追加。保存先は `contactSubmissions.responseStatus` / `responseMemo` / `responseUpdatedAt` / `responseUpdatedBy`。
+- 2026年6月8日に、参加希望のお問い合わせは `admin/contact-submissions.html` では非表示にし、`admin/event-participants.html` / `admin/event-participants-detail.html` 側でイベントごとに確認する方針へ整理。
 - 自動返信メールの文面（件名・本文・HTML）は管理画面では編集しない。コード `functions/index.js` の `renderTextBody()` / `renderHtmlBody()` で管理する。文面方針は `CONTENT_GUIDELINES.md`「自動返信メール文面」を参照。
 - DM 経由のお問い合わせはこの画面には記録されない（Instagram 側で完結）。受領通知の運用は R-8 で検討中。
 - セキュリティルール (`firestore.rules`) で `contactSubmissions` は管理者のみ read/update/delete 可。`mail` コレクションは管理画面からも参照不可（Cloud Functions の Admin SDK のみアクセス）。送信状況の表示はサーバーサイド経由（Cloud Functions の callable 関数等）で実装する想定。
@@ -303,14 +311,16 @@ admin/contact-submissions.html
 
 ```text
 admin/event-participants.html
+admin/event-participants-detail.html
 ```
 
 できること:
 
 - 今後開催予定のイベントをカード形式で確認する
 - 各イベントカードで参加人数を確認する
-- イベントカードを選択し、そのイベントの参加希望者一覧を確認する
-- 参加者の名前、メールアドレス、電話番号、住所、一言・質問、対応ステータスを確認する
+- イベントカードを選択し、そのイベント専用の参加希望者一覧ページへ遷移する
+- 参加者一覧ページでは、初期表示でユーザー名のみを確認する
+- ユーザー名右側のくの字型ボタンを開き、メールアドレス、電話番号、一言・質問、申込日時、対応ステータスを確認する
 
 表示対象:
 
@@ -320,8 +330,8 @@ admin/event-participants.html
 備考:
 
 - 参加者情報の正本は `contactSubmissions` とする。初期実装では `eventParticipants` 専用コレクションは作成しない。
-- 住所は `contactSubmissions.address` を表示する。既存送信データなど住所未取得の場合は「未取得」と表示する。
-- この画面では参加者データの削除・対応メモ編集は行わない。削除や対応状況の編集が必要な場合は、お問い合わせ管理画面で対応する。
+- 住所は参加希望者一覧の表示対象にしない。過去の送信データに `contactSubmissions.address` が残っている場合も、この画面では表示しない。
+- 参加希望データはお問い合わせ管理画面には表示しない。参加希望に関する確認は、この画面とイベント参加者詳細画面で行う。
 
 ## サイト基本設定要件
 

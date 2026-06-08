@@ -84,12 +84,18 @@ exports.sendAutoReplyOnContactCreate = onDocumentCreated(
     const inquiryType = submission.inquiryType ?? "other";
     const inquiryLabel = INQUIRY_TYPE_LABELS[inquiryType] ?? "お問い合わせ";
     const message = (submission.message ?? "").trim();
+    const isParticipation = inquiryType === "participate";
+    const eventDetails = await buildSelectedEventDetails(submission);
 
-    const scheduleLines = await buildScheduleLines(submission);
-
-    const subject = "【Molkkynist】お問い合わせを受け付けました";
-    const text = renderTextBody({ name, inquiryLabel, scheduleLines, message });
-    const html = renderHtmlBody({ name, inquiryLabel, scheduleLines, message });
+    const subject = isParticipation
+      ? "【Molkkynist】参加希望を受け付けました"
+      : "【Molkkynist】お問い合わせを受け付けました";
+    const text = isParticipation
+      ? renderParticipationTextBody({ name, eventDetails, message })
+      : renderTextBody({ name, inquiryLabel, scheduleLines: [], message });
+    const html = isParticipation
+      ? renderParticipationHtmlBody({ name, eventDetails, message })
+      : renderHtmlBody({ name, inquiryLabel, scheduleLines: [], message });
     const db = getFirestore();
     const mailRef = db.collection("mail").doc();
 
@@ -215,13 +221,13 @@ exports.getMailDeliveryStates = onCall(async (request) => {
 // 補助関数
 // ---------------------------------------------------------------------------
 
-async function buildScheduleLines(submission) {
+async function buildSelectedEventDetails(submission) {
   if (submission.inquiryType !== "participate") return [];
   const ids = Array.isArray(submission.selectedEventIds) ? submission.selectedEventIds : [];
   if (ids.length === 0) return [];
 
   const db = getFirestore();
-  const snaps = await Promise.all(
+  const eventSnaps = await Promise.all(
     ids.map((id) =>
       db
         .collection("events")
@@ -234,14 +240,47 @@ async function buildScheduleLines(submission) {
     )
   );
 
-  return snaps
-    .filter((doc) => doc && doc.exists)
-    .map((doc) => {
+  return Promise.all(
+    eventSnaps.filter((doc) => doc && doc.exists).map(async (doc) => {
       const data = doc.data() ?? {};
-      const dateStr = formatEventDate(data.eventDate);
-      const parts = [dateStr, data.title, data.locationName].filter(Boolean);
-      return parts.join(" / ");
+      const venueId = stringValue(data.venueId);
+      const venueData = venueId ? await fetchVenueData(db, venueId) : null;
+      return normalizeAutoReplyEvent(doc.id, data, venueData);
+    })
+  );
+}
+
+async function fetchVenueData(db, venueId) {
+  try {
+    const snap = await db.collection("venues").doc(venueId).get();
+    return snap.exists ? snap.data() ?? {} : null;
+  } catch (err) {
+    logger.warn("[autoReply] venues 取得に失敗", {
+      venueId,
+      err: err instanceof Error ? err.message : String(err),
     });
+    return null;
+  }
+}
+
+function normalizeAutoReplyEvent(id, eventData, venueData) {
+  return {
+    id,
+    date: formatEventDate(eventData.eventDate),
+    time: formatTimeRange(eventData.startTime, eventData.endTime),
+    meetingTime: firstString(
+      eventData.meetingTime,
+      eventData.gatheringTime,
+      eventData.assemblyTime
+    ),
+    venueName: firstString(venueData?.name, eventData.locationName) || "開催場所未定",
+    venueAddress: firstString(venueData?.address, eventData.locationAddress),
+    mapUrl: firstString(venueData?.mapUrl, eventData.mapUrl),
+    accessNote: firstString(venueData?.accessNote, eventData.accessNote),
+    venueNote: firstString(venueData?.note, eventData.locationNote),
+    fee: stringValue(eventData.fee),
+    rainPolicy: stringValue(eventData.rainPolicy),
+  };
 }
 
 async function safeMailSet(mailRef, data, options) {
@@ -285,6 +324,21 @@ function formatEventDate(value) {
   } catch (_err) {
     return "日程未定";
   }
+}
+
+function formatTimeRange(startTime, endTime) {
+  const start = stringValue(startTime);
+  const end = stringValue(endTime);
+  if (start && end) return `${start}〜${end}`;
+  return start || end || "";
+}
+
+function firstString(...values) {
+  return values.map((value) => stringValue(value)).find(Boolean) || "";
+}
+
+function stringValue(value) {
+  return typeof value === "string" ? value.trim() : "";
 }
 
 function assertAdmin(request) {
@@ -424,6 +478,150 @@ function renderHtmlBody({ name, inquiryLabel, scheduleLines, message }) {
     </p>
   </body>
 </html>`;
+}
+
+function renderParticipationTextBody({ name, eventDetails, message }) {
+  const eventBlock =
+    eventDetails.length > 0
+      ? eventDetails
+          .map((eventItem, index) =>
+            formatParticipationEventText(eventItem, index, eventDetails.length)
+          )
+          .join("\n\n")
+      : "（選択されたイベント情報を確認中です。フォームで選択いただいた内容は受け付けています。）";
+
+  const messageBlock = message
+    ? `\n■ 送信いただいた内容\n${message}\n`
+    : "\n■ 送信いただいた内容\n（本文の記載はありませんでした）\n";
+
+  return `${name} 様
+
+このたびは Molkkynist のイベントへお申し込みいただきありがとうございます。
+以下の内容で参加希望を受け付けました。
+
+このメールをもって受付完了となります。
+通常、主催者からの個別返信は行っておりませんので、当日は以下の内容をご確認のうえ、集合場所までお越しください。
+
+■ 参加予定イベント
+${eventBlock}
+${messageBlock}
+内容の変更やキャンセルがある場合は、このメールへの返信、または公式InstagramのDMからご連絡ください。
+
+────────────────────────────────────
+※このメールは自動送信です。このメールへ返信すると、お問い合わせ窓口メールに届きます。
+
+・お問い合わせ窓口メール: ${REPLY_TO_EMAIL}
+・Instagram DM: ${INSTAGRAM_DM_URL}
+────────────────────────────────────
+
+Molkkynist（モルキニスト）
+${SITE_URL}
+`;
+}
+
+function renderParticipationHtmlBody({ name, eventDetails, message }) {
+  const eventsHtml =
+    eventDetails.length > 0
+      ? eventDetails
+          .map((eventItem, index) =>
+            formatParticipationEventHtml(eventItem, index, eventDetails.length)
+          )
+          .join("")
+      : `<p style="margin:0;color:#666;">（選択されたイベント情報を確認中です。フォームで選択いただいた内容は受け付けています。）</p>`;
+
+  const messageHtml = message
+    ? `<pre style="background:#f6f7f5;padding:12px 14px;border-radius:6px;white-space:pre-wrap;font-family:inherit;font-size:14px;margin:0;">${escapeHtml(
+        message
+      )}</pre>`
+    : `<p style="color:#666;margin:0;">（本文の記載はありませんでした）</p>`;
+
+  return `<!DOCTYPE html>
+<html lang="ja">
+  <body style="font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sans-serif;line-height:1.8;color:#222;max-width:560px;margin:0 auto;padding:24px;">
+    <p>${escapeHtml(name)} 様</p>
+    <p>
+      このたびは Molkkynist のイベントへお申し込みいただきありがとうございます。<br>
+      以下の内容で参加希望を受け付けました。
+    </p>
+    <p>
+      このメールをもって受付完了となります。<br>
+      通常、主催者からの個別返信は行っておりませんので、当日は以下の内容をご確認のうえ、集合場所までお越しください。
+    </p>
+    <h3 style="margin:24px 0 8px;border-left:4px solid #3f9d52;padding-left:10px;font-size:15px;">参加予定イベント</h3>
+    ${eventsHtml}
+    <h3 style="margin:24px 0 8px;border-left:4px solid #3f9d52;padding-left:10px;font-size:15px;">送信いただいた内容</h3>
+    ${messageHtml}
+    <p style="margin:24px 0 0;">
+      内容の変更やキャンセルがある場合は、このメールへの返信、または公式InstagramのDMからご連絡ください。
+    </p>
+    <hr style="border:none;border-top:1px solid #e2e2e2;margin:32px 0 16px;">
+    <p style="font-size:12.5px;color:#666;line-height:1.7;">
+      ※このメールは自動送信です。このメールへ返信すると、お問い合わせ窓口メールに届きます。
+    </p>
+    <ul style="font-size:12.5px;color:#666;padding-left:20px;line-height:1.7;">
+      <li>お問い合わせ窓口メール: <a href="mailto:${escapeHtml(REPLY_TO_EMAIL)}">${escapeHtml(REPLY_TO_EMAIL)}</a></li>
+      <li>Instagram DM: <a href="${escapeHtml(INSTAGRAM_DM_URL)}">${escapeHtml(INSTAGRAM_DM_URL)}</a></li>
+    </ul>
+    <p style="font-size:12.5px;color:#666;margin-top:24px;">
+      Molkkynist（モルキニスト）<br>
+      <a href="${escapeHtml(SITE_URL)}">${escapeHtml(SITE_URL)}</a>
+    </p>
+  </body>
+</html>`;
+}
+
+function formatParticipationEventText(eventItem, index, total) {
+  const lines = [];
+  if (total > 1) lines.push(`【${index + 1}】`);
+  lines.push(`開催日: ${eventItem.date}`);
+  if (eventItem.time) lines.push(`開催時間: ${eventItem.time}`);
+  if (eventItem.meetingTime) lines.push(`集合時刻: ${eventItem.meetingTime}`);
+  lines.push(`会場: ${eventItem.venueName}`);
+  if (eventItem.venueAddress) lines.push(`住所: ${eventItem.venueAddress}`);
+  if (eventItem.accessNote) lines.push(`集合場所・アクセス補足: ${eventItem.accessNote}`);
+  if (eventItem.mapUrl) lines.push(`Googleマップ: ${eventItem.mapUrl}`);
+  if (eventItem.fee) lines.push(`参加費: ${eventItem.fee}`);
+  if (eventItem.rainPolicy) lines.push(`雨天時の対応: ${eventItem.rainPolicy}`);
+  if (eventItem.venueNote) lines.push(`備考: ${eventItem.venueNote}`);
+  return lines.join("\n");
+}
+
+function formatParticipationEventHtml(eventItem, index, total) {
+  const rows = [
+    ["開催日", escapeHtml(eventItem.date)],
+    ["開催時間", escapeHtml(eventItem.time)],
+    ["集合時刻", escapeHtml(eventItem.meetingTime)],
+    ["会場", escapeHtml(eventItem.venueName)],
+    ["住所", escapeHtml(eventItem.venueAddress)],
+    ["集合場所・アクセス補足", escapeHtml(eventItem.accessNote)],
+    [
+      "Googleマップ",
+      eventItem.mapUrl
+        ? `<a href="${escapeHtml(eventItem.mapUrl)}">${escapeHtml(eventItem.mapUrl)}</a>`
+        : "",
+    ],
+    ["参加費", escapeHtml(eventItem.fee)],
+    ["雨天時の対応", escapeHtml(eventItem.rainPolicy)],
+    ["備考", escapeHtml(eventItem.venueNote)],
+  ].filter(([, value]) => value);
+
+  const title = total > 1 ? `<p style="font-weight:700;margin:16px 0 8px;">${index + 1}件目</p>` : "";
+  const rowHtml = rows
+    .map(
+      ([label, value]) => `
+        <tr>
+          <th style="width:34%;text-align:left;vertical-align:top;padding:6px 10px;background:#f6f7f5;border-bottom:1px solid #e7e9e4;font-size:13px;">${escapeHtml(
+            label
+          )}</th>
+          <td style="padding:6px 10px;border-bottom:1px solid #e7e9e4;font-size:13px;">${value}</td>
+        </tr>`
+    )
+    .join("");
+
+  return `${title}
+    <table role="presentation" style="width:100%;border-collapse:collapse;margin:0 0 14px;">
+      <tbody>${rowHtml}</tbody>
+    </table>`;
 }
 
 function escapeHtml(str) {

@@ -78,6 +78,7 @@ admin/events.html
 admin/venues.html
 admin/news.html
 admin/event-participants.html
+admin/event-participants-detail.html
 admin/contact-submissions.html
 admin/reports.html
 ```
@@ -180,11 +181,12 @@ title
 body            # 段落配列または改行区切りの長文
 publishDate     # 表示用の配信日
 imageUrl        # 詳細ページの上部ビジュアル（未指定時はCSSプレースホルダー）
-visualVariant   # プレースホルダー色（未指定 / soft / wood / lime）
 isPublished
 createdAt
 updatedAt
 ```
+
+2026年6月8日に、管理画面でのプレースホルダー色指定を廃止。以後の新規保存では `visualVariant` を保存せず、既存記事を更新した場合も同フィールドを削除する。
 
 ### reports
 
@@ -255,7 +257,6 @@ updatedAt
 name
 email
 phone
-address
 inquiryType   # 参加希望 / イベント問い合わせ / メディア取材 / その他
 selectedEventIds   # 参加希望時のみ、events への参照を配列で保持
 message
@@ -285,9 +286,9 @@ Firebase を使用する画面では JavaScript が必要になります。
 - お問い合わせフォーム送信時に、ユーザーへ受付完了の自動返信メールを送信する（Cloud Functions + `nodemailer` + Gmail SMTP）
 - 管理画面でログイン状態を判定する
 - 管理画面でデータを追加・編集する
-- 管理画面でお問い合わせ送信内容を確認し、自動返信メールの送信状態を Cloud Functions 経由で取得する
+- 管理画面で参加希望以外のお問い合わせ送信内容を確認し、自動返信メールの送信状態を Cloud Functions 経由で取得する
 - 管理画面でお問い合わせの対応ステータスと対応メモを更新する
-- 管理画面で `contactSubmissions` の参加希望データをイベント別に集計し、参加人数と参加者一覧を表示する
+- 管理画面で `contactSubmissions` の参加希望データをイベント別に集計し、イベント一覧ページでは参加人数、詳細ページでは参加者名と開閉式の参加者詳細を表示する
 - Storage に画像をアップロードする
 
 静的な本文やデザインは HTML / CSS を基本にします。
@@ -326,11 +327,15 @@ Firebase コンソールで本番プロジェクトを作成したら、`js/fire
   - Firestore `venues` の追加・編集
   - イベント管理画面で選択する場所名・住所・画像・会場タイプを管理
 - `admin/contact-submissions.html`
-  - Firestore `contactSubmissions` を送信日時降順で一覧・詳細表示
+  - Firestore `contactSubmissions` のうち `inquiryType != "participate"` を送信日時降順で一覧・詳細表示
+  - 参加希望は非表示にし、イベント参加者一覧で扱う
   - 自動返信メールの送信状態は callable Functions 経由で取得
 - `admin/event-participants.html`
   - 開催予定イベントごとに参加人数を表示
-  - `contactSubmissions` の `inquiryType == "participate"` と `selectedEventIds` をもとに、選択イベントの参加者を一覧表示
+  - イベントカードから `eventId` 付きの詳細ページへ遷移
+- `admin/event-participants-detail.html`
+  - `contactSubmissions` の `inquiryType == "participate"` と `selectedEventIds` をもとに、選択イベントの参加者名を一覧表示
+  - 各参加者の詳細情報は開閉式で表示
 
 管理画面用スクリプト:
 
@@ -340,6 +345,7 @@ Firebase コンソールで本番プロジェクトを作成したら、`js/fire
 - `js/admin-venues.js` … 開催場所管理
 - `js/admin-contact-submissions.js` … お問い合わせ管理
 - `js/admin-event-participants.js` … イベント参加者一覧
+- `js/admin-event-participants-detail.js` … イベント参加者詳細
 
 `js/firebase-config.js` には `adminConfig.adminUids` を追加しています。
 2026年6月5日時点では、あなたのUID `PvM8qIBG1ETC2Y7qM3PFj1i2ASk2` を先行登録済みです。石井さんのFirebase Authentication UID確定後に配列へ追加してください。
@@ -357,7 +363,7 @@ Firebase コンソールで本番プロジェクトを作成したら、`js/fire
   - `contactSubmissions/{id}` に紐づく `mail.delivery.state` を返す
   - 管理者判定は Functions 環境変数 `ADMIN_UIDS`（カンマ区切り）または互換用 `ADMIN_UID` と `request.auth.uid` の一致で行う
 
-メール本文（テキスト/HTML）と件名は `functions/index.js` 内で生成しており、文面方針は `CONTENT_GUIDELINES.md`「自動返信メール文面」に記載しています。
+メール本文（テキスト/HTML）と件名は `functions/index.js` 内で生成しており、文面方針は `CONTENT_GUIDELINES.md`「自動返信メール文面」に記載しています。参加希望の場合は通常のお問い合わせ文面とは分岐し、`events` の開催日・時間・参加費・雨天時対応と、`venueId` から参照した `venues` の会場名・住所・GoogleマップURL・アクセス補足・備考を自動返信メールへ差し込みます。
 
 ### SMTP Secret
 

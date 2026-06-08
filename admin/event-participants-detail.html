@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
-    <title>イベント参加者一覧 | Molkkynist</title>
+    <title>イベント参加者詳細 | Molkkynist</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/styles.css">
-    <script type="module" src="../js/admin-event-participants.js"></script>
+    <script type="module" src="../js/admin-event-participants-detail.js"></script>
   </head>
   <body class="admin-page">
     <header class="admin-header">
@@ -28,18 +28,23 @@
       </nav>
     </header>
     <main class="admin-shell">
-      <section class="admin-heading" aria-labelledby="event-participants-title">
+      <section class="admin-heading" aria-labelledby="event-participants-detail-title">
         <p class="section__label">Participants</p>
-        <h1 id="event-participants-title">イベント参加者一覧</h1>
-        <p>開催予定イベントごとに、参加希望フォームから届いた参加者情報を確認します。</p>
+        <h1 id="event-participants-detail-title">イベント参加者詳細</h1>
+        <p>参加者名を選択すると、連絡先や一言を確認できます。</p>
         <p class="form-status" data-admin-status hidden></p>
       </section>
 
-      <section class="admin-card admin-card--event-participants" aria-labelledby="upcoming-events-title">
-        <h2 id="upcoming-events-title">開催予定イベント</h2>
-        <p>カードを選択すると、そのイベントの参加希望者一覧ページへ移動します。</p>
-        <p class="schedule-events__status" data-admin-participants-events-status>開催予定イベントを読み込んでいます…</p>
-        <ul class="venue-list admin-participant-event-list" data-admin-participant-events aria-label="開催予定イベント一覧"></ul>
+      <section class="admin-card admin-participant-detail-page" aria-label="イベント参加者詳細エリア">
+        <div class="admin-participant-detail-summary" data-admin-participant-event-summary>
+          <p class="admin-empty">イベント情報を読み込んでいます。</p>
+        </div>
+        <div class="admin-participant-list admin-participant-list--accordion" data-admin-participant-list>
+          <p class="admin-empty">参加希望者を読み込んでいます。</p>
+        </div>
+        <div class="form-actions admin-actions">
+          <a class="button button--secondary" href="event-participants.html">イベント一覧へ戻る</a>
+        </div>
       </section>
     </main>
   </body>

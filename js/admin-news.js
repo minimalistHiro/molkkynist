@@ -50,6 +50,7 @@ async function initNewsPage() {
     setDoc,
     updateDoc,
     deleteDoc,
+    deleteField,
     serverTimestamp,
     Timestamp,
   } = firestore;
@@ -149,6 +150,7 @@ async function initNewsPage() {
       if (editingId) {
         await updateDoc(newsDocRef, {
           ...payload,
+          visualVariant: deleteField(),
           updatedAt: serverTimestamp(),
         });
       } else {
@@ -185,7 +187,6 @@ function buildNewsPayload(formData, Timestamp) {
     body: formData.get("body")?.toString().trim() ?? "",
     publishDate,
     imageUrl: "",
-    visualVariant: formData.get("visualVariant")?.toString() ?? "",
     isPublished: formData.get("isPublished") === "on",
   };
 }
@@ -229,7 +230,6 @@ function fillForm(item) {
   form.elements.title.value = item.title || "";
   form.elements.body.value = item.body || "";
   form.elements.publishDate.value = toDateInputValue(item.publishDate);
-  form.elements.visualVariant.value = item.visualVariant || "";
   form.elements.isPublished.checked = Boolean(item.isPublished);
 }
 

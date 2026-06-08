@@ -1,5 +1,6 @@
 // お問い合わせ管理画面。
-// contactSubmissions はFirestoreから読み、mail.delivery はCloud Functions callable経由で取得する。
+// contactSubmissions はFirestoreから読み、参加希望以外の問い合わせだけを管理対象にする。
+// mail.delivery はCloud Functions callable経由で取得する。
 
 import {
   FIREBASE_SDK_VERSION,
@@ -41,7 +42,6 @@ async function initContactSubmissionsPage() {
     query,
     orderBy,
     onSnapshot,
-    limit,
     updateDoc,
     deleteDoc,
     serverTimestamp,
@@ -68,9 +68,11 @@ async function initContactSubmissionsPage() {
   }
 
   onSnapshot(
-    query(collection(db, "contactSubmissions"), orderBy("createdAt", "desc"), limit(100)),
+    query(collection(db, "contactSubmissions"), orderBy("createdAt", "desc")),
     async (snapshot) => {
-      submissions = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      submissions = snapshot.docs
+        .map((doc) => ({ id: doc.id, ...doc.data() }))
+        .filter(isContactManagementSubmission);
       renderCurrentState();
 
       try {
@@ -166,7 +168,7 @@ async function initContactSubmissionsPage() {
 function renderList(submissions, states, selectedId) {
   listEl.innerHTML = "";
   if (!submissions.length) {
-    listEl.innerHTML = '<p class="admin-empty">お問い合わせはまだありません。</p>';
+    listEl.innerHTML = '<p class="admin-empty">参加希望以外のお問い合わせはまだありません。</p>';
     return;
   }
 
@@ -257,16 +259,8 @@ function renderDetail(submission, deliveryState) {
         <dd>${escapeHtml(submission.phone || "未入力")}</dd>
       </div>
       <div>
-        <dt>住所</dt>
-        <dd>${escapeHtml(submission.address || "未取得")}</dd>
-      </div>
-      <div>
         <dt>用件区分</dt>
         <dd>${escapeHtml(inquiryLabel(submission.inquiryType))}</dd>
-      </div>
-      <div>
-        <dt>参加希望日程</dt>
-        <dd>${escapeHtml(formatSelectedEvents(submission.selectedEventIds))}</dd>
       </div>
       <div>
         <dt>自動返信メール</dt>
@@ -288,6 +282,10 @@ function inquiryLabel(value) {
     other: "その他",
   };
   return labels[value] || "その他";
+}
+
+function isContactManagementSubmission(submission) {
+  return submission?.inquiryType !== "participate";
 }
 
 function mailStateLabel(value) {
@@ -331,11 +329,6 @@ function responseStatusOptions(currentValue) {
 function formatDeliveryError(deliveryState) {
   if (!deliveryState?.error) return "";
   return `（${escapeHtml(deliveryState.error)}）`;
-}
-
-function formatSelectedEvents(ids) {
-  if (!Array.isArray(ids) || ids.length === 0) return "選択なし";
-  return ids.join(" / ");
 }
 
 function confirmDelete(itemType, itemName) {

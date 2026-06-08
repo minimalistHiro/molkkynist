@@ -109,7 +109,6 @@ async function initContactForm(formEl) {
         name: formData.get("name")?.toString().trim() ?? "",
         email: formData.get("email")?.toString().trim() ?? "",
         phone: formData.get("phone")?.toString().trim() ?? "",
-        address: formData.get("address")?.toString().trim() ?? "",
         inquiryType,
         selectedEventIds,
         message: formData.get("message")?.toString().trim() ?? "",

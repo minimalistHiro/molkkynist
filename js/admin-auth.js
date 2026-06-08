@@ -60,7 +60,8 @@ export async function requireAdmin(statusEl) {
   return new Promise((resolve) => {
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        const current = window.location.pathname.split("/").pop() || "index.html";
+        const currentPath = window.location.pathname.split("/").pop() || "index.html";
+        const current = `${currentPath}${window.location.search}`;
         window.location.href = `login.html?redirect=${encodeURIComponent(current)}`;
         resolve(null);
         return;

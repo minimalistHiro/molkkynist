@@ -30,7 +30,7 @@
     actions.className = "site-nav__actions";
 
     const cta = document.createElement("a");
-    cta.className = "button button--pill-large button--reserve site-nav__cta";
+    cta.className = "button button--pill-large site-nav__cta";
     cta.href = location.pathname.endsWith("/") || location.pathname.endsWith("index.html")
       ? "#schedule"
       : "index.html#schedule";
@@ -214,6 +214,41 @@
   );
 
   flowTargets.forEach((target) => observer.observe(target));
+})();
+
+(() => {
+  const aboutIllustration = document.querySelector(".about-wide-illustration");
+
+  if (!aboutIllustration) {
+    return;
+  }
+
+  document.documentElement.classList.add("has-about-illustration-animation");
+
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (prefersReducedMotion || !("IntersectionObserver" in window)) {
+    aboutIllustration.classList.add("is-about-illustration-visible");
+    return;
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) {
+          return;
+        }
+
+        entry.target.classList.add("is-about-illustration-visible");
+        observer.unobserve(entry.target);
+      });
+    },
+    {
+      rootMargin: "0px 0px -12% 0px",
+      threshold: 0.22,
+    },
+  );
+
+  observer.observe(aboutIllustration);
 })();
 
 (() => {

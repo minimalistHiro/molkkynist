@@ -325,6 +325,12 @@ UI表示用ロゴマークはヘッダー、フッター、SNS誘導付近など
 - イベント告知用の汎用ビジュアル
 - OGP / Twitter Card 用のシェア画像（推奨サイズ 1200x630px、Molkkynist ロゴ＋キャッチコピーを構成。確定までは暫定で `assets/images/logos/molkkynist-logo.png` を流用）
 
+作成済みの生成素材候補:
+
+- `assets/images/generated/molkky-single-illustration-transparent.png`
+- `assets/images/generated/molkky-title-background-transparent.png`
+- `assets/images/generated/molkky-throwing-stick-horizontal-transparent.png`
+
 配置場所:
 
 ```text

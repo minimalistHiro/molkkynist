@@ -289,6 +289,44 @@
 })();
 
 (() => {
+  const activityItems = Array.from(document.querySelectorAll("#activity .activity-grid__item"));
+
+  if (!activityItems.length) {
+    return;
+  }
+
+  document.documentElement.classList.add("has-activity-grid-animation");
+  activityItems.forEach((item, index) => {
+    item.style.setProperty("--activity-item-index", String(index));
+  });
+
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (prefersReducedMotion || !("IntersectionObserver" in window)) {
+    activityItems.forEach((item) => item.classList.add("is-activity-item-visible"));
+    return;
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) {
+          return;
+        }
+
+        entry.target.classList.add("is-activity-item-visible");
+        observer.unobserve(entry.target);
+      });
+    },
+    {
+      rootMargin: "0px 0px -12% 0px",
+      threshold: 0.2,
+    },
+  );
+
+  activityItems.forEach((item) => observer.observe(item));
+})();
+
+(() => {
   const scheduleList = document.querySelector("[data-schedule-events-list]");
 
   if (!scheduleList) {

@@ -15,7 +15,10 @@ export const firebaseConfig = {
 };
 
 export const adminConfig = {
-  adminUids: ["PvM8qIBG1ETC2Y7qM3PFj1i2ASk2"],
+  adminUids: [
+    "PvM8qIBG1ETC2Y7qM3PFj1i2ASk2",
+    "hvb1k4YC0ma98YsdlKU8DCEcqa63",
+  ],
 };
 
 export function isFirebaseConfigured(config) {

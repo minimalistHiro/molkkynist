@@ -25,6 +25,7 @@
   - メールアドレス + パスワードでログイン
   - `js/firebase-config.js` の `adminConfig.adminUids` で管理者UID一覧を照合
   - Firebase設定値または管理者UIDが未設定の場合はログインを無効化
+  - 2026年6月9日に `hvb1k4YC0ma98YsdlKU8DCEcqa63` を管理者UIDとして追加
 - `admin/index.html`
   - イベント管理・開催場所・お知らせ管理・イベント参加者一覧・お問い合わせ管理への導線
   - ログアウトボタン
@@ -388,7 +389,7 @@ admin/settings.html
 ## 今後決めること
 
 - 石井さんの Firebase Authentication アカウント
-- 石井さんの管理者UID（確定後に `js/firebase-config.js` / `firestore.rules` / Functions 環境変数 `ADMIN_UIDS` へ追加）
+- 管理者UIDを追加する場合は、`js/firebase-config.js` / `firestore.rules` / Functions の管理者UID判定へ同じUIDを追加する。
 - 石井さんUID追加後の本番ログイン・操作確認
 - 管理画面のデザイン
 - 画像アップロードの上限（メンバー画像は初期値5MB。運用後に圧縮や上限調整を検討）

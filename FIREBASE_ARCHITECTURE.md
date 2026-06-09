@@ -117,7 +117,7 @@ admin/reports.html
 adminUids = 管理者の Firebase Authentication UID 一覧
 ```
 
-2026年6月5日時点では、あなたのUID `PvM8qIBG1ETC2Y7qM3PFj1i2ASk2` を先行登録済みです。石井さんのUIDが確定したら同じ一覧へ追加します。
+2026年6月5日時点では、あなたのUID `PvM8qIBG1ETC2Y7qM3PFj1i2ASk2` を先行登録済みです。2026年6月9日に `hvb1k4YC0ma98YsdlKU8DCEcqa63` も管理者UIDとして追加しました。
 
 ## Firestore コレクション案
 
@@ -348,7 +348,7 @@ Firebase コンソールで本番プロジェクトを作成したら、`js/fire
 - `js/admin-event-participants-detail.js` … イベント参加者詳細
 
 `js/firebase-config.js` には `adminConfig.adminUids` を追加しています。
-2026年6月5日時点では、あなたのUID `PvM8qIBG1ETC2Y7qM3PFj1i2ASk2` を先行登録済みです。石井さんのFirebase Authentication UID確定後に配列へ追加してください。
+2026年6月5日時点では、あなたのUID `PvM8qIBG1ETC2Y7qM3PFj1i2ASk2` を先行登録済みです。2026年6月9日に `hvb1k4YC0ma98YsdlKU8DCEcqa63` も管理者UIDとして追加しました。
 
 ## サーバーサイド実装（2026-05-21 追加 / 2026-05-22 更新）
 
@@ -397,7 +397,7 @@ Functions Secret として下記を設定します。
 
 2026年6月7日に `storage.rules` を追加し、`firebase.json` に Storage Rules 参照を追加しました。`news/` / `venues/` / `reports/` 配下の画像は公開読み取り、作成・更新・削除は管理者UIDのみ許可します。メンバー画像はローカルアセット管理へ移行したため、Storage Rules の対象外です。
 
-セキュリティルールの管理者UID配列には、あなたのUID `PvM8qIBG1ETC2Y7qM3PFj1i2ASk2` を先行登録済みです。石井さんの Firebase Authentication UID が確定したタイミングで配列へ追加してください。
+セキュリティルールの管理者UID配列には、あなたのUID `PvM8qIBG1ETC2Y7qM3PFj1i2ASk2` と `hvb1k4YC0ma98YsdlKU8DCEcqa63` を登録済みです。
 
 ### Firebase 構築状況（2026-05-21）
 
@@ -424,8 +424,8 @@ Functions Secret として下記を設定します。
 ## 今後決めること
 
 - 石井さんの Firebase Authentication ユーザー
-- 石井さんの管理者UID（決定次第 `js/firebase-config.js` / `firestore.rules` / Functions 環境変数 `ADMIN_UIDS` に追加）
-- Cloud Functions 環境変数 `ADMIN_UIDS` への石井さんUID追加（`getMailDeliveryStates` の管理者判定用。カンマ区切りで複数UIDを指定）
+- 管理者UIDを追加する場合は `js/firebase-config.js` / `firestore.rules` / Functions の管理者UID判定へ同じUIDを追加する。
+- Cloud Functions 環境変数 `ADMIN_UIDS` を使う場合は、`getMailDeliveryStates` の管理者判定用にカンマ区切りで複数UIDを指定する。
 - Firestore の正式なデータ構造
 - 画像アップロードのサイズ制限（初期値5MB。活動レポート等も同じ基準で開始し、必要に応じて調整）
 - DM 経由の申込時にユーザーへ受付メールを送る運用フロー（管理画面から手動送信するか）

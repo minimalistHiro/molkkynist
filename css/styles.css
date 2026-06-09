@@ -1108,6 +1108,7 @@ p {
   margin-right: auto;
   margin-left: auto;
   gap: 18px;
+  text-align: left;
 }
 
 .about-photo-collage {
@@ -2103,7 +2104,7 @@ dd {
 }
 
 .schedule-event-list {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
   gap: 24px;
 }
@@ -2336,6 +2337,13 @@ dd {
   width: 7px;
   height: 7px;
   background: var(--color-text);
+}
+
+@media (min-width: 681px) {
+  #flow .flow-notes {
+    max-width: 860px;
+    padding: 28px 34px;
+  }
 }
 
 .partner-logos {
@@ -3957,12 +3965,20 @@ dd {
   letter-spacing: 0.02em;
 }
 
+.news-detail {
+  background: var(--color-surface-warm);
+}
+
+.news-detail .page-hero {
+  background: transparent;
+}
+
 .news-detail__visual {
   overflow: hidden;
   width: 100%;
   max-width: 800px;
   margin: 0 auto 32px;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 1 / 1;
   border: 1px solid rgba(117, 88, 77, 0.12);
   border-radius: var(--radius-lg);
   background: var(--color-surface-field);

@@ -295,7 +295,7 @@ UI表示用ロゴマークはヘッダー、フッター、SNS誘導付近など
 
 ### トップページ見出し装飾
 
-トップページの主要セクション見出しのうち、`#about`（モルックとは）、`#news`（お知らせ）、`#activity`（活動の様子）は、横向きの投げる棒のモルックイラストをタイトル背景として使います。対象の `.section-heading` には `.section-heading--molkky-title` を付け、`h2::before` で `assets/images/generated/molkky-throwing-stick-horizontal-transparent.png` を表示します。既存の黄緑下線はこの3見出しでは表示せず、モルック道具の木の質感を見出し周辺のアクセントにします。
+トップページの主要セクション見出しのうち、`#about`（モルックとは）、`#news`（お知らせ）、`#activity`（活動の様子）は、短めの横向きの投げる棒のモルックイラストをタイトル背景として使います。対象の `.section-heading` には `.section-heading--molkky-title` を付け、`h2::before` で `assets/images/generated/molkky-throwing-stick-short-transparent.png` を小さめに表示します。既存の黄緑下線はこの3見出しでは表示せず、モルック道具の木の質感を見出し周辺のアクセントにします。
 
 ### About セクション画像
 
@@ -334,6 +334,7 @@ UI表示用ロゴマークはヘッダー、フッター、SNS誘導付近など
 - `assets/images/generated/molkky-single-illustration-transparent.png`
 - `assets/images/generated/molkky-title-background-transparent.png`
 - `assets/images/generated/molkky-throwing-stick-horizontal-transparent.png`
+- `assets/images/generated/molkky-throwing-stick-short-transparent.png`
 
 配置場所:
 

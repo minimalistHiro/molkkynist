@@ -175,7 +175,7 @@ function createEventCard(eventItem, venue) {
   body.append(dateTime, meta, title, details);
 
   const button = document.createElement("a");
-  button.className = "button button--green venue-card__join-button";
+  button.className = "button button--pill-large button--green venue-card__join-button";
   button.href = buildContactUrl(eventItem);
   button.textContent = "イベントに参加する";
 

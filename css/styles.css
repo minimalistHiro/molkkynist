@@ -358,13 +358,13 @@ p {
 
 .hero__tagline {
   position: absolute;
-  top: calc(128px + env(safe-area-inset-top));
+  top: calc(104px + env(safe-area-inset-top));
   left: 0;
   z-index: 2;
   max-width: min(78vw, 560px);
   margin: 0;
   padding: 12px clamp(22px, 5vw, 42px) 13px;
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  border-radius: 0 16px 16px 0;
   background: var(--color-grass);
   color: #ffffff;
   font-family: var(--font-cta);
@@ -486,7 +486,7 @@ p {
   gap: 18px;
   width: 100%;
   max-width: none;
-  margin-top: calc(clamp(28px, 6vw, 68px) * -1);
+  margin-top: calc(clamp(16px, 4vw, 44px) * -1);
   margin-right: auto;
   margin-left: auto;
   padding: clamp(56px, 9vw, 96px) var(--space-page) clamp(64px, 10vw, 112px);
@@ -3707,9 +3707,10 @@ dd {
   }
 
   .hero__tagline {
-    top: calc(112px + env(safe-area-inset-top));
+    top: calc(88px + env(safe-area-inset-top));
     max-width: calc(100vw - 72px);
     padding: 10px 18px 11px 24px;
+    border-radius: 0 14px 14px 0;
     font-size: clamp(0.96rem, 4.1vw, 1.18rem);
   }
 
@@ -3737,7 +3738,7 @@ dd {
 
   .hero__intro {
     width: 100%;
-    margin-top: -28px;
+    margin-top: -12px;
     padding: 48px 16px 64px;
     border-radius: 28px 28px 0 0;
   }

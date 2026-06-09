@@ -118,12 +118,20 @@ async function initContactSubmissionsPage() {
       return;
     }
 
+    if (event.target.closest("[data-contact-reply]")) {
+      return;
+    }
+
     const button = event.target.closest("[data-contact-id]");
     if (!button) return;
     const item = submissions.find((submission) => submission.id === button.dataset.contactId);
     selectedId = item?.id ?? null;
     renderList(submissions, deliveryStates, selectedId);
     renderDetail(item, deliveryStates[item?.id]);
+
+    if (window.matchMedia("(max-width: 920px)").matches) {
+      detailEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   });
 
   detailEl.addEventListener("submit", async (event) => {
@@ -157,12 +165,6 @@ async function initContactSubmissionsPage() {
     }
   });
 
-  detailEl.addEventListener("click", async (event) => {
-    const deleteButton = event.target.closest("[data-contact-detail-delete]");
-    if (!deleteButton) return;
-    const item = submissions.find((submission) => submission.id === deleteButton.dataset.contactDetailDelete);
-    await deleteSubmission(item);
-  });
 }
 
 function renderList(submissions, states, selectedId) {
@@ -174,7 +176,7 @@ function renderList(submissions, states, selectedId) {
 
   submissions.forEach((submission) => {
     const article = document.createElement("article");
-    article.className = "admin-contact-item";
+    article.className = `admin-contact-item${submission.id === selectedId ? " is-active" : ""}`;
 
     const button = document.createElement("button");
     button.className = `admin-contact-button${submission.id === selectedId ? " is-active" : ""}`;
@@ -190,11 +192,13 @@ function renderList(submissions, states, selectedId) {
         <span class="status-chip">${escapeHtml(responseStatusLabel(submission.responseStatus))}</span>
         <span class="status-chip">${escapeHtml(mailStateLabel(states[submission.id]?.state))}</span>
       </span>
+      <span class="admin-contact-preview">${escapeHtml(messagePreview(submission.message))}</span>
     `;
 
     const actions = document.createElement("div");
-    actions.className = "admin-item-actions";
+    actions.className = "admin-contact-actions";
     actions.innerHTML = `
+      ${replyActionHtml(submission)}
       <button class="button button--danger" type="button" data-contact-delete="${escapeHtml(submission.id)}">削除</button>
     `;
 
@@ -216,11 +220,6 @@ function renderDetail(submission, deliveryState) {
         <h2>${escapeHtml(submission.name || "名前未入力")}</h2>
       </div>
       <span class="status-chip">${escapeHtml(mailStateLabel(deliveryState?.state))}</span>
-    </div>
-    <div class="admin-item-actions">
-      <button class="button button--danger" type="button" data-contact-detail-delete="${escapeHtml(
-        submission.id
-      )}">このお問い合わせを削除</button>
     </div>
     <form class="contact-form admin-contact-management" data-admin-contact-management-form data-contact-id="${escapeHtml(
       submission.id
@@ -324,6 +323,28 @@ function responseStatusOptions(currentValue) {
         `<option value="${value}"${value === current ? " selected" : ""}>${label}</option>`
     )
     .join("");
+}
+
+function replyActionHtml(submission) {
+  const email = submission.email?.toString().trim();
+  if (!email) {
+    return '<button class="button button--secondary" type="button" disabled>メールに返信</button>';
+  }
+  return `<a class="button button--secondary" href="${escapeHtml(buildReplyMailto(submission))}" data-contact-reply>メールに返信</a>`;
+}
+
+function buildReplyMailto(submission) {
+  const email = submission.email?.toString().trim() || "";
+  const name = submission.name?.toString().trim() || "お問い合わせいただいた方";
+  const subject = "【Molkkynist】お問い合わせありがとうございます";
+  const body = `${name}様\n\nお問い合わせありがとうございます。\n\n`;
+  return `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+function messagePreview(value) {
+  const message = value?.toString().trim();
+  if (!message) return "本文の記載はありません。";
+  return message.replace(/\s+/g, " ");
 }
 
 function formatDeliveryError(deliveryState) {

@@ -284,9 +284,11 @@ admin/contact-submissions.html
 - `inquiryType == "participate"` の参加希望はこの画面では非表示にする
 - 参加希望以外の用件（イベント問い合わせ / メディア取材 / その他）のみを表示対象にする
 - 送信日時の降順で並べる
+- 一覧では本文プレビューを表示する
 - 1件ずつ詳細（名前 / メール / 電話 / 用件区分 / 本文）を確認できる
 - 各送信に対する自動返信メール（`mail` コレクション）の `delivery.state`（`SUCCESS` / `ERROR` / `PROCESSING` 等）と、エラー時のメッセージを表示する
 - 手動で対応ステータス（未対応・対応中・対応済み）と対応メモを保存できる
+- 一覧側からメール返信用の `mailto:` リンクを開ける
 - 不要になった送信内容を削除できる
 
 入力項目（管理側）:
@@ -298,6 +300,7 @@ admin/contact-submissions.html
 
 - 2026年6月6日に D-9 として、`admin/contact-submissions.html` の詳細欄へ対応ステータスと対応メモの保存フォームを追加。保存先は `contactSubmissions.responseStatus` / `responseMemo` / `responseUpdatedAt` / `responseUpdatedBy`。
 - 2026年6月8日に、参加希望のお問い合わせは `admin/contact-submissions.html` では非表示にし、`admin/event-participants.html` / `admin/event-participants-detail.html` 側でイベントごとに確認する方針へ整理。
+- 2026年6月9日に、削除ボタンを詳細フォーム内から一覧側へ集約し、各一覧項目に本文プレビューと「メールに返信」リンクを追加。スマートフォンでは一覧項目選択後に詳細へスクロールする。
 - 自動返信メールの文面（件名・本文・HTML）は管理画面では編集しない。コード `functions/index.js` の `renderTextBody()` / `renderHtmlBody()` で管理する。文面方針は `CONTENT_GUIDELINES.md`「自動返信メール文面」を参照。
 - DM 経由のお問い合わせはこの画面には記録されない（Instagram 側で完結）。受領通知の運用は R-8 で検討中。
 - セキュリティルール (`firestore.rules`) で `contactSubmissions` は管理者のみ read/update/delete 可。`mail` コレクションは管理画面からも参照不可（Cloud Functions の Admin SDK のみアクセス）。送信状況の表示はサーバーサイド経由（Cloud Functions の callable 関数等）で実装する想定。

@@ -40,7 +40,6 @@ Molkkynist の運営メンバー情報は、Firestore ではなくローカル�
 任意項目:
 
 - `image`: `assets/` 配下の画像パス
-- `visualVariant`: 写真未設定時のプレースホルダー色（空 / `soft` / `wood`）
 
 ### 3. 未入力項目を質問する
 
@@ -57,7 +56,6 @@ Molkkynist の運営メンバー情報は、Firestore ではなくローカル�
 - `id` は小文字英数字とハイフンを基本にする。
 - `displayOrder` は数値にする。
 - `isPublished` は true / false にする。
-- `visualVariant` は空、`soft`、`wood` のいずれかにする。
 - 文体は既存メンバーと揃え、過度に長い紹介文にしない。
 
 ### 5. 追加前に確認する
@@ -70,7 +68,6 @@ Molkkynist の運営メンバー情報は、Firestore ではなくローカル�
 - 名前
 - 役割
 - 画像の有無と画像パス
-- プレースホルダー色
 - 3つの紹介文
 - ひとことコメント
 - 表示順

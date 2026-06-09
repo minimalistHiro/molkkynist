@@ -1013,6 +1013,38 @@ p {
   content: "";
 }
 
+.section-heading--molkky-title {
+  margin-bottom: clamp(34px, 6vw, 58px);
+}
+
+.section-heading--molkky-title h2 {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: min(78vw, 340px);
+  min-height: clamp(66px, 9vw, 92px);
+  padding: 0 clamp(34px, 6vw, 54px);
+  isolation: isolate;
+  line-height: 1.12;
+}
+
+.section-heading--molkky-title h2::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  background: url("../assets/images/generated/molkky-throwing-stick-horizontal-transparent.png") center / 100% auto no-repeat;
+  content: "";
+  transform: translate(-50%, -50%);
+}
+
+.section-heading--molkky-title h2::after {
+  display: none;
+}
+
 .has-heading-line-animation .section-heading h2::after,
 .has-heading-line-animation .split-layout > div:first-child > h2::after,
 .has-heading-line-animation .page-hero h1::after,

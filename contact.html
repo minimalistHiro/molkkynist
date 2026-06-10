@@ -104,7 +104,6 @@
             <fieldset class="form-fieldset form-events" data-role="event-select" hidden>
               <legend class="form-label">参加希望の日程 <span class="form-required">必須</span></legend>
               <p class="form-help">参加したい日程を1つ選択してください。表示される日程は管理画面で公開中の開催予定です。</p>
-              <div class="contact-event-detail" data-role="selected-event-detail" hidden></div>
               <div class="event-toggle-list" data-role="event-list"></div>
               <p class="form-events__empty" data-role="event-empty" hidden></p>
             </fieldset>
@@ -113,6 +112,8 @@
               <span class="form-label">一言・ご質問 <span class="form-optional">任意</span></span>
               <textarea id="contact-message" name="message" rows="5" placeholder="ご質問、見学のご相談、その他お気軽にどうぞ。"></textarea>
             </label>
+
+            <div class="contact-event-detail" data-role="selected-event-detail" hidden></div>
 
             <label class="checkbox-line" for="privacy-agree">
               <input id="privacy-agree" type="checkbox" name="privacyAgree" required>

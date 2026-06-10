@@ -249,8 +249,8 @@ async function initContactForm(formEl) {
     const list = document.createElement("dl");
     list.className = "contact-event-detail__list";
     appendDetailItem(list, "開催日時", buildDateTimeDetail(eventItem));
-    appendDetailItem(list, "開催場所", buildVenueDetail(eventItem, venue));
-    appendDetailItem(list, "雨天時", buildRainDetail(eventItem, rainVenue));
+    appendVenueDetailItem(list, "開催場所", venue, eventItem.locationAddress || "");
+    appendRainDetailItem(list, eventItem, rainVenue);
 
     body.append(label, title, list);
     card.append(visual, body);
@@ -276,25 +276,56 @@ function appendDetailItem(parent, label, value) {
   parent.appendChild(wrapper);
 }
 
+function appendVenueDetailItem(parent, label, venue, fallbackAddress = "") {
+  const wrapper = document.createElement("div");
+  const term = document.createElement("dt");
+  const description = document.createElement("dd");
+  term.textContent = label;
+
+  if (!venue) {
+    if (fallbackAddress) {
+      const link = document.createElement("a");
+      link.href = buildGoogleMapsSearchUrl({ address: fallbackAddress });
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.textContent = fallbackAddress;
+      description.appendChild(link);
+    } else {
+      description.textContent = "会場情報は確定次第ご案内します。";
+    }
+    wrapper.append(term, description);
+    parent.appendChild(wrapper);
+    return;
+  }
+
+  appendTextPart(description, venue.name);
+  appendTextPart(description, venue.area);
+  appendMapLinkPart(description, venue);
+  appendTextPart(description, venue.accessNote);
+  if (!description.childNodes.length) {
+    description.textContent = "会場情報は確定次第ご案内します。";
+  }
+
+  wrapper.append(term, description);
+  parent.appendChild(wrapper);
+}
+
+function appendRainDetailItem(parent, evt, rainVenue) {
+  if (evt.isRainCanceled === true) {
+    appendDetailItem(parent, "雨天時", "雨天時は中止します。");
+    return;
+  }
+  if (!rainVenue) {
+    appendDetailItem(parent, "雨天時", "雨天時の対応は決まり次第ご案内します。");
+    return;
+  }
+  appendVenueDetailItem(parent, "雨天時", rainVenue);
+}
+
 function buildDateTimeDetail(evt) {
   const date = formatDate(evt.eventDate);
   const time = formatTimeRange(evt.startTime, evt.endTime);
   return [date, time].filter(Boolean).join(" / ");
-}
-
-function buildVenueDetail(evt, venue) {
-  if (!venue) {
-    return evt.locationAddress || "会場情報は確定次第ご案内します。";
-  }
-  return [venue.name, venue.area, venue.address, venue.accessNote].filter(Boolean).join(" / ");
-}
-
-function buildRainDetail(evt, rainVenue) {
-  if (evt.isRainCanceled === true) return "雨天時は中止します。";
-  if (rainVenue) {
-    return [rainVenue.name, rainVenue.area, rainVenue.address, rainVenue.accessNote].filter(Boolean).join(" / ");
-  }
-  return "雨天時の対応は決まり次第ご案内します。";
 }
 
 function formatTimeRange(startTime, endTime) {
@@ -302,6 +333,33 @@ function formatTimeRange(startTime, endTime) {
   if (startTime) return `${startTime}開始`;
   if (endTime) return `${endTime}終了`;
   return "";
+}
+
+function appendTextPart(parent, value) {
+  if (!value) return;
+  appendSeparator(parent);
+  parent.appendChild(document.createTextNode(value));
+}
+
+function appendMapLinkPart(parent, venue) {
+  if (!venue?.address) return;
+  appendSeparator(parent);
+  const link = document.createElement("a");
+  link.href = venue.mapUrl || buildGoogleMapsSearchUrl(venue);
+  link.target = "_blank";
+  link.rel = "noopener";
+  link.textContent = venue.address;
+  parent.appendChild(link);
+}
+
+function appendSeparator(parent) {
+  if (!parent.childNodes.length) return;
+  parent.appendChild(document.createTextNode(" / "));
+}
+
+function buildGoogleMapsSearchUrl(venue) {
+  const query = [venue.name, venue.address].filter(Boolean).join(" ");
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 }
 
 function readContactPrefill() {

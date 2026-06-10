@@ -53,23 +53,42 @@ function render(item) {
 
   if (bodyEl) {
     bodyEl.innerHTML = "";
+    const profileList = document.createElement("dl");
+    profileList.className = "member-detail__profile";
+    let hasProfileItem = false;
+
     MEMBER_DETAIL_FIELDS.forEach(([label, key]) => {
       const text = item[key];
       if (!text) return;
-      const p = document.createElement("p");
-      p.textContent = `${label}：${text}`;
-      bodyEl.appendChild(p);
+      profileList.appendChild(createProfileItem(label, text));
+      hasProfileItem = true;
     });
     if (item.comment) {
-      const q = document.createElement("p");
-      q.className = "quote";
-      q.textContent = `ひとことコメント：${item.comment}`;
-      bodyEl.appendChild(q);
+      profileList.appendChild(createProfileItem("ひとことコメント", item.comment, "member-detail__profile-item--comment"));
+      hasProfileItem = true;
+    }
+    if (hasProfileItem) {
+      bodyEl.appendChild(profileList);
     }
   }
   if (titleTagEl) {
     titleTagEl.textContent = `${item.name} | メンバー紹介 | Molkkynist`;
   }
+}
+
+function createProfileItem(label, text, modifierClass = "") {
+  const itemEl = document.createElement("div");
+  itemEl.className = ["member-detail__profile-item", modifierClass].filter(Boolean).join(" ");
+
+  const titleEl = document.createElement("dt");
+  titleEl.textContent = label;
+  itemEl.appendChild(titleEl);
+
+  const textEl = document.createElement("dd");
+  textEl.textContent = text;
+  itemEl.appendChild(textEl);
+
+  return itemEl;
 }
 
 function renderVisual(visualEl, item) {

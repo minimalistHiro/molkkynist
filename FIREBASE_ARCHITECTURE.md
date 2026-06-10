@@ -259,7 +259,7 @@ name
 email
 phone
 inquiryType   # 参加希望 / イベント問い合わせ / メディア取材 / その他
-selectedEventIds   # 参加希望時のみ、events への参照を配列で保持
+selectedEventIds   # 参加希望時のみ、events への参照を配列で保持（UI上は1件のみ選択）
 message
 createdAt
 responseStatus     # 管理用: unhandled / in_progress / done
@@ -304,9 +304,10 @@ Firebase を使用する画面では JavaScript が必要になります。
   - エクスポートする `isFirebaseConfigured(config)` で起動時に判定
 - `js/contact-form.js`
   - Firebase JS SDK v10 のモジュラー API を `https://www.gstatic.com/firebasejs/<ver>/firebase-app.js` / `firebase-firestore.js` から動的 import
-  - 用件区分が「参加希望」のとき `events` コレクション（`status == "scheduled"` かつ `eventDate >= 今日`）を `eventDate asc` で取得し、`venues` の開催場所名と組み合わせてトグル表示
+  - 用件区分が「参加希望」のとき `events` コレクション（`status == "scheduled"` かつ `eventDate >= 今日`）を `eventDate asc` で取得し、`venues` の開催場所名と組み合わせて1件のみ選択できるトグル表示
+  - 選択中イベントについて、開催日時・通常の開催場所・雨天時対応・会場画像をフォーム内に表示する。開催場所と雨天時会場の住所は `venues.mapUrl` またはGoogleマップ検索URLへリンクする
   - 送信時は `contactSubmissions` コレクションへ `addDoc`（`createdAt` は `serverTimestamp()`）
-  - プライバシーポリシー同意チェックと、参加希望時の日程選択（最低1件）をクライアント側で検証
+  - プライバシーポリシー同意チェックと、参加希望時の日程選択（1件）をクライアント側で検証
 
 Firebase コンソールで本番プロジェクトを作成したら、`js/firebase-config.js` の値を差し替え、`contactSubmissions` への `create` のみを許可するセキュリティルールを適用してください。
 

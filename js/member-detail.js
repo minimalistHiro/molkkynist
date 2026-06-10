@@ -7,6 +7,7 @@ import {
 } from "./member-data.js";
 
 const MEMBER_DETAIL_FIELDS = [
+  ["職業", "occupation"],
   ["モルックを始めたきっかけ", "startedReason"],
   ["モルック以外の好きなこと", "favoriteThings"],
   ["初参加者へのメッセージ", "firstTimerMessage"],

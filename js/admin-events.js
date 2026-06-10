@@ -16,8 +16,10 @@ const form = document.querySelector("[data-admin-event-form]");
 const listEl = document.querySelector("[data-admin-events-list]");
 const statusEl = document.querySelector("[data-admin-status]");
 const venueSelect = document.querySelector("[data-admin-venue-select]");
+const rainVenueList = document.querySelector("[data-admin-rain-venue-list]");
+const rainCancelCheckbox = document.querySelector("[data-admin-rain-cancel]");
 
-if (form && listEl && venueSelect) {
+if (form && listEl && venueSelect && rainVenueList && rainCancelCheckbox) {
   initEventsPage().catch((error) => {
     console.error("[admin-events] 初期化に失敗しました", error);
     showAdminStatus(statusEl, "イベント管理画面の初期化に失敗しました。", "error");
@@ -69,6 +71,7 @@ async function initEventsPage() {
         if (editingId === eventItem.id) {
           editingId = null;
           form.reset();
+          syncRainCancelState();
           cancelButton.hidden = true;
           submitButton.textContent = "イベントを保存";
         }
@@ -88,6 +91,8 @@ async function initEventsPage() {
         ...venueDoc.data(),
       }));
       renderVenueOptions(venuesCache);
+      renderRainVenueToggles(venuesCache);
+      syncRainCancelState();
       rerenderEvents();
     },
     (error) => {
@@ -114,9 +119,14 @@ async function initEventsPage() {
   cancelButton.addEventListener("click", () => {
     editingId = null;
     form.reset();
+    syncRainCancelState();
     cancelButton.hidden = true;
     submitButton.textContent = "イベントを保存";
     clearAdminStatus(statusEl);
+  });
+
+  rainCancelCheckbox.addEventListener("change", () => {
+    syncRainCancelState();
   });
 
   form.addEventListener("submit", async (event) => {
@@ -139,6 +149,7 @@ async function initEventsPage() {
           capacity: deleteField(),
           belongings: deleteField(),
           isPublished: deleteField(),
+          rainPolicy: deleteField(),
           updatedAt: serverTimestamp(),
         });
       } else {
@@ -149,6 +160,7 @@ async function initEventsPage() {
         });
       }
       form.reset();
+      syncRainCancelState();
       editingId = null;
       cancelButton.hidden = true;
       submitLabel = "イベントを保存";
@@ -165,6 +177,7 @@ async function initEventsPage() {
 function buildEventPayload(formData, Timestamp) {
   const dateValue = formData.get("eventDate")?.toString() ?? "";
   const eventDate = dateValue ? Timestamp.fromDate(new Date(`${dateValue}T00:00:00+09:00`)) : null;
+  const isRainCanceled = formData.get("isRainCanceled") === "true";
 
   return {
     eventDate,
@@ -172,7 +185,8 @@ function buildEventPayload(formData, Timestamp) {
     endTime: formData.get("endTime")?.toString().trim() ?? "",
     venueId: formData.get("venueId")?.toString().trim() ?? "",
     fee: formData.get("fee")?.toString().trim() ?? "",
-    rainPolicy: formData.get("rainPolicy")?.toString().trim() ?? "",
+    rainVenueId: isRainCanceled ? "" : formData.get("rainVenueId")?.toString().trim() ?? "",
+    isRainCanceled,
     status: formData.get("status")?.toString() ?? "scheduled",
   };
 }
@@ -201,6 +215,45 @@ function renderVenueOptions(venues) {
   }
 }
 
+function renderRainVenueToggles(venues) {
+  const currentValue = getSelectedRainVenueId();
+  const activeVenues = venues.filter((venue) => venue.isActive !== false);
+  rainVenueList.innerHTML = "";
+
+  if (!activeVenues.length) {
+    rainVenueList.innerHTML = '<p class="form-events__empty">有効な開催場所がありません。</p>';
+    return;
+  }
+
+  activeVenues.forEach((venue) => {
+    const label = document.createElement("label");
+    label.className = "event-toggle admin-rain-venue-toggle";
+    label.innerHTML = `
+      <input type="radio" name="rainVenueId" value="${escapeHtml(venue.id)}">
+      <span>${escapeHtml(formatVenueOptionLabel(venue))}</span>
+    `;
+    rainVenueList.appendChild(label);
+  });
+
+  if (currentValue) {
+    const currentInput = Array.from(rainVenueList.querySelectorAll('input[name="rainVenueId"]')).find(
+      (input) => input.value === currentValue,
+    );
+    if (currentInput) currentInput.checked = true;
+  }
+}
+
+function syncRainCancelState() {
+  const isCanceled = rainCancelCheckbox.checked;
+  const rainVenueInputs = rainVenueList.querySelectorAll('input[name="rainVenueId"]');
+  rainVenueList.classList.toggle("is-disabled", isCanceled);
+
+  rainVenueInputs.forEach((input) => {
+    if (isCanceled) input.checked = false;
+    input.disabled = isCanceled;
+  });
+}
+
 function renderEvents(events, venuesById, onEdit, onDelete) {
   listEl.innerHTML = "";
   if (!events.length) {
@@ -210,6 +263,7 @@ function renderEvents(events, venuesById, onEdit, onDelete) {
 
   events.forEach((eventItem) => {
     const venue = venuesById.get(eventItem.venueId);
+    const rainVenue = venuesById.get(eventItem.rainVenueId);
     const article = document.createElement("article");
     article.className = "admin-list-item";
     article.innerHTML = `
@@ -223,6 +277,7 @@ function renderEvents(events, venuesById, onEdit, onDelete) {
           <span class="status-chip">${escapeHtml(statusLabel(eventItem.status))}</span>
           <span class="status-chip">参加費: ${escapeHtml(eventItem.fee || "未設定")}</span>
           <span class="status-chip">${venue ? "開催場所連携済み" : "開催場所未選択"}</span>
+          <span class="status-chip">${escapeHtml(rainLabel(eventItem, rainVenue))}</span>
         </div>
       </div>
       <div class="admin-item-actions">
@@ -242,12 +297,37 @@ function fillForm(eventItem) {
   form.elements.endTime.value = eventItem.endTime || "";
   form.elements.venueId.value = eventItem.venueId || "";
   form.elements.fee.value = eventItem.fee || "";
-  form.elements.rainPolicy.value = eventItem.rainPolicy || "";
+  rainCancelCheckbox.checked = eventItem.isRainCanceled === true;
+  setSelectedRainVenueId(eventItem.rainVenueId || "");
+  syncRainCancelState();
   form.elements.status.value = normalizeStatus(eventItem.status);
 }
 
 function venueMapFrom(venues) {
   return new Map(venues.map((venue) => [venue.id, venue]));
+}
+
+function getSelectedRainVenueId() {
+  const selected = rainVenueList.querySelector('input[name="rainVenueId"]:checked');
+  return selected?.value || "";
+}
+
+function setSelectedRainVenueId(venueId) {
+  const rainVenueInputs = rainVenueList.querySelectorAll('input[name="rainVenueId"]');
+  rainVenueInputs.forEach((input) => {
+    input.checked = Boolean(venueId) && input.value === venueId;
+  });
+}
+
+function formatVenueOptionLabel(venue) {
+  const parts = [venue.name || "名称未設定", venue.area, venueTypeLabel(venue.venueType)].filter(Boolean);
+  return parts.join(" / ");
+}
+
+function rainLabel(eventItem, rainVenue) {
+  if (eventItem.isRainCanceled === true) return "雨天時: 中止";
+  if (rainVenue?.name) return `雨天時: ${rainVenue.name}`;
+  return "雨天時: 未設定";
 }
 
 function toDateInputValue(value) {
@@ -320,6 +400,10 @@ function statusLabel(status) {
     canceled: "中止",
   };
   return labels[status] || "未設定";
+}
+
+function venueTypeLabel(value) {
+  return value === "indoor" ? "屋内会場" : "屋外会場";
 }
 
 function confirmDelete(itemType, itemName) {

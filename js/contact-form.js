@@ -20,6 +20,7 @@ if (form) {
 async function initContactForm(formEl) {
   const inquiryRadios = formEl.querySelectorAll('input[name="inquiryType"]');
   const eventsField = formEl.querySelector('[data-role="event-select"]');
+  const selectedEventDetail = formEl.querySelector('[data-role="selected-event-detail"]');
   const eventsList = formEl.querySelector('[data-role="event-list"]');
   const eventsEmpty = formEl.querySelector('[data-role="event-empty"]');
   const submitButton = formEl.querySelector('button[type="submit"]');
@@ -64,6 +65,7 @@ async function initContactForm(formEl) {
         await loadEvents(preselectedEventId);
       } else {
         preselectedEventId = "";
+        renderSelectedEventDetail("");
       }
     });
   });
@@ -97,7 +99,7 @@ async function initContactForm(formEl) {
 
     const inquiryType = formData.get("inquiryType");
     if (inquiryType === "participate" && selectedEventIds.length === 0) {
-      showStatus(formEl, "参加希望の日程を1つ以上選択してください。", "error");
+      showStatus(formEl, "参加希望の日程を1つ選択してください。", "error");
       return;
     }
 
@@ -116,6 +118,7 @@ async function initContactForm(formEl) {
       });
       formEl.reset();
       eventsField.hidden = true;
+      renderSelectedEventDetail("");
       window.location.href = "contact-complete.html";
     } catch (error) {
       console.error("[contact-form] 送信エラー", error);
@@ -178,22 +181,80 @@ async function initContactForm(formEl) {
       eventsEmpty.hidden = false;
       eventsEmpty.textContent =
         "現在受付中の日程はありません。Instagram DM からもご相談いただけます。";
+      renderSelectedEventDetail("");
       return;
     }
     eventsEmpty.hidden = true;
+    let selectedEventExists = false;
     events.forEach((evt) => {
       const label = document.createElement("label");
       label.className = "event-toggle";
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.name = "selectedEventIds";
-      checkbox.value = evt.id;
-      checkbox.checked = evt.id === selectedEventId;
+      const radio = document.createElement("input");
+      radio.type = "radio";
+      radio.name = "selectedEventIds";
+      radio.value = evt.id;
+      radio.checked = evt.id === selectedEventId;
+      if (radio.checked) selectedEventExists = true;
+      radio.addEventListener("change", () => {
+        preselectedEventId = radio.checked ? radio.value : "";
+        renderSelectedEventDetail(preselectedEventId);
+      });
       const text = document.createElement("span");
       text.textContent = formatEventLabel(evt, cachedVenuesById ?? new Map());
-      label.append(checkbox, text);
+      label.append(radio, text);
       eventsList.appendChild(label);
     });
+    renderSelectedEventDetail(selectedEventExists ? selectedEventId : "");
+  }
+
+  function renderSelectedEventDetail(eventId) {
+    if (!selectedEventDetail) return;
+    const eventItem = cachedEvents?.find((evt) => evt.id === eventId);
+    const venuesById = cachedVenuesById ?? new Map();
+    const venue = eventItem ? venuesById.get(eventItem.venueId) : null;
+    const rainVenue = eventItem ? venuesById.get(eventItem.rainVenueId) : null;
+
+    selectedEventDetail.innerHTML = "";
+    selectedEventDetail.hidden = !eventItem;
+    if (!eventItem) return;
+
+    const card = document.createElement("article");
+    card.className = "contact-event-detail__card";
+
+    const visual = document.createElement("div");
+    visual.className = "contact-event-detail__visual";
+    if (venue?.imageUrl) {
+      const image = document.createElement("img");
+      image.src = venue.imageUrl;
+      image.alt = `${venue.name || "開催場所"}の写真`;
+      image.loading = "lazy";
+      image.decoding = "async";
+      visual.appendChild(image);
+    } else {
+      const placeholder = document.createElement("span");
+      placeholder.textContent = "会場画像は準備中です";
+      visual.appendChild(placeholder);
+    }
+
+    const body = document.createElement("div");
+    body.className = "contact-event-detail__body";
+
+    const label = document.createElement("p");
+    label.className = "contact-event-detail__label";
+    label.textContent = "選択中のイベント";
+
+    const title = document.createElement("h3");
+    title.textContent = venue?.name || eventItem.locationName || "開催場所未定";
+
+    const list = document.createElement("dl");
+    list.className = "contact-event-detail__list";
+    appendDetailItem(list, "開催日時", buildDateTimeDetail(eventItem));
+    appendDetailItem(list, "開催場所", buildVenueDetail(eventItem, venue));
+    appendDetailItem(list, "雨天時", buildRainDetail(eventItem, rainVenue));
+
+    body.append(label, title, list);
+    card.append(visual, body);
+    selectedEventDetail.appendChild(card);
   }
 }
 
@@ -203,6 +264,44 @@ function formatEventLabel(evt, venuesById = new Map()) {
   const venueName = venue?.name || evt.locationName || "";
   const parts = [dateStr, venueName].filter(Boolean);
   return parts.join(" / ");
+}
+
+function appendDetailItem(parent, label, value) {
+  const wrapper = document.createElement("div");
+  const term = document.createElement("dt");
+  const description = document.createElement("dd");
+  term.textContent = label;
+  description.textContent = value;
+  wrapper.append(term, description);
+  parent.appendChild(wrapper);
+}
+
+function buildDateTimeDetail(evt) {
+  const date = formatDate(evt.eventDate);
+  const time = formatTimeRange(evt.startTime, evt.endTime);
+  return [date, time].filter(Boolean).join(" / ");
+}
+
+function buildVenueDetail(evt, venue) {
+  if (!venue) {
+    return evt.locationAddress || "会場情報は確定次第ご案内します。";
+  }
+  return [venue.name, venue.area, venue.address, venue.accessNote].filter(Boolean).join(" / ");
+}
+
+function buildRainDetail(evt, rainVenue) {
+  if (evt.isRainCanceled === true) return "雨天時は中止します。";
+  if (rainVenue) {
+    return [rainVenue.name, rainVenue.area, rainVenue.address, rainVenue.accessNote].filter(Boolean).join(" / ");
+  }
+  return "雨天時の対応は決まり次第ご案内します。";
+}
+
+function formatTimeRange(startTime, endTime) {
+  if (startTime && endTime) return `${startTime} - ${endTime}`;
+  if (startTime) return `${startTime}開始`;
+  if (endTime) return `${endTime}終了`;
+  return "";
 }
 
 function readContactPrefill() {

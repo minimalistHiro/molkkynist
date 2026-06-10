@@ -220,6 +220,7 @@ updatedAt
 id
 name
 role
+occupation
 image
 visualVariant
 startedReason
@@ -357,13 +358,15 @@ Firebase コンソールで本番プロジェクトを作成したら、`js/fire
 - エントリポイント: `functions/index.js`
 - リージョン: `asia-northeast1`
 - トリガー: `contactSubmissions/{submissionId}` の `onDocumentCreated`
-- 役割: 送信者宛の自動返信メールを Gmail SMTP（`nodemailer`）で直接送信し、送信状態を `mail` コレクションへ Admin SDK 経由で記録する
+- 役割: 送信者宛の自動返信メールと運営者宛の新規問い合わせ通知メールを Gmail SMTP（`nodemailer`）で直接送信し、送信状態を `mail` コレクションへ Admin SDK 経由で記録する
 - callable: `getMailDeliveryStates`
   - 管理画面のお問い合わせ管理から呼び出し
   - `contactSubmissions/{id}` に紐づく `mail.delivery.state` を返す
   - 管理者判定は Functions 環境変数 `ADMIN_UIDS`（カンマ区切り）または互換用 `ADMIN_UID` と `request.auth.uid` の一致で行う
 
-メール本文（テキスト/HTML）と件名は `functions/index.js` 内で生成しており、文面方針は `CONTENT_GUIDELINES.md`「自動返信メール文面」に記載しています。参加希望の場合は通常のお問い合わせ文面とは分岐し、`events` の開催日・時間・参加費・雨天時対応と、`venueId` から参照した `venues` の会場名・住所・GoogleマップURL・アクセス補足・備考を自動返信メールへ差し込みます。
+メール本文（テキスト/HTML）と件名は `functions/index.js` 内で生成しており、文面方針は `CONTENT_GUIDELINES.md`「自動返信メール文面」に記載しています。参加希望の場合は通常のお問い合わせ文面とは分岐し、`events` の開催日・時間・参加費・雨天時対応と、`venueId` から参照した `venues` の会場名・住所・GoogleマップURL・アクセス補足・備考を自動返信メールと運営者宛通知メールへ差し込みます。
+
+2026年6月10日に、フォーム送信時の運営者宛通知メールを追加しました。通知先は `ADMIN_NOTIFICATION_EMAIL` 環境変数で上書きでき、未設定時は `REPLY_TO_EMAIL`（初期値 `molkkynist@gmail.com`）を使用します。運営者宛通知メールの `Reply-To` はフォーム入力者のメールアドレスにするため、石井さんが通知メールへそのまま返信すると送信者へ返信できます。`mail` コレクションには `type: "autoReply"` と `type: "adminNotification"` を分けて記録します。
 
 ### SMTP Secret
 
@@ -378,7 +381,7 @@ Functions Secret として下記を設定します。
 - `SMTP_FROM`: `Molkkynist <molkkynist@gmail.com>`
 - `SMTP_SECURE`: `false`
 
-返信先は `REPLY_TO_EMAIL` 環境変数で上書きできます。未設定時は `molkkynist@gmail.com` を使います。
+返信先は `REPLY_TO_EMAIL` 環境変数で上書きできます。未設定時は `molkkynist@gmail.com` を使います。運営者宛通知先は `ADMIN_NOTIFICATION_EMAIL` 環境変数で上書きできます。未設定時は `REPLY_TO_EMAIL` と同じ宛先を使います。
 
 2026-06-05 時点で `SMTP_HOST=smtp.gmail.com`、`SMTP_PORT=587`、`SMTP_USER=molkkynist@gmail.com`、`SMTP_PASS`、`SMTP_FROM=Molkkynist <molkkynist@gmail.com>`、`SMTP_SECURE=false` は Firebase Secret に設定済みです。
 
@@ -410,7 +413,7 @@ Functions Secret として下記を設定します。
 - Firestore Rules / Indexes: デプロイ済み
 - Cloud Functions: `asia-northeast1` にデプロイ済み（`sendAutoReplyOnContactCreate` / `getMailDeliveryStates`）
 - Firebase Authentication: あなたのUIDは管理者として先行反映済み。2026-06-05 D-8 で本番管理画面ログイン、イベント管理、お問い合わせ管理の先行確認済み。石井さん用ユーザー作成と石井さんUIDの追加が未完了
-- 自動返信メール: 2026-05-22 に Gmail SMTP 直送方式へ変更済み。2026-06-05 に送信用メールを `molkkynist@gmail.com` に確定し、`SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM` / `SMTP_SECURE` を設定済み。テスト送信も成功確認済み。`mail` コレクションへの送信状態記録に必要なFirestore権限は B-1 で対応済み。D-8 の新規テストお問い合わせ `d8-test-20260605160454` では `mail.delivery.state=SUCCESS` と管理画面の「送信済み」表示を確認済み。
+- 自動返信メール / 運営者宛通知メール: 2026-05-22 に Gmail SMTP 直送方式へ変更済み。2026-06-05 に送信用メールを `molkkynist@gmail.com` に確定し、`SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM` / `SMTP_SECURE` を設定済み。2026-06-10 に、フォーム入力者宛の受付完了メールに加えて、`molkkynist@gmail.com` 宛の運営者通知メールを送る構成へ更新。`mail` コレクションへの送信状態記録に必要なFirestore権限は B-1 で対応済み。D-8 の新規テストお問い合わせ `d8-test-20260605160454` では `mail.delivery.state=SUCCESS` と管理画面の「送信済み」表示を確認済み。
 - Cloud Run Invoker: 2026-06-05 D-8 で、Callable Function `getMailDeliveryStates` の Cloud Run サービス `getmaildeliverystates` へ `allUsers` の `roles/run.invoker` を付与済み。関数内部でFirebase管理者UID判定を行う。
 - Firebase Storage: 2026-06-07 にお知らせ / 開催場所画像アップロード用のクライアント実装と `storage.rules` を追加。ただし Firebase Storage はプロジェクトで未セットアップのため、Storage Rules のデプロイは未実施。活動レポート画像は `admin/reports.html` 実装時に同じ共通ルールで対応する。メンバー画像はローカルアセット管理へ移行済み。
 

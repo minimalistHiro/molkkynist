@@ -2625,6 +2625,91 @@ dd {
   margin-top: 12px;
 }
 
+.contact-event-detail {
+  margin-top: 14px;
+}
+
+.contact-event-detail[hidden] {
+  display: none;
+}
+
+.contact-event-detail__card {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.42fr) minmax(0, 1fr);
+  gap: 16px;
+  padding: 14px;
+  border: 1px solid rgba(var(--color-grass-rgb), 0.18);
+  border-radius: var(--radius-md);
+  background: rgba(250, 250, 245, 0.76);
+}
+
+.contact-event-detail__visual {
+  display: grid;
+  min-height: 132px;
+  place-items: center;
+  overflow: hidden;
+  border-radius: calc(var(--radius-md) - 4px);
+  background: rgba(190, 202, 185, 0.28);
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.contact-event-detail__visual img {
+  width: 100%;
+  height: 100%;
+  min-height: 132px;
+  object-fit: cover;
+}
+
+.contact-event-detail__body {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-width: 0;
+}
+
+.contact-event-detail__label {
+  width: fit-content;
+  margin: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(221, 237, 73, 0.32);
+  color: var(--color-grass);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.contact-event-detail__body h3 {
+  margin: 0;
+  font-size: 1.08rem;
+}
+
+.contact-event-detail__list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.contact-event-detail__list div {
+  display: grid;
+  gap: 3px;
+}
+
+.contact-event-detail__list dt {
+  color: var(--color-wood);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.contact-event-detail__list dd {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
 .form-help,
 .form-events__loading,
 .form-events__empty {
@@ -2844,6 +2929,44 @@ dd {
 .admin-checkbox {
   align-self: end;
   min-height: 50px;
+}
+
+.admin-rain-field {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+}
+
+.admin-rain-field legend {
+  padding: 0;
+}
+
+.admin-rain-venue-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.admin-rain-venue-toggle {
+  min-height: 50px;
+}
+
+.admin-rain-venue-toggle span {
+  min-width: 0;
+}
+
+.admin-rain-venue-list.is-disabled .admin-rain-venue-toggle {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.admin-rain-venue-list.is-disabled .admin-rain-venue-toggle:has(input:checked) {
+  border-color: rgba(117, 88, 77, 0.24);
+  background: rgba(255, 255, 255, 0.78);
+  color: inherit;
+}
+
+.admin-rain-cancel {
+  width: fit-content;
+  margin-top: 2px;
 }
 
 .admin-actions {
@@ -3669,6 +3792,15 @@ dd {
     grid-template-columns: 1fr;
   }
 
+  .contact-event-detail__card {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-event-detail__visual,
+  .contact-event-detail__visual img {
+    min-height: 180px;
+  }
+
   .section-heading--with-link,
   .admin-header,
   .cta-band__inner {
@@ -3678,6 +3810,10 @@ dd {
 
   .admin-layout,
   .admin-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-rain-venue-list {
     grid-template-columns: 1fr;
   }
 

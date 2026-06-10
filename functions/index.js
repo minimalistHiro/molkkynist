@@ -3,6 +3,7 @@
 // 役割:
 // - `contactSubmissions` への新規ドキュメント作成をトリガーに、
 //   送信者宛の自動返信メールを SMTP 経由で送信する。
+// - 運営者宛に新規お問い合わせ通知メールを SMTP 経由で送信する。
 // - 送信状態は `mail` コレクションに記録し、管理画面から Cloud Functions 経由で確認する。
 //
 // 設計メモ:
@@ -32,6 +33,7 @@ setGlobalOptions({
 // ---------------------------------------------------------------------------
 // REPLY_TO_EMAIL は管理者宛の窓口アドレス。
 // 自動返信メールへの返信がここに届くようにする。
+// ADMIN_NOTIFICATION_EMAIL は新規お問い合わせ通知の送信先。
 // 送信元アドレス（From）は Functions Secret `SMTP_FROM` で設定する。
 const SMTP_HOST = defineSecret("SMTP_HOST");
 const SMTP_PORT = defineSecret("SMTP_PORT");
@@ -41,8 +43,11 @@ const SMTP_FROM = defineSecret("SMTP_FROM");
 const SMTP_SECURE = defineSecret("SMTP_SECURE");
 
 const REPLY_TO_EMAIL = process.env.REPLY_TO_EMAIL || "molkkynist@gmail.com";
+const ADMIN_NOTIFICATION_EMAIL = process.env.ADMIN_NOTIFICATION_EMAIL || REPLY_TO_EMAIL;
 const INSTAGRAM_DM_URL = "https://www.instagram.com/molkkynist?igsh=MXYyZGVycGxtajh3aA==";
 const SITE_URL = "https://molkkynist-a0abd.web.app/";
+const ADMIN_CONTACT_URL = `${SITE_URL}admin/contact-submissions.html`;
+const ADMIN_PARTICIPANTS_URL = `${SITE_URL}admin/event-participants.html`;
 const DEFAULT_ADMIN_UIDS = [
   "PvM8qIBG1ETC2Y7qM3PFj1i2ASk2",
   "hvb1k4YC0ma98YsdlKU8DCEcqa63",
@@ -86,36 +91,13 @@ exports.sendAutoReplyOnContactCreate = onDocumentCreated(
     const name = (submission.name ?? "").trim() || "お問い合わせいただいた方";
     const inquiryType = submission.inquiryType ?? "other";
     const inquiryLabel = INQUIRY_TYPE_LABELS[inquiryType] ?? "お問い合わせ";
+    const phone = (submission.phone ?? "").trim();
     const message = (submission.message ?? "").trim();
     const isParticipation = inquiryType === "participate";
     const eventDetails = await buildSelectedEventDetails(submission);
-
-    const subject = isParticipation
-      ? "【Molkkynist】参加希望を受け付けました"
-      : "【Molkkynist】お問い合わせを受け付けました";
-    const text = isParticipation
-      ? renderParticipationTextBody({ name, eventDetails, message })
-      : renderTextBody({ name, inquiryLabel, scheduleLines: [], message });
-    const html = isParticipation
-      ? renderParticipationHtmlBody({ name, eventDetails, message })
-      : renderHtmlBody({ name, inquiryLabel, scheduleLines: [], message });
     const db = getFirestore();
-    const mailRef = db.collection("mail").doc();
 
     try {
-      await safeMailSet(mailRef, {
-        to: email,
-        replyTo: REPLY_TO_EMAIL,
-        message: { subject, text, html },
-        submissionRef: snap.ref.path,
-        createdAt: FieldValue.serverTimestamp(),
-        delivery: {
-          state: "PROCESSING",
-          startTime: FieldValue.serverTimestamp(),
-          error: "",
-        },
-      });
-
       const smtpConfig = getSmtpConfig();
       const transporter = nodemailer.createTransport({
         host: smtpConfig.host,
@@ -123,51 +105,56 @@ exports.sendAutoReplyOnContactCreate = onDocumentCreated(
         secure: smtpConfig.secure,
         auth: smtpConfig.auth,
       });
+      const submissionRef = snap.ref.path;
+      const autoReplyMessage = buildAutoReplyMessage({
+        name,
+        inquiryLabel,
+        message,
+        isParticipation,
+        eventDetails,
+      });
+      const adminNotificationMessage = buildAdminNotificationMessage({
+        name,
+        email,
+        phone,
+        inquiryLabel,
+        message,
+        isParticipation,
+        eventDetails,
+        createdAt: submission.createdAt,
+      });
 
-      const result = await transporter.sendMail({
-        from: smtpConfig.from,
+      await sendTrackedMail({
+        db,
+        transporter,
+        smtpConfig,
+        type: "autoReply",
+        logLabel: "autoReply",
+        submissionId: event.params.submissionId,
+        submissionRef,
         to: email,
         replyTo: REPLY_TO_EMAIL,
-        subject,
-        text,
-        html,
+        ...autoReplyMessage,
       });
 
-      await safeMailUpdate(mailRef, {
-        "delivery.state": "SUCCESS",
-        "delivery.endTime": FieldValue.serverTimestamp(),
-        "delivery.messageId": result.messageId || "",
-        "delivery.error": "",
-      });
-
-      logger.info("[autoReply] 自動返信メールを送信", {
+      await sendTrackedMail({
+        db,
+        transporter,
+        smtpConfig,
+        type: "adminNotification",
+        logLabel: "adminNotification",
         submissionId: event.params.submissionId,
-        to: email,
-        messageId: result.messageId,
+        submissionRef,
+        to: ADMIN_NOTIFICATION_EMAIL,
+        replyTo: email,
+        ...adminNotificationMessage,
       });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
-      logger.error("[autoReply] 自動返信メールの送信に失敗", {
+      logger.error("[contactMail] メール送信処理の初期化に失敗", {
         submissionId: event.params.submissionId,
-        to: email,
         error: errorMessage,
       });
-      await safeMailSet(
-        mailRef,
-        {
-          to: email,
-          replyTo: REPLY_TO_EMAIL,
-          message: { subject, text, html },
-          submissionRef: snap.ref.path,
-          createdAt: FieldValue.serverTimestamp(),
-          delivery: {
-            state: "ERROR",
-            endTime: FieldValue.serverTimestamp(),
-            error: errorMessage,
-          },
-        },
-        { merge: true }
-      );
     }
   }
 );
@@ -190,7 +177,6 @@ exports.getMailDeliveryStates = onCall(async (request) => {
       const snapshot = await db
         .collection("mail")
         .where("submissionRef", "==", submissionRef)
-        .limit(1)
         .get();
 
       if (snapshot.empty) {
@@ -205,13 +191,19 @@ exports.getMailDeliveryStates = onCall(async (request) => {
       }
 
       const mail = snapshot.docs[0].data() ?? {};
-      const delivery = mail.delivery ?? {};
+      const autoReplyMail =
+        snapshot.docs
+          .map((doc) => doc.data() ?? {})
+          .find((item) => item.type === "autoReply" || !item.type) ?? mail;
+      const delivery = autoReplyMail.delivery ?? {};
       return [
         submissionId,
         {
           state: delivery.state || "PROCESSING",
           error: delivery.error || delivery.errorMessage || "",
-          updatedAt: formatCallableDate(delivery.endTime || delivery.updateTime || mail.createdAt),
+          updatedAt: formatCallableDate(
+            delivery.endTime || delivery.updateTime || autoReplyMail.createdAt
+          ),
         },
       ];
     })
@@ -223,6 +215,138 @@ exports.getMailDeliveryStates = onCall(async (request) => {
 // ---------------------------------------------------------------------------
 // 補助関数
 // ---------------------------------------------------------------------------
+
+function buildAutoReplyMessage({ name, inquiryLabel, message, isParticipation, eventDetails }) {
+  const subject = isParticipation
+    ? "【Molkkynist】参加希望を受け付けました"
+    : "【Molkkynist】お問い合わせを受け付けました";
+  const text = isParticipation
+    ? renderParticipationTextBody({ name, eventDetails, message })
+    : renderTextBody({ name, inquiryLabel, scheduleLines: [], message });
+  const html = isParticipation
+    ? renderParticipationHtmlBody({ name, eventDetails, message })
+    : renderHtmlBody({ name, inquiryLabel, scheduleLines: [], message });
+
+  return { subject, text, html };
+}
+
+function buildAdminNotificationMessage({
+  name,
+  email,
+  phone,
+  inquiryLabel,
+  message,
+  isParticipation,
+  eventDetails,
+  createdAt,
+}) {
+  const subject = isParticipation
+    ? "【Molkkynist】新しい参加希望が届きました"
+    : "【Molkkynist】新しいお問い合わせが届きました";
+  const text = renderAdminNotificationTextBody({
+    name,
+    email,
+    phone,
+    inquiryLabel,
+    message,
+    isParticipation,
+    eventDetails,
+    createdAt,
+  });
+  const html = renderAdminNotificationHtmlBody({
+    name,
+    email,
+    phone,
+    inquiryLabel,
+    message,
+    isParticipation,
+    eventDetails,
+    createdAt,
+  });
+
+  return { subject, text, html };
+}
+
+async function sendTrackedMail({
+  db,
+  transporter,
+  smtpConfig,
+  type,
+  logLabel,
+  submissionId,
+  submissionRef,
+  to,
+  replyTo,
+  subject,
+  text,
+  html,
+}) {
+  const mailRef = db.collection("mail").doc();
+
+  try {
+    await safeMailSet(mailRef, {
+      type,
+      to,
+      replyTo,
+      message: { subject, text, html },
+      submissionRef,
+      createdAt: FieldValue.serverTimestamp(),
+      delivery: {
+        state: "PROCESSING",
+        startTime: FieldValue.serverTimestamp(),
+        error: "",
+      },
+    });
+
+    const result = await transporter.sendMail({
+      from: smtpConfig.from,
+      to,
+      replyTo,
+      subject,
+      text,
+      html,
+    });
+
+    await safeMailUpdate(mailRef, {
+      "delivery.state": "SUCCESS",
+      "delivery.endTime": FieldValue.serverTimestamp(),
+      "delivery.messageId": result.messageId || "",
+      "delivery.error": "",
+    });
+
+    logger.info(`[${logLabel}] メールを送信`, {
+      submissionId,
+      to,
+      type,
+      messageId: result.messageId,
+    });
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    logger.error(`[${logLabel}] メール送信に失敗`, {
+      submissionId,
+      to,
+      type,
+      error: errorMessage,
+    });
+    await safeMailSet(
+      mailRef,
+      {
+        type,
+        to,
+        replyTo,
+        message: { subject, text, html },
+        submissionRef,
+        createdAt: FieldValue.serverTimestamp(),
+        delivery: {
+          state: "ERROR",
+          endTime: FieldValue.serverTimestamp(),
+          error: errorMessage,
+        },
+      },
+      { merge: true }
+    );
+  }
+}
 
 async function buildSelectedEventDetails(submission) {
   if (submission.inquiryType !== "participate") return [];
@@ -571,6 +695,146 @@ function renderParticipationHtmlBody({ name, eventDetails, message }) {
     </p>
   </body>
 </html>`;
+}
+
+function renderAdminNotificationTextBody({
+  name,
+  email,
+  phone,
+  inquiryLabel,
+  message,
+  isParticipation,
+  eventDetails,
+  createdAt,
+}) {
+  const eventBlock = isParticipation
+    ? `\n■ 参加希望日程\n${renderAdminEventTextBlock(eventDetails)}\n`
+    : "";
+  const messageBlock = message
+    ? `\n■ お問い合わせ内容\n${message}\n`
+    : "\n■ お問い合わせ内容\n（本文の記載はありませんでした）\n";
+  const adminUrl = isParticipation ? ADMIN_PARTICIPANTS_URL : ADMIN_CONTACT_URL;
+  const submitDate = formatSubmissionDate(createdAt);
+
+  return `新しい${isParticipation ? "参加希望" : "お問い合わせ"}が届きました。
+
+■ お名前
+${name}
+
+■ メールアドレス
+${email}
+
+■ 電話番号
+${phone || "未入力"}
+
+■ お問い合わせ区分
+${inquiryLabel}
+${eventBlock}${messageBlock}
+■ 送信日時
+${submitDate}
+
+■ 管理画面
+${adminUrl}
+
+この通知メールに返信すると、フォーム入力者のメールアドレス宛に返信できます。
+`;
+}
+
+function renderAdminNotificationHtmlBody({
+  name,
+  email,
+  phone,
+  inquiryLabel,
+  message,
+  isParticipation,
+  eventDetails,
+  createdAt,
+}) {
+  const adminUrl = isParticipation ? ADMIN_PARTICIPANTS_URL : ADMIN_CONTACT_URL;
+  const messageHtml = message
+    ? `<pre style="background:#f6f7f5;padding:12px 14px;border-radius:6px;white-space:pre-wrap;font-family:inherit;font-size:14px;margin:0;">${escapeHtml(
+        message
+      )}</pre>`
+    : `<p style="color:#666;margin:0;">（本文の記載はありませんでした）</p>`;
+  const eventHtml = isParticipation
+    ? `
+    <h3 style="margin:24px 0 8px;border-left:4px solid #3f9d52;padding-left:10px;font-size:15px;">参加希望日程</h3>
+    ${renderAdminEventHtmlBlock(eventDetails)}`
+    : "";
+
+  return `<!DOCTYPE html>
+<html lang="ja">
+  <body style="font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sans-serif;line-height:1.8;color:#222;max-width:640px;margin:0 auto;padding:24px;">
+    <p>新しい${isParticipation ? "参加希望" : "お問い合わせ"}が届きました。</p>
+    <table role="presentation" style="width:100%;border-collapse:collapse;margin:18px 0;">
+      <tbody>
+        ${renderAdminInfoRow("お名前", name)}
+        ${renderAdminInfoRow("メールアドレス", email)}
+        ${renderAdminInfoRow("電話番号", phone || "未入力")}
+        ${renderAdminInfoRow("お問い合わせ区分", inquiryLabel)}
+        ${renderAdminInfoRow("送信日時", formatSubmissionDate(createdAt))}
+      </tbody>
+    </table>
+    ${eventHtml}
+    <h3 style="margin:24px 0 8px;border-left:4px solid #3f9d52;padding-left:10px;font-size:15px;">お問い合わせ内容</h3>
+    ${messageHtml}
+    <p style="margin:24px 0 0;">
+      管理画面: <a href="${escapeHtml(adminUrl)}">${escapeHtml(adminUrl)}</a>
+    </p>
+    <p style="font-size:12.5px;color:#666;margin-top:24px;">
+      この通知メールに返信すると、フォーム入力者のメールアドレス宛に返信できます。
+    </p>
+  </body>
+</html>`;
+}
+
+function renderAdminEventTextBlock(eventDetails) {
+  if (eventDetails.length === 0) {
+    return "（選択されたイベント情報を確認中です。管理画面で送信内容を確認してください。）";
+  }
+
+  return eventDetails
+    .map((eventItem, index) => formatParticipationEventText(eventItem, index, eventDetails.length))
+    .join("\n\n");
+}
+
+function renderAdminEventHtmlBlock(eventDetails) {
+  if (eventDetails.length === 0) {
+    return `<p style="margin:0;color:#666;">（選択されたイベント情報を確認中です。管理画面で送信内容を確認してください。）</p>`;
+  }
+
+  return eventDetails
+    .map((eventItem, index) => formatParticipationEventHtml(eventItem, index, eventDetails.length))
+    .join("");
+}
+
+function renderAdminInfoRow(label, value) {
+  return `
+        <tr>
+          <th style="width:34%;text-align:left;vertical-align:top;padding:8px 10px;background:#f6f7f5;border-bottom:1px solid #e7e9e4;font-size:13px;">${escapeHtml(
+            label
+          )}</th>
+          <td style="padding:8px 10px;border-bottom:1px solid #e7e9e4;font-size:13px;">${escapeHtml(
+            value
+          )}</td>
+        </tr>`;
+}
+
+function formatSubmissionDate(value) {
+  try {
+    const date = typeof value?.toDate === "function" ? value.toDate() : new Date(value);
+    if (Number.isNaN(date.getTime())) return "日時未取得";
+    return new Intl.DateTimeFormat("ja-JP", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: "Asia/Tokyo",
+    }).format(date);
+  } catch (_err) {
+    return "日時未取得";
+  }
 }
 
 function formatParticipationEventText(eventItem, index, total) {

@@ -63,11 +63,18 @@
               <span class="form-label">参加費</span>
               <input id="event-fee" name="fee" type="text" placeholder="例: 500円">
             </label>
-            <label for="event-rain-policy">
-              <span class="form-label">雨天時の対応</span>
-              <input id="event-rain-policy" name="rainPolicy" type="text" placeholder="例: 前日夜にInstagramで案内">
-            </label>
           </div>
+          <fieldset class="form-events admin-rain-field" data-admin-rain-field>
+            <legend class="form-label">雨天時の対応</legend>
+            <p class="form-help">雨天時に別会場で開催する場合は、開催場所を1つ選択してください。</p>
+            <div class="event-toggle-list admin-rain-venue-list" data-admin-rain-venue-list>
+              <p class="form-events__loading">開催場所を読み込んでいます…</p>
+            </div>
+            <label class="checkbox-line admin-rain-cancel">
+              <input id="event-rain-canceled" name="isRainCanceled" type="checkbox" value="true" data-admin-rain-cancel>
+              <span>中止する</span>
+            </label>
+          </fieldset>
           <label for="event-status">
             <span class="form-label">状態</span>
             <select id="event-status" name="status">

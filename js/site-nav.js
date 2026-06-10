@@ -43,7 +43,7 @@
     [
       ["X（仮リンク）", "assets/images/social/x.svg", "#", false],
       ["Instagram", "assets/images/social/instagram.svg", "https://www.instagram.com/molkkynist?igsh=MXYyZGVycGxtajh3aA==", true],
-      ["LINE（仮リンク）", "assets/images/social/line.svg", "#", false],
+      ["LINE公式アカウント", "assets/images/social/line.svg", "https://line.me/R/ti/p/@274jloxx", true],
     ].forEach(([label, src, href, isExternal]) => {
       const link = document.createElement("a");
       link.className = "social-link";

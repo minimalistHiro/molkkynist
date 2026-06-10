@@ -160,10 +160,6 @@ function participantAccordionHtml(participant) {
           <dt>申込日時</dt>
           <dd>${escapeHtml(formatDateTime(participant.createdAt))}</dd>
         </div>
-        <div>
-          <dt>対応ステータス</dt>
-          <dd>${escapeHtml(responseStatusLabel(participant.responseStatus))}</dd>
-        </div>
       </dl>
     </details>
   `;
@@ -209,7 +205,6 @@ function normalizeSubmission(id, data = {}) {
     email: stringValue(data.email),
     phone: stringValue(data.phone),
     message: stringValue(data.message),
-    responseStatus: stringValue(data.responseStatus),
     selectedEventIds,
     createdAt: data.createdAt,
   };
@@ -274,15 +269,6 @@ function formatTimeRange(startTime, endTime) {
   if (startTime) return `${startTime}開始`;
   if (endTime) return `${endTime}終了`;
   return "";
-}
-
-function responseStatusLabel(value) {
-  const labels = {
-    unhandled: "未対応",
-    in_progress: "対応中",
-    done: "対応済み",
-  };
-  return labels[value] || "未対応";
 }
 
 function stringValue(value) {

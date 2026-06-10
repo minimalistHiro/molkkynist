@@ -18,7 +18,7 @@
 | ID | 区分 | 対象 | 内容 | 備考 |
 |----|------|------|------|------|
 | D-17 | 独自対応 | 管理画面 / Firestore | お問い合わせ管理の表示対象を参加希望以外に整理 | `admin/contact-submissions.html` / `js/admin-contact-submissions.js` で、`contactSubmissions.inquiryType == "participate"` の参加希望を非表示にし、参加希望以外のお問い合わせのみを一覧・詳細表示する構成へ変更。参加希望は既存の `admin/event-participants.html` / `admin/event-participants-detail.html` でイベントごとに確認する運用として、関連Markdownを同期。 |
-| D-16 | 独自対応 | 管理画面 / Firestore | イベント参加者一覧管理画面を追加 | 新規 `admin/event-participants.html` / `js/admin-event-participants.js` では、開催予定イベントをカード形式で表示し、`contactSubmissions` の参加希望データからイベント別の参加人数を表示する。追加で `admin/event-participants-detail.html` / `js/admin-event-participants-detail.js` を作成し、イベントカードから詳細ページへ遷移して、参加者名のみの一覧と、くの字型ボタンで開閉できる詳細（メール・電話・一言・申込日時・対応ステータス）を表示する構成にした。管理ダッシュボードと各管理画面ナビゲーションにも「イベント参加者一覧」導線を追加し、`css/styles.css` に専用レイアウトを追加。 |
+| D-16 | 独自対応 | 管理画面 / Firestore | イベント参加者一覧管理画面を追加 | 新規 `admin/event-participants.html` / `js/admin-event-participants.js` では、開催予定イベントをカード形式で表示し、`contactSubmissions` の参加希望データからイベント別の参加人数を表示する。追加で `admin/event-participants-detail.html` / `js/admin-event-participants-detail.js` を作成し、イベントカードから詳細ページへ遷移して、参加者名のみの一覧と、くの字型ボタンで開閉できる詳細（メール・電話・一言・申込日時）を表示する構成にした。管理ダッシュボードと各管理画面ナビゲーションにも「イベント参加者一覧」導線を追加し、`css/styles.css` に専用レイアウトを追加。 |
 | D-15 | 独自対応 | HTML / JavaScript / CSS | お問い合わせフォーム送信完了ページを追加 | `contact-complete.html` を追加し、フォーム送信成功後に `js/contact-form.js` から遷移する構成へ変更。完了ページには送信完了、受付完了メール送信、3営業日以内を目安に返信する旨、公式Instagram DM補足を記載。`css/styles.css` に完了ページ用のカード・余白・ボタン配置スタイルを追加し、`SITE_STRUCTURE.md` / `CONTENT_GUIDELINES.md` / 実装設計書を同期。 |
 
 ---

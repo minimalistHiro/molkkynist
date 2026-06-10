@@ -8,6 +8,7 @@ const APP_MODULE_URL = `https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSIO
 const FIRESTORE_MODULE_URL = `https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}/firebase-firestore.js`;
 
 const detailEl = document.querySelector('[data-role="complete-event-detail"]');
+const completeTitleEl = document.querySelector("#contact-complete-title");
 
 if (detailEl) {
   initCompleteEventDetail().catch((error) => {
@@ -18,6 +19,9 @@ if (detailEl) {
 
 async function initCompleteEventDetail() {
   const eventId = readSubmittedEventId();
+  if (eventId) {
+    setReservationCompleteTitle();
+  }
   if (!eventId || !isFirebaseConfigured(firebaseConfig)) return;
 
   const { initializeApp } = await import(APP_MODULE_URL);
@@ -202,4 +206,11 @@ function formatDate(value) {
 function readSubmittedEventId() {
   const params = new URLSearchParams(window.location.search);
   return (params.get("eventId") || "").trim();
+}
+
+function setReservationCompleteTitle() {
+  if (completeTitleEl) {
+    completeTitleEl.textContent = "予約を受け付けました";
+  }
+  document.title = "予約を受け付けました | Molkkynist";
 }

@@ -3,6 +3,7 @@
 
 import {
   MEMBER_ITEMS,
+  getPublishedMembers,
   normalizeMemberItem,
 } from "./member-data.js";
 
@@ -32,6 +33,7 @@ async function initMemberDetail() {
   }
 
   render(item);
+  renderRelatedMembers(item.id);
 }
 
 function getId() {
@@ -64,7 +66,9 @@ function render(item) {
       hasProfileItem = true;
     });
     if (item.comment) {
-      profileList.appendChild(createProfileItem("ひとことコメント", item.comment, "member-detail__profile-item--comment"));
+      profileList.appendChild(
+        createProfileItem("ひとことコメント", item.comment, "member-detail__profile-item--comment"),
+      );
       hasProfileItem = true;
     }
     if (hasProfileItem) {
@@ -89,6 +93,95 @@ function createProfileItem(label, text, modifierClass = "") {
   itemEl.appendChild(textEl);
 
   return itemEl;
+}
+
+function renderRelatedMembers(currentId) {
+  const sectionEl = document.querySelector("[data-related-members]");
+  const trackEl = document.querySelector("[data-related-member-track]");
+  if (!sectionEl || !trackEl) return;
+
+  const items = shuffleMembers(getPublishedMembers().filter((member) => member.id !== currentId));
+  if (!items.length) {
+    sectionEl.hidden = true;
+    trackEl.innerHTML = "";
+    return;
+  }
+
+  trackEl.innerHTML = "";
+  trackEl.appendChild(createRelatedMemberGroup(items));
+  trackEl.appendChild(createRelatedMemberGroup(items, true));
+  sectionEl.hidden = false;
+}
+
+function createRelatedMemberGroup(items, isClone = false) {
+  const list = document.createElement("ul");
+  list.className = "member-related__group";
+  if (isClone) {
+    list.setAttribute("aria-hidden", "true");
+  }
+
+  items.forEach((item) => {
+    const listItem = document.createElement("li");
+    listItem.className = "member-related__item";
+
+    const link = document.createElement("a");
+    link.className = "member-related-card";
+    link.href = `member.html?id=${encodeURIComponent(item.id)}`;
+    if (isClone) {
+      link.tabIndex = -1;
+    }
+    link.appendChild(createRelatedMemberVisual(item));
+    link.appendChild(createRelatedMemberBody(item));
+
+    listItem.appendChild(link);
+    list.appendChild(listItem);
+  });
+
+  return list;
+}
+
+function createRelatedMemberVisual(item) {
+  const visual = document.createElement("div");
+  visual.className = relatedMemberVisualClassName(item);
+  visual.setAttribute("aria-hidden", "true");
+
+  if (item.image) {
+    const image = document.createElement("img");
+    image.src = item.image;
+    image.alt = "";
+    image.loading = "lazy";
+    image.decoding = "async";
+    visual.appendChild(image);
+  }
+
+  return visual;
+}
+
+function createRelatedMemberBody(item) {
+  const body = document.createElement("div");
+  body.className = "member-related-card__body";
+
+  const role = document.createElement("p");
+  role.className = "card-kicker";
+  role.textContent = item.role || "運営メンバー";
+  body.appendChild(role);
+
+  const name = document.createElement("h3");
+  name.textContent = item.name;
+  body.appendChild(name);
+
+  return body;
+}
+
+function relatedMemberVisualClassName(item) {
+  const classes = ["person-placeholder", "member-related-card__visual"];
+  if (item.visualVariant) classes.push(`person-placeholder--${item.visualVariant}`);
+  if (item.image) classes.push("person-placeholder--image");
+  return classes.join(" ");
+}
+
+function shuffleMembers(items) {
+  return [...items].sort(() => Math.random() - 0.5);
 }
 
 function renderVisual(visualEl, item) {
@@ -132,4 +225,5 @@ function renderNotFound() {
   if (titleTagEl) {
     titleTagEl.textContent = "メンバーが見つかりません | Molkkynist";
   }
+  renderRelatedMembers("");
 }

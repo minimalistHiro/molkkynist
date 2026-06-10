@@ -116,10 +116,13 @@ async function initContactForm(formEl) {
         message: formData.get("message")?.toString().trim() ?? "",
         createdAt: serverTimestamp(),
       });
+      const submittedEventId = inquiryType === "participate" ? selectedEventIds[0] || "" : "";
       formEl.reset();
       eventsField.hidden = true;
       renderSelectedEventDetail("");
-      window.location.href = "contact-complete.html";
+      window.location.href = submittedEventId
+        ? `contact-complete.html?eventId=${encodeURIComponent(submittedEventId)}`
+        : "contact-complete.html";
     } catch (error) {
       console.error("[contact-form] 送信エラー", error);
       showStatus(
@@ -280,6 +283,7 @@ function appendVenueDetailItem(parent, label, venue, fallbackAddress = "") {
   const wrapper = document.createElement("div");
   const term = document.createElement("dt");
   const description = document.createElement("dd");
+  description.className = "contact-event-detail__venue-lines";
   term.textContent = label;
 
   if (!venue) {
@@ -298,10 +302,8 @@ function appendVenueDetailItem(parent, label, venue, fallbackAddress = "") {
     return;
   }
 
-  appendTextPart(description, venue.name);
-  appendTextPart(description, venue.area);
   appendMapLinkPart(description, venue);
-  appendTextPart(description, venue.accessNote);
+  appendVenueLine(description, venue.accessNote);
   if (!description.childNodes.length) {
     description.textContent = "会場情報は確定次第ご案内します。";
   }
@@ -335,26 +337,21 @@ function formatTimeRange(startTime, endTime) {
   return "";
 }
 
-function appendTextPart(parent, value) {
+function appendVenueLine(parent, value) {
   if (!value) return;
-  appendSeparator(parent);
-  parent.appendChild(document.createTextNode(value));
+  const line = document.createElement("span");
+  line.textContent = value;
+  parent.appendChild(line);
 }
 
 function appendMapLinkPart(parent, venue) {
   if (!venue?.address) return;
-  appendSeparator(parent);
   const link = document.createElement("a");
   link.href = venue.mapUrl || buildGoogleMapsSearchUrl(venue);
   link.target = "_blank";
   link.rel = "noopener";
   link.textContent = venue.address;
   parent.appendChild(link);
-}
-
-function appendSeparator(parent) {
-  if (!parent.childNodes.length) return;
-  parent.appendChild(document.createTextNode(" / "));
 }
 
 function buildGoogleMapsSearchUrl(venue) {

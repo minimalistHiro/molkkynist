@@ -4439,17 +4439,31 @@ dd {
 }
 
 .member-related__viewport {
+  --member-related-gap: clamp(28px, 5vw, 56px);
   width: 100vw;
   max-width: 100vw;
   margin: clamp(26px, 5vw, 44px) calc(50% - 50vw) 0;
   overflow: hidden;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.member-related__viewport.is-dragging {
+  cursor: grabbing;
 }
 
 .member-related__track {
   display: flex;
+  gap: var(--member-related-gap);
   width: max-content;
-  animation: member-related-slide 34s linear infinite;
+  animation: member-related-slide var(--member-related-duration, 10s) linear infinite;
   will-change: transform;
+}
+
+.member-related__track.is-js-controlled {
+  animation: none;
+  transform: translate3d(var(--member-related-offset, 0px), 0, 0);
 }
 
 .member-related__viewport:hover .member-related__track,
@@ -4460,9 +4474,9 @@ dd {
 .member-related__group {
   display: flex;
   flex: 0 0 auto;
-  gap: clamp(28px, 5vw, 56px);
+  gap: var(--member-related-gap);
   margin: 0;
-  padding: 0 clamp(14px, 3vw, 28px);
+  padding: 0;
   list-style: none;
 }
 
@@ -4508,7 +4522,7 @@ dd {
   }
 
   to {
-    transform: translate3d(-50%, 0, 0);
+    transform: translate3d(var(--member-related-slide-distance, -50%), 0, 0);
   }
 }
 

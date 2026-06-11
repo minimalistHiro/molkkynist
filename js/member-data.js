@@ -16,6 +16,20 @@ export const MEMBER_ITEMS = {
     displayOrder: 10,
     isPublished: true,
   },
+  "ishizuka-ryoichi": {
+    id: "ishizuka-ryoichi",
+    name: "石塚涼一",
+    role: "共同運営",
+    occupation: "社会保険労務士",
+    image: "",
+    visualVariant: "",
+    startedReason: "アウトドアイベントで偶然モルックを見かけて、「これなら自分でも楽しめそうだな」と感じたのがきっかけです。実際にやってみたら、シンプルなのに奥が深くて、気づいたらどっぷりハマっていました！！",
+    favoriteThings: "卓球やフットサルをちょこちょこやっています。最近はなかなか見られていないのですが、アニメも大好きです！",
+    firstTimerMessage: "ルールを知らなくても大丈夫です！私自身、最初は「木を投げるだけ？」くらいの感覚で始めました。でも気づけばこうして運営側にいます…（笑）気軽な気持ちで来てもらえれば、あとは自然と楽しめます！！",
+    comment: "皆さんに「また来たい」と思ってもらえるモルック会を作りたいと思っています！",
+    displayOrder: 20,
+    isPublished: true,
+  },
 };
 
 export const MEMBER_LIST = sortMembers(

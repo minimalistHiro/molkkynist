@@ -399,7 +399,7 @@ Functions Secret として下記を設定します。
 - `firestore.rules` … 公開コレクション読み取り公開、`contactSubmissions` は create 限定（型・件数バリデーション付き）、`mail` は一般ユーザー全面禁止
 - `firestore.indexes.json` … `events` (`status` + `eventDate` asc)、`venues` (`isActive` + `displayOrder` asc)、`reports` (`isPublished` + `eventDate` desc) などの複合インデックス
 
-2026年6月7日に `storage.rules` を追加し、`firebase.json` に Storage Rules 参照を追加しました。`news/` / `venues/` / `reports/` 配下の画像は公開読み取り、作成・更新・削除は管理者UIDのみ許可します。メンバー画像はローカルアセット管理へ移行したため、Storage Rules の対象外です。
+2026年6月7日に `storage.rules` を追加し、`firebase.json` に Storage Rules 参照を追加しました。`news/` / `venues/` / `reports/` 配下の画像は公開読み取り、作成・更新・削除は管理者UIDのみ許可します。メンバー画像はローカルアセット管理へ移行したため、Storage Rules の対象外です。2026年6月25日に管理画面側の管理者UID一覧と `storage.rules` のUID一覧を同期し、Storage Rules を本番へデプロイ済みです。
 
 セキュリティルールの管理者UID配列には、あなたのUID `PvM8qIBG1ETC2Y7qM3PFj1i2ASk2` と `hvb1k4YC0ma98YsdlKU8DCEcqa63` を登録済みです。
 
@@ -416,7 +416,7 @@ Functions Secret として下記を設定します。
 - Firebase Authentication: あなたのUIDは管理者として先行反映済み。2026-06-05 D-8 で本番管理画面ログイン、イベント管理、お問い合わせ管理の先行確認済み。石井さん用ユーザー作成と石井さんUIDの追加が未完了
 - 自動返信メール / 運営者宛通知メール: 2026-05-22 に Gmail SMTP 直送方式へ変更済み。2026-06-05 に送信用メールを `molkkynist@gmail.com` に確定し、`SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM` / `SMTP_SECURE` を設定済み。2026-06-10 に、フォーム入力者宛の受付完了メールに加えて、`molkkynist@gmail.com` 宛の運営者通知メールを送る構成へ更新。`mail` コレクションへの送信状態記録に必要なFirestore権限は B-1 で対応済み。D-8 の新規テストお問い合わせ `d8-test-20260605160454` では `mail.delivery.state=SUCCESS` と管理画面の「送信済み」表示を確認済み。
 - Cloud Run Invoker: 2026-06-05 D-8 で、Callable Function `getMailDeliveryStates` の Cloud Run サービス `getmaildeliverystates` へ `allUsers` の `roles/run.invoker` を付与済み。関数内部でFirebase管理者UID判定を行う。
-- Firebase Storage: 2026-06-07 にお知らせ / 開催場所画像アップロード用のクライアント実装と `storage.rules` を追加。ただし Firebase Storage はプロジェクトで未セットアップのため、Storage Rules のデプロイは未実施。活動レポート画像は `admin/reports.html` 実装時に同じ共通ルールで対応する。メンバー画像はローカルアセット管理へ移行済み。
+- Firebase Storage: 2026-06-07 にお知らせ / 開催場所画像アップロード用のクライアント実装と `storage.rules` を追加。2026-06-25 に Storage Rules の管理者UIDを管理画面側と同期し、本番プロジェクト `molkkynist-a0abd` へデプロイ済み。活動レポート画像は `admin/reports.html` 実装時に同じ共通ルールで対応する。メンバー画像はローカルアセット管理へ移行済み。
 
 ## 初期段階での注意点
 

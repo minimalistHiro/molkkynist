@@ -166,7 +166,7 @@ Molkkynist のサイトは、最初から全機能を作り込まず、公開に
 - 2026年6月5日に D-8 として、本番管理画面の先行確認を実施。あなたのアカウントで `admin/events.html` と `admin/contact-submissions.html` にログインできること、イベント作成・編集・公開ON/OFF、問い合わせ一覧・詳細閲覧、自動返信メール送信状態の取得を確認済み。`getMailDeliveryStates` はブラウザから呼び出せるよう、Cloud Run サービス `getmaildeliverystates` に `allUsers` の `roles/run.invoker` を付与し、関数内部のFirebase管理者UID判定で制御する構成にした。確認用テストイベントは削除済み。
 - 2026年6月7日に開催場所管理 `admin/venues.html` と `js/admin-venues.js` を追加。イベント管理 `admin/events.html` は開催場所を `venues` から選択する形式へ変更し、イベントの公開判定は公開フラグではなく `status == "scheduled"` を基準にした。
 - 2026年6月8日にイベント参加者一覧 `admin/event-participants.html` と `js/admin-event-participants.js` を追加。`contactSubmissions.inquiryType == "participate"` と `selectedEventIds` をもとに、イベントカード単位で参加人数を表示する。同日の追加対応で `admin/event-participants-detail.html` と `js/admin-event-participants-detail.js` を追加し、詳細ページで参加者名のみを初期表示、開閉時にメールアドレス・電話番号・一言・申込日時を表示する。参加希望はお問い合わせ管理画面では非表示にし、イベント参加者一覧側で扱う。
-- 活動レポート管理、サイト基本設定は未実装。メンバー管理は 2026年6月7日に管理画面・Firestore方式を廃止し、ローカルデータ管理へ移行済み。お知らせ / 開催場所画像のStorageアップロードは2026年6月7日にローカル実装済みで、Storage Rules のデプロイと本番アップロード確認が残る。
+- 活動レポート管理、サイト基本設定は未実装。メンバー管理は 2026年6月7日に管理画面・Firestore方式を廃止し、ローカルデータ管理へ移行済み。お知らせ / 開催場所画像のStorageアップロードは2026年6月7日にローカル実装済みで、2026年6月25日に Storage Rules の管理者UID同期と本番デプロイを完了した。
 
 ## 第6段階: 公開前確認
 

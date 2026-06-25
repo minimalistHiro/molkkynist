@@ -13,7 +13,8 @@ service firebase.storage {
     function isAdmin() {
       return request.auth != null
         && request.auth.uid in [
-          'PvM8qIBG1ETC2Y7qM3PFj1i2ASk2'
+          'PvM8qIBG1ETC2Y7qM3PFj1i2ASk2',
+          'hvb1k4YC0ma98YsdlKU8DCEcqa63'
         ];
     }
 

@@ -30,6 +30,20 @@ export const MEMBER_ITEMS = {
     displayOrder: 20,
     isPublished: true,
   },
+  "saito-keisuke": {
+    id: "saito-keisuke",
+    name: "齋藤景介",
+    role: "共同運営",
+    occupation: "金融業",
+    image: "",
+    visualVariant: "",
+    startedReason: "お誘いでモルキニストに参加したことがきっかけです！",
+    favoriteThings: "野球、福山雅治",
+    firstTimerMessage: "誰でも楽しめるスポーツなのでお気軽にご参加ください！",
+    comment: "野球観戦やお酒を飲むのが大好きです！ぜひご一緒しましょう！",
+    displayOrder: 30,
+    isPublished: true,
+  },
 };
 
 export const MEMBER_LIST = sortMembers(

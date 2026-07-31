@@ -1185,6 +1185,7 @@ p {
 }
 
 .about-photo-collage__item {
+  position: relative;
   display: block;
   min-height: 0;
   overflow: hidden;
@@ -1194,6 +1195,15 @@ p {
     linear-gradient(135deg, rgba(255, 255, 255, 0.76), rgba(221, 237, 73, 0.18)),
     rgba(255, 255, 255, 0.48);
   box-shadow: var(--shadow-soft);
+}
+
+.about-photo-collage__item img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .about-photo-collage__item--large {
